@@ -5,10 +5,12 @@ import Link from "next/link";
 import { MessageBox } from "../components/message";
 import ndjsonStream from "can-ndjson-stream";
 import { Button } from "../components/button";
+import { ErrorMessage } from "../components/error";
+import { COMPUTING_LIMITATION_ERROR, LOGIN_EVENT, MSG_EVENT } from "../components/constant";
 
 export default function Home() {
     // Chat state list of chat item.
-    const [chats, setChat] = useState([]);
+    const [chats, setChats] = useState([]);
     // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
     // Loading State for Disable the chatting while getting the response.
@@ -16,6 +18,8 @@ export default function Home() {
     const [update, setUpdate] = useState(0);
     // Set error while responding.
     const [error, setError] = useState(false);
+
+    const [auth, setAuth] = useState(false)
 
     const {
         register,
@@ -26,15 +30,15 @@ export default function Home() {
     } = useForm();
 
     const onSubmit = (data) => {
-        setLoading(true);
         const prompt = data.prompt;
         setValue("prompt", "");
 
         const chat = {
-            mode: "user",
-            message: prompt,
+            talker: "user",
+            prompt: prompt,
+            event: MSG_EVENT
         };
-        return setChat([...chats, chat]);
+        return setChats([...chats, chat]);
     };
 
     // Disable return key event.
@@ -52,8 +56,8 @@ export default function Home() {
         }
     };
 
-    const PostGenerate = async (message) => {
-        const data = { req: message, model: "prod", stream: true, max_token: 120, context: [] };
+    const PostGenerate = async (prompt) => {
+        const data = { req: prompt, model: "prod", stream: true, max_token: 120, context: [] };
 
         // Timeout Detector
         const controller = new AbortController();
@@ -74,28 +78,44 @@ export default function Home() {
                         }
 
                         const chat = {
-                            mode: "computer",
-                            message: response.value.resp_full,
+                            talker: "computer",
+                            prompt: response.value.resp_full,
+                            event: MSG_EVENT
                         };
-                        setChat([..._chats, chat]);
+                        setChats([..._chats, chat]);
                     }
                 });
             })
             .catch((e) => {
-                setError(true);
+                setError(COMPUTING_LIMITATION_ERROR);
             });
     };
 
     const regenerate = () => {
-        const target_prompt = chats[chats.length - 2].message;
+        const target_prompt = chats[chats.length - 2].prompt;
         const data = { prompt: target_prompt };
         return handleSubmit(onSubmit(data));
     };
 
     useEffect(() => {
         if (chats.length == 0) return;
-        if (chats[chats.length - 1].mode == "user") {
-            const target_prompt = chats[chats.length - 1].message;
+
+        // Login Event Trigger
+        if (chats[chats.length - 1].talker == "user" && chats.length >= 1 && !auth) {
+            const _chats = chats
+
+            const login_request_data = {
+                talker: "computer",
+                prompt: "자모와 대화를 더 나누기 위해서 로그인을 해주세요.",
+                event: LOGIN_EVENT
+            }
+
+            return setChats([..._chats, login_request_data])
+        }
+
+        if (chats[chats.length - 1].talker == "user") {
+            setLoading(true);
+            const target_prompt = chats[chats.length - 1].prompt;
             PostGenerate(target_prompt);
         }
 
@@ -111,7 +131,7 @@ export default function Home() {
         scrollToBottom();
         const timeout = setTimeout(() => {
             setLoading(false);
-            setError(false);
+            setError("");
         }, 1000);
 
         return () => clearTimeout(timeout);
@@ -123,17 +143,17 @@ export default function Home() {
 
     return (
         <>
-            <main className='flex flex-row h-screen w-screen'>
+            <main className='bg-greyscale-1 flex flex-row h-full w-screen overflow-hidden'>
                 {/* Main Chat Space */}
                 <div className='relative overflow-hidden h-full flex flex-col w-full bg-lblue'>
                     <div className={`${chats.length != 0 && "hidden"}  flex-1 flex flex-col items-center text-center w-full justify-center`}>
-                        <div className='text-4xl text-title font-extrabold'>MOJA</div>
+                        <div className='text-4xl text-primary font-extrabold'>MOJA</div>
                         <p className='text-md text-content'>GPT as a Hat</p>
                         <div className='flex items-center mx-20 my-10'>
                             <Image alt='appicon' src={"/app_icon.jpg"} width={200} height={200} />
                         </div>
 
-                        <div className='mt-5 flex flex-col md:flex-row gap-2 animate-bounce text-etc text-sm break-all '>
+                        <div className='text-content mt-5 flex flex-col md:flex-row gap-2 animate-bounce text-etc text-sm break-all '>
                             Copyright 2023 ©{"\n"}
                             <Link href='https://github.com/teamMistake'>
                                 <p className='cursor-pointer font-bold text-md'>Sema R&E teamMistake</p>
@@ -146,60 +166,64 @@ export default function Home() {
                         <div className='w-full h-full flex flex-col items-center overflow-hidden'>
                             <div className='w-full overflow-y-scroll flex-1' ref={chatContainerRef}>
                                 {chats.map((chat, i) => {
-                                    return <MessageBox key={i} mode={chat.mode} message={chat.message} />;
+                                    return <MessageBox key={i} {...chat} />;
                                 })}
 
-                                {error && (
-                                    <div className=' flex justify-center '>
+                                {error!="" && (
+                                    <div className='flex justify-center'>
                                         <div className='w-[70%] md:w-[50%] pt-2 text-center'>
-                                            <span className='text-red-400  font-md text-sm whitespace-pre-wrap '>
-                                                지금 저희 서버가 수많은 사용자분의 요청을 받고 있어 답변에 어려움을 겪고 있습니다. 잠시만 기다려 주세요.
-                                            </span>
+                                            <ErrorMessage>
+                                                {error}
+                                            </ErrorMessage>
                                         </div>
                                     </div>
                                 )}
-                                <div className='h-[20px]'></div>
+                                <div className='h-[50px]'></div>
                             </div>
                             <div className='w-full h-32 max-h-96'></div>
                         </div>
                     </main>
 
                     {/* Fixed Content UI */}
-                    <div className='fixed box-content w-full bottom-0 flex justify-center items-center flex-col'>
+                    <div className='fixed box-content w-full bottom-0 flex items-center flex-col justify-center'>
                         {(!loading && chats.length) != 0 && (
-                            <Button onClickFunc={regenerate}>
-                                <div className='flex flex-row gap-2'>
-                                    <span>다시 물어보기</span>
-                                    <div>
-                                        <Image alt='regenerate' src='/regenerate.svg' width={18} height={18} />
+                            <div className='my-2'>
+                                <Button onClickFunc={regenerate}>
+                                    <div className='flex flex-row gap-2'>
+                                        <span>다시 물어보기</span>
+                                        <div>
+                                            <Image alt='regenerate' src='/regenerate.svg' width={18} height={18} />
+                                        </div>
                                     </div>
-                                </div>
-                            </Button>
+                                </Button>
+                            </div>
                         )}
-                        <form onKeyDown={enterSubmit} className='flex w-full justify-center ' onSubmit={handleSubmit(onSubmit)}>
-                            <div className='relative w-[90%] max-w-[48rem] flex flex-col justify-center align-center items-center bg-white  rounded-xl shadow-xl'>
+                        <form onKeyDown={enterSubmit} className='flex w-full justify-center gap-2 md:gap-4 px-4 items-center' onSubmit={handleSubmit(onSubmit)}>
+                            <div className='relative flex-1 max-w-[48rem] flex flex-col justify-center items-center bg-white  rounded-xl shadow-xl'>
                                 <div className='pl-[1rem] pr-[0.4rem] pt-[0.75rem] pb-[1.2rem] w-full relative flex flex-row'>
                                     <textarea
                                         maxLength={200}
                                         onKeyPress={enterSubmit}
                                         {...register("prompt", { required: true })}
-                                        className='resize-none  border-box border-none outline-none w-full text-gray-600 leading-[1.5rem] align-middle overflow-hidden bg-white'
+                                        className='resize-none  border-box border-none outline-none w-full text-content leading-[1.5rem] align-middle overflow-hidden bg-white'
                                         placeholder='무언가를 입력해주세요.'
                                     />
-
-                                    <Button disabled={loading}>
-                                        <Image alt='sendbutton' src='/send.png' width={40} height={40} />
-                                    </Button>
                                 </div>
-                                <div className='absolute left-4 bottom-[3px] text-gray-600 font-thin text-sm'>
+                                <div className='absolute left-4 bottom-[3px] text-content font-thin text-sm'>
                                     <span>{watch("prompt") ? watch("prompt").length : 0}/200</span>
                                 </div>
                                 {/* {errors.command && <span className='pl-2 text-sm text-green-900 font-bold'>무언가를 입력해주세요.</span>} */}
                             </div>
+                            <div className='flex max-w-[100px]'>
+                                <button disabled={loading} className={`text-gray-700  border border-gray-300 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-4 h-full py-5 shadow-lg ${loading ? "cursor-wait bg-gray-100" : "cursor-pointer bg-white"}`}>
+                                    {/* <Image alt='sendbutton' src='/send.png' width={40} height={40} /> */}
+                                    <span className="font-bold text-xs md:text-sm">SEND</span>
+                                </button>
+                            </div>
                         </form>
 
                         <div className='pt-[6px] pb-[12px]'>
-                            <span className='text-sm text-[#6B705C]'>저희는 귀여운 GPT를 만드는 세마인입니다.</span>
+                            <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마인입니다.</span>
                         </div>
                     </div>
                 </div>

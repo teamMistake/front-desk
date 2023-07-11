@@ -13,16 +13,15 @@ module.exports = {
         "primary-3": "#C6FCE5",
         "primary-4": "#EBFFFA",
         "secondary-1": "#02E675",
-        "secondary-2": "##62F08A",
-        "error-1": "#EF6262",
-        "error-2": "#FF8282",
+        "secondary-2": "#62F08A",
+        "error-1": "#FF8282",
         "greyscale-1": "#F5F5F5",
         "greyscale-2": "#CCCCCC"
       },
       textColor: {  
         "primary": "#025FE6",
         "secondary": "#22A347",
-        "error": "#A33333",
+        "error": "#EF6262",
         "content": "#7F7F7F"
       },
     },
