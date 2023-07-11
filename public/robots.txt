@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://chatjamo.vercel.app
+
+# Sitemaps
+Sitemap: https://chatjamo.vercel.app/sitemap.xml
