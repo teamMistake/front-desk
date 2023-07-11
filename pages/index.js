@@ -4,12 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { MessageBox } from "../components/message";
 import ndjsonStream from "can-ndjson-stream";
+import { Button } from "../components/button";
 
 export default function Home() {
+    // Chat state list of chat item.
     const [chats, setChat] = useState([]);
+    // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
+    // Loading State for Disable the chatting while getting the response.
     const [loading, setLoading] = useState(false);
     const [update, setUpdate] = useState(0);
+    // Set error while responding.
     const [error, setError] = useState(false);
 
     const {
@@ -32,6 +37,7 @@ export default function Home() {
         return setChat([...chats, chat]);
     };
 
+    // Disable return key event.
     const enterSubmit = (e) => {
         if (e.nativeEvent.isComposing) return;
         if (e.key === "Enter" && e.shiftKey == false) {
@@ -57,7 +63,7 @@ export default function Home() {
         const stream = fetch("/api/generate", { body: JSON.stringify(data), method: "POST", signal: controller.signal })
             .then((response) => ndjsonStream(response.body))
             .then((stream) => {
-                clearTimeout(timeoutId)
+                clearTimeout(timeoutId);
                 const streamReader = stream.getReader();
                 streamReader.read().then(async (response) => {
                     while (!response || !response.done) {
@@ -75,28 +81,15 @@ export default function Home() {
                     }
                 });
             })
-            .catch((e) => {setError(true)});
+            .catch((e) => {
+                setError(true);
+            });
     };
-
-    useEffect(() => {
-      if (!error) return
-      scrollToBottom()
-      const timeout = setTimeout(() => {
-        setLoading(false)
-        setError(false)
-      }, 1000)
-
-      return () => clearTimeout(timeout)
-    }, [error])
 
     const regenerate = () => {
         const target_prompt = chats[chats.length - 2].message;
         const data = { prompt: target_prompt };
         return handleSubmit(onSubmit(data));
-    };
-
-    const scrollToBottom = () => {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     };
 
     useEffect(() => {
@@ -112,23 +105,35 @@ export default function Home() {
         }
     }, [chats]);
 
+    // Set timeout for clearing the chatting response error.
+    useEffect(() => {
+        if (!error) return;
+        scrollToBottom();
+        const timeout = setTimeout(() => {
+            setLoading(false);
+            setError(false);
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+    }, [error]);
+
+    const scrollToBottom = () => {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    };
+
     return (
         <>
             <main className='flex flex-row h-screen w-screen'>
                 {/* Main Chat Space */}
                 <div className='relative overflow-hidden h-full flex flex-col w-full bg-lblue'>
-                    <div
-                        className={`${
-                            chats.length != 0 && "hidden"
-                        }  flex-1 flex flex-col items-center text-center flex-col w-full justify-center items-center `}
-                    >
+                    <div className={`${chats.length != 0 && "hidden"}  flex-1 flex flex-col items-center text-center w-full justify-center`}>
                         <div className='text-4xl text-title font-extrabold'>MOJA</div>
                         <p className='text-md text-content'>GPT as a Hat</p>
                         <div className='flex items-center mx-20 my-10'>
                             <Image alt='appicon' src={"/app_icon.jpg"} width={200} height={200} />
                         </div>
 
-                        <div className='mt-5 flex flex-col md:flex-row flex-row gap-2 animate-bounce text-etc text-sm break-all '>
+                        <div className='mt-5 flex flex-col md:flex-row gap-2 animate-bounce text-etc text-sm break-all '>
                             Copyright 2023 ©{"\n"}
                             <Link href='https://github.com/teamMistake'>
                                 <p className='cursor-pointer font-bold text-md'>Sema R&E teamMistake</p>
@@ -146,15 +151,14 @@ export default function Home() {
 
                                 {error && (
                                     <div className=' flex justify-center '>
-                                      <div className="w-[70%] md:w-[50%] pt-2 text-center">
-                                        <span className='text-red-400  font-md text-sm whitespace-pre-wrap '>
-                                            지금 저희 서버가 수많은 사용자분의 요청을 받고 있어 답변에 어려움을 겪고 있습니다.
-                                             잠시만 기다려 주세요.
-                                        </span>
-                                      </div>
+                                        <div className='w-[70%] md:w-[50%] pt-2 text-center'>
+                                            <span className='text-red-400  font-md text-sm whitespace-pre-wrap '>
+                                                지금 저희 서버가 수많은 사용자분의 요청을 받고 있어 답변에 어려움을 겪고 있습니다. 잠시만 기다려 주세요.
+                                            </span>
+                                        </div>
                                     </div>
                                 )}
-                                <div className="h-[20px]"></div>
+                                <div className='h-[20px]'></div>
                             </div>
                             <div className='w-full h-32 max-h-96'></div>
                         </div>
@@ -163,17 +167,14 @@ export default function Home() {
                     {/* Fixed Content UI */}
                     <div className='fixed box-content w-full bottom-0 flex justify-center items-center flex-col'>
                         {(!loading && chats.length) != 0 && (
-                            <button
-                                onClick={() => regenerate()}
-                                className='text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 my-2'
-                            >
+                            <Button onClickFunc={regenerate}>
                                 <div className='flex flex-row gap-2'>
                                     <span>다시 물어보기</span>
                                     <div>
                                         <Image alt='regenerate' src='/regenerate.svg' width={18} height={18} />
                                     </div>
                                 </div>
-                            </button>
+                            </Button>
                         )}
                         <form onKeyDown={enterSubmit} className='flex w-full justify-center ' onSubmit={handleSubmit(onSubmit)}>
                             <div className='relative w-[90%] max-w-[48rem] flex flex-col justify-center align-center items-center bg-white  rounded-xl shadow-xl'>
@@ -186,12 +187,12 @@ export default function Home() {
                                         placeholder='무언가를 입력해주세요.'
                                     />
 
-                                    <button disabled={loading}>
+                                    <Button disabled={loading}>
                                         <Image alt='sendbutton' src='/send.png' width={40} height={40} />
-                                    </button>
+                                    </Button>
                                 </div>
-                                <div className="absolute left-4 bottom-[3px] text-gray-600 font-thin text-sm">
-                                  <span>{watch("prompt") ? watch("prompt").length :0}/200</span>
+                                <div className='absolute left-4 bottom-[3px] text-gray-600 font-thin text-sm'>
+                                    <span>{watch("prompt") ? watch("prompt").length : 0}/200</span>
                                 </div>
                                 {/* {errors.command && <span className='pl-2 text-sm text-green-900 font-bold'>무언가를 입력해주세요.</span>} */}
                             </div>
