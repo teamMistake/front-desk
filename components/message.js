@@ -76,7 +76,7 @@ const MessageBox = ({ talker, prompt, event }) => {
                 </div>
                 {event == LOGIN_EVENT && (
                     <div className='flex gap-1'>
-                        <button className='text-white bg-primary-1 focus:outline-none hover:bg-secondary-1 cursor-pointer font-bold text-md px-5 py-1.5 rounded-2xl'>
+                        <button className=' text-white bg-primary-1 focus:outline-none hover:bg-secondary-1 cursor-pointer font-bold text-md px-5 py-1.5 rounded-2xl shadow-md'>
                             <span className="underline underline-offset-1">{"LOGIN"}</span>
                         </button>
                     </div>

@@ -6,6 +6,7 @@ import { MessageBox } from "../components/message";
 import ndjsonStream from "can-ndjson-stream";
 import { Button } from "../components/button";
 import { ErrorMessage } from "../components/error";
+import useAutosizeTextArea from "../hook/useAutosizeTextArea";
 import { COMPUTING_LIMITATION_ERROR, LOGIN_EVENT, MSG_EVENT } from "../components/constant";
 
 export default function Home() {
@@ -13,13 +14,15 @@ export default function Home() {
     const [chats, setChats] = useState([]);
     // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
+    const textAreaRef = useRef(null);
+
     // Loading State for Disable the chatting while getting the response.
     const [loading, setLoading] = useState(false);
     const [update, setUpdate] = useState(0);
     // Set error while responding.
     const [error, setError] = useState(false);
 
-    const [auth, setAuth] = useState(false)
+    const [auth, setAuth] = useState(false);
 
     const {
         register,
@@ -29,6 +32,8 @@ export default function Home() {
         formState: { errors },
     } = useForm();
 
+    const { ref, ...rest } = register('prompt');
+
     const onSubmit = (data) => {
         const prompt = data.prompt;
         setValue("prompt", "");
@@ -36,10 +41,23 @@ export default function Home() {
         const chat = {
             talker: "user",
             prompt: prompt,
-            event: MSG_EVENT
+            event: MSG_EVENT,
         };
         return setChats([...chats, chat]);
     };
+
+    useEffect(() => {
+        if (textAreaRef.current.style) {
+            textAreaRef.current.style.height = "0px";
+            const scrollHeight = textAreaRef.current.scrollHeight;
+
+            if (scrollHeight < 24*2){
+                textAreaRef.current.style.height = scrollHeight*2 + "px";
+            } else {
+                textAreaRef.current.style.height = scrollHeight + "px"
+            }
+        }
+    }, [textAreaRef, watch("prompt")]);
 
     // Disable return key event.
     const enterSubmit = (e) => {
@@ -80,7 +98,7 @@ export default function Home() {
                         const chat = {
                             talker: "computer",
                             prompt: response.value.resp_full,
-                            event: MSG_EVENT
+                            event: MSG_EVENT,
                         };
                         setChats([..._chats, chat]);
                     }
@@ -102,15 +120,15 @@ export default function Home() {
 
         // Login Event Trigger
         if (chats[chats.length - 1].talker == "user" && chats.length >= 1 && !auth) {
-            const _chats = chats
+            const _chats = chats;
 
             const login_request_data = {
                 talker: "computer",
-                prompt: "자모와 대화를 더 나누기 위해서 로그인을 해주세요.",
-                event: LOGIN_EVENT
-            }
+                prompt: "저, 자모와 대화를 더 나누기 위해서는 로그인을 필요합니다...",
+                event: LOGIN_EVENT,
+            };
 
-            return setChats([..._chats, login_request_data])
+            return setChats([..._chats, login_request_data]);
         }
 
         if (chats[chats.length - 1].talker == "user") {
@@ -169,12 +187,10 @@ export default function Home() {
                                     return <MessageBox key={i} {...chat} />;
                                 })}
 
-                                {error!="" && (
+                                {error != "" && (
                                     <div className='flex justify-center'>
                                         <div className='w-[70%] md:w-[50%] pt-2 text-center'>
-                                            <ErrorMessage>
-                                                {error}
-                                            </ErrorMessage>
+                                            <ErrorMessage>{error}</ErrorMessage>
                                         </div>
                                     </div>
                                 )}
@@ -204,7 +220,12 @@ export default function Home() {
                                     <textarea
                                         maxLength={200}
                                         onKeyPress={enterSubmit}
-                                        {...register("prompt", { required: true })}
+                                        {...rest}
+                                        ref={(e) => {
+                                            ref(e)
+                                            textAreaRef.current = e
+                                        }}
+                                        // {...register("prompt", { required: true })}
                                         className='resize-none  border-box border-none outline-none w-full text-content leading-[1.5rem] align-middle overflow-hidden bg-white'
                                         placeholder='무언가를 입력해주세요.'
                                     />
@@ -215,9 +236,14 @@ export default function Home() {
                                 {/* {errors.command && <span className='pl-2 text-sm text-green-900 font-bold'>무언가를 입력해주세요.</span>} */}
                             </div>
                             <div className='flex max-w-[100px]'>
-                                <button disabled={loading} className={`text-gray-700  border border-gray-300 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-4 h-full py-5 shadow-lg ${loading ? "cursor-wait bg-gray-100" : "cursor-pointer bg-white"}`}>
+                                <button
+                                    disabled={loading}
+                                    className={`text-gray-700  border border-gray-300 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-4 h-full py-5 shadow-lg ${
+                                        loading ? "cursor-wait bg-gray-100" : "cursor-pointer bg-white"
+                                    }`}
+                                >
                                     {/* <Image alt='sendbutton' src='/send.png' width={40} height={40} /> */}
-                                    <span className="font-bold text-xs md:text-sm">SEND</span>
+                                    <span className='font-bold text-xs md:text-sm'>SEND</span>
                                 </button>
                             </div>
                         </form>

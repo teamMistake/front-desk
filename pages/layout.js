@@ -21,8 +21,8 @@ const metadata = {
 export default function RootLayout({ children }) {
     return (
         <main className='h-screen w-screen flex flex-col'>
-            <div className='fixed top-0 py-5 px-4 w-full  flex flex-row gap-2 justify-end text-content '>
-                <Link className='font-bold' href='/chat'>
+            <div className='py-5 px-4 w-full  flex flex-row gap-2 justify-end text-content '>
+                <Link className='font-bold' href='/'>
                     Chat
                 </Link>
                 <Link className='font-bold' href='/rank'>
