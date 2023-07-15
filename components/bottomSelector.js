@@ -4,7 +4,7 @@ const BottomSelectorUI = ({ title, children }) => {
             <div className='mb-2'>
                 <span className='text-2xl font-bold highlight dark:bg-none'>{title}</span>
             </div>
-            <div className='join w-full'>{children}</div>
+            <div className='join w-full flex justify-center'>{children}</div>
         </div>
     );
 };

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-const Button = ({ onClickFunc, children }) => {
+const Button = ({ onClick, children }) => {
     return (
         <button
-            onClick={() => onClickFunc()}
+            onClick={() => onClick()}
             className='text-gray-700 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-4 py-2.5 shadow-lg'
         >
             {children}

@@ -6,11 +6,12 @@ import { MessageBox } from "../components/message";
 import ndjsonStream from "can-ndjson-stream";
 import { AnimateButton, AnimateRegenerateButton, AnimateSendButton, Button } from "../components/button";
 import { ErrorMessage } from "../components/error";
-import { AB_MODEL_TEST, COMPUTER, COMPUTING_LIMITATION_ERROR, LOGIN_EVENT, LOGIN_TRIGGER_NUM, MSG_EVENT, NON_INPUT_ERROR, USER } from "../components/constant";
+import { AB_MODEL_TEST_EVENT, COMPUTER, COMPUTING_LIMITATION_ERROR, LOGIN_EVENT, LOGIN_TRIGGER_NUM, MSG_EVENT, NON_INPUT_ERROR, RANK_RES_EVENT, USER } from "../components/constant";
 import useLocalStorage from "../hook/useLocalStorage";
 import BottomSelectorUI from "../components/bottomSelector";
 import { RegenerateIcon } from "../components/regenerateicon";
 import { useRouter } from "next/router";
+import { StarRating } from "../components/rating";
 
 export default function Home() {
     const router = useRouter();
@@ -36,6 +37,12 @@ export default function Home() {
 
     const [privacyChecked, setPrivacyChecked] = useState(false);
     const [privacyError, setPrivacyError] = useState(false);
+
+    const [rating, setRating] = useState(5)
+
+    // Thankyou Container for better User Experience
+    const [thankyou, setThankYou] = useState(false)
+    const [thankReason, setThankReason] = useState("")
 
     const {
         register,
@@ -155,6 +162,8 @@ export default function Home() {
                         setChats([..._chats, chat]);
                     }
                 });
+
+                randomRatingEventTrigger()
             })
             .catch((e) => {
                 setError(COMPUTING_LIMITATION_ERROR);
@@ -242,6 +251,35 @@ export default function Home() {
     useEffect(() => {
         if (privacyChecked) setPrivacyError(false);
     }, [privacyChecked]);
+
+
+    // =========================== RATING EVENT =================================
+    const randomRatingEventTrigger = () => {
+        const trigger = Math.floor((Math.random())*10)==3        
+        if (!trigger) return
+
+        // If random rating event triggered
+        setEvent(RANK_RES_EVENT)
+    }
+
+    const queryRateAnswer = () => {
+        // TODO: SEND REQUEST TO SERVER
+
+        // AFTER
+        setThankYou(true)
+        setThankReason("답변해주셔서")
+    }
+
+    // ========================= UX Animation Event Controller =======================
+    useEffect(() => {
+        if (thankyou) {
+            const tout = setTimeout(() => {
+                setThankYou(false)
+            }, 1000)
+    
+            return () => clearTimeout(tout)
+        }
+    }, [thankyou])
 
     return (
         <>
@@ -346,12 +384,21 @@ export default function Home() {
                             </>
                         )}
 
-                        {event == AB_MODEL_TEST && (
+                        {event == AB_MODEL_TEST_EVENT && (
                             <BottomSelectorUI title='어떤 대답이 가장 마음에 드시나요?'>
-                                <button className='w-[33%] btn btn-outline join-item'>1번</button>
-                                <button className='w-[33%] btn btn-outline join-item'>2번</button>
-                                <button className='w-[33%] btn btn-outline join-item'>3번</button>
-                            </BottomSelectorUI>
+                            <button className='w-[30%] btn btn-outline join-item'>1번</button>
+                            <button className='w-[30%] btn btn-outline join-item'>2번</button>
+                            <button className='w-[30%] btn btn-outline join-item'>3번</button>
+                        </BottomSelectorUI>
+                        )}
+
+                        {(event == RANK_RES_EVENT && !thankyou) && (
+                            <BottomSelectorUI title='직전 대화에서 자모의 대답을 평가해주세요.'>
+                                <div className="flex flex-col gap-2">
+                                <StarRating setRating={setRating} />
+<Button onClick={() => queryRateAnswer()}>제출하기</Button>
+                                </div>
+                        </BottomSelectorUI>
                         )}
 
                         {!loading && chats.length != 0 && (
@@ -364,9 +411,16 @@ export default function Home() {
                             </div>
                         )}
 
+                        {thankyou && (
+                            <div className='p-5 flex flex-col justify-center text-center'>
+                            <span className="text-xl">{thankReason}</span>
+                            <span className='text-4xl font-bold highlight dark:bg-none'>감사합니다!!</span>
+                        </div>
+                        )}
+
                         <form
                             onKeyDown={enterSubmit}
-                            className={`flex w-full justify-center gap-2 md:gap-4 px-4 items-center ${event != MSG_EVENT && "hidden"}`}
+                            className={`flex w-full justify-center gap-2 md:gap-4 px-4 items-center ${(event != MSG_EVENT && !thankyou) && "hidden"}`}
                             onSubmit={handleSubmit(onSubmit)}
                         >
                             <div className='relative flex-1 max-w-[48rem] flex flex-col justify-center items-center bg-white dark:bg-black rounded-xl shadow-xl '>
