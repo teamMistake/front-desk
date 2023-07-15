@@ -30,13 +30,13 @@ export default function Home() {
     const [auth, setAuth] = useState(false);
 
     const [event, setEvent] = useState(MSG_EVENT);
-    
+
     // If your visit is first or not
     const [firstVisit, setFirstVisit] = useLocalStorage("firstVisit");
 
     const [privacyChecked, setPrivacyChecked] = useState(false);
-    const [privacyError, setPrivacyError] = useState(false)
-    
+    const [privacyError, setPrivacyError] = useState(false);
+
     const {
         register,
         handleSubmit,
@@ -48,13 +48,17 @@ export default function Home() {
 
     const { ref, ...rest } = register("prompt");
 
+    // =========================== START EVENT =================================
     useEffect(() => {
+        setChats([{talker: USER, prompt:"안녕 반가워.", event: MSG_EVENT}, {talker: COMPUTER, prompt:"반가워요.", event: MSG_EVENT}])
+
         const { redirectFromPrivacy } = router.query;
         if (redirectFromPrivacy) {
             setEvent(LOGIN_EVENT);
         }
     }, []);
 
+    // =========================== GENERATE CHAT EVENT =================================
     const onSubmit = (data) => {
         const prompt = data.prompt;
 
@@ -221,19 +225,43 @@ export default function Home() {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     };
 
+    // =========================== AUTH EVENT =================================
+    // =========================== LOGIN =================================
     const loginEventHandler = () => {
-        if (!privacyChecked) return setPrivacyError(true)
+        if (!privacyChecked) return setPrivacyError(true);
 
-        console.log("DEX LOGIN")
-    }
+        console.log("DEX LOGIN");
+    };
 
+    // =========================== RELOGIN REQUEST =================================
+    const showAuthModal = () => {
+        return window.login_request_modal.showModal();
+    };
+
+    // =========================== PRIVACY EVENT =================================
     useEffect(() => {
-        if (privacyChecked) setPrivacyError(false)
-    }, [privacyChecked])
+        if (privacyChecked) setPrivacyError(false);
+    }, [privacyChecked]);
 
     return (
         <>
             <main className='bg-base-100 flex flex-row h-full w-screen overflow-hidden'>
+                {/* LOGIN REQUEST MODAL FOR OUTDATED TOKEN USER */}
+                <dialog id='login_request_modal' className='modal'>
+                    <form method='dialog' className='modal-box'>
+                        <div className='w-full flex justify-center'>
+                            <BottomSelectorUI title='다시 로그인해주세요.'>
+                                <button className='w-[50%] btn btn-outline join-item' onClick={() => loginEventHandler()}>
+                                    예
+                                </button>
+                                <button className='w-[50%] btn btn-outline join-item'>
+                                    아니요
+                                </button>
+                            </BottomSelectorUI>
+                        </div>
+                    </form>
+                </dialog>
+
                 {/* Main Chat Space */}
                 <div className='relative overflow-hidden h-full flex flex-col w-full'>
                     <div className={`${chats.length != 0 && "hidden"}  flex-1 flex flex-col items-center text-center w-full md:justify-center`}>
@@ -282,8 +310,13 @@ export default function Home() {
                         {event == LOGIN_EVENT && (
                             <>
                                 <BottomSelectorUI title='로그인 하실래요?'>
-                                    <div className={`w-[50%] ${privacyError && "tooltip tooltip-open tooltip-top"}`} data-tip="개인정보처리방침을 동의해주세요.">
-                                    <button className='w-full btn btn-outline join-item' onClick={() => loginEventHandler()}>예</button>
+                                    <div
+                                        className={`w-[50%] ${privacyError && "tooltip tooltip-open tooltip-top"}`}
+                                        data-tip='개인정보처리방침을 동의해주세요.'
+                                    >
+                                        <button className='w-full btn btn-outline join-item' onClick={() => loginEventHandler()}>
+                                            예
+                                        </button>
                                     </div>
                                     <button onClick={() => alert("'예'를 누르고 자모와 더 대화해봐요.")} className='w-[50%] btn btn-outline join-item'>
                                         아니요
