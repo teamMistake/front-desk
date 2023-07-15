@@ -24,6 +24,19 @@ import { useRouter } from "next/router";
 import { StarRating } from "../components/rating";
 import Drawer from "react-modern-drawer";
 import "react-modern-drawer/dist/index.css";
+import queryString from "query-string";
+import { LoadingSpinner } from "../components/loading";
+import { ShareIcon } from "../components/shareicon";
+import {
+    FacebookIcon,
+    FacebookMessengerIcon,
+    FacebookMessengerShareButton,
+    FacebookShareButton,
+    LineIcon,
+    LineShareButton,
+    TwitterIcon,
+    TwitterShareButton,
+} from "react-share";
 
 export default function Home() {
     const router = useRouter();
@@ -33,13 +46,18 @@ export default function Home() {
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
+    const [chatLoading, setChatLoading] = useState(false);
     // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
 
-    // Context ID for the set context
+    // Context ID for setting the chat context
+    const [contexts, setContexts] = useState([]);
     const [seeContexts, setSeeContexts] = useState(false);
     const [contextID, setContextID] = useState("");
+    const [contextLoading, setContextLoading] = useState(false);
+
+    const [shareURL, setShareURL] = useState("");
 
     // Loading State for Disable the chatting while getting the response.
     const [loading, setLoading] = useState(false);
@@ -83,39 +101,96 @@ export default function Home() {
             setEvent(LOGIN_EVENT);
         }
 
-        console.log(router);
-        const { sharedContextId } = router.query;
+        // If this page was shared context page. and so
+        const { share: sharedContextId } = queryString.parse(location.search);
+
         if (sharedContextId) {
+            setContextID(sharedContextId)
+            getChatsByContextId(sharedContextId);
+            // it may be possible that this chat was written by me. so change this state by situation
             setIsMine(false);
         }
     }, []);
 
     // =========================== DEAL CONTEXT =================================
-    const toggleContextDrawer = () => {
-        return setSeeContexts(() => !seeContexts);
+    const getChatsByContextId = (id) => {
+        setLoading(true);
+        setChatLoading(true);
+        setChats([
+            { talker: USER, prompt: "안녕 반가워.", event: MSG_EVENT },
+            { talker: COMPUTER, prompt: "안녕.", event: MSG_EVENT, onlive: false },
+        ]);
+        setTimeout(() => {
+            // JUST FOR THE TEST
+            setLoading(false);
+            setChatLoading(false);
+        }, 10000);
+    };
+
+    const getContextsByUserId = (id) => {
+        setContexts([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     };
 
     useEffect(() => {
         if (contextID == "" || !contextID) return;
 
+        const urlPieces = [location.protocol, '//', location.host, location.pathname]
+        let url = urlPieces.join('')
+        const turl = `${url}/?share=${contextID}`;
+        setShareURL(turl);
+
         // TODO: request to the server set chat data
         console.log(contextID);
-
-        setChats([
-            { talker: USER, prompt: "안녕 반가워.", event: MSG_EVENT },
-            { talker: COMPUTER, prompt: "안녕화살법.", event: MSG_EVENT, onlive: false },
-        ]);
+        getChatsByContextId(contextID);
     }, [contextID]);
+
+    useEffect(() => {
+        if (seeContexts) {
+            setContextLoading(true);
+
+            // TODO: GET contexts
+            getContextsByUserId(1234);
+
+            setContextLoading(false);
+        }
+    }, [seeContexts]);
 
     const changeContext = (cid) => {
         setContextID(cid);
         toggleContextDrawer();
+        setIsMine(true);
     };
 
     const startNewChat = () => {
         setContextID("");
         setChats([]);
         toggleContextDrawer();
+        setIsMine(true);
+    };
+
+    const toggleContextDrawer = () => {
+        return setSeeContexts(() => !seeContexts);
+    };
+
+    const toggleShareModal = () => {
+        return window.share_modal.showModal();
+    };
+
+    useEffect(() => {
+        console.log(shareURL)
+    }, [shareURL])
+
+    const shareAPI = () => {
+        if (navigator.share) {
+            navigator
+                .share({
+                    title: "모자와 대화해봐요! Chat with MOJA.",
+                    text: "저와 모자의 재밌는 대화 기록 한번 보실래요?",
+                    url: shareURL,
+                })
+                .then(() => console.log("share success"))
+                .catch((error) => console.log("fail to share", error));
+        }
     };
 
     // =========================== GENERATE CHAT EVENT =================================
@@ -351,6 +426,11 @@ export default function Home() {
                 </div>
                 <div className='navbar-center'></div>
                 <div className='navbar-end'>
+                    {chats.length > 0 && (
+                        <GhostButton onClick={() => toggleShareModal()}>
+                            <ShareIcon width='40' />
+                        </GhostButton>
+                    )}
                     <GhostButton onClick={() => router.push("/rank")}>Rank</GhostButton>
                 </div>
             </div>
@@ -359,20 +439,24 @@ export default function Home() {
                 <Drawer open={seeContexts} onClose={toggleContextDrawer} direction='bottom' size={500}>
                     <div className='w-full h-full flex flex-col justify-center items-center'>
                         <div className='w-full flex-1 overflow-hidden overflow-y-scroll'>
-                            <ul className='w-full divide-y divide-slate-100'>
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cid, index) => (
-                                    <li
-                                        onClick={() => changeContext(cid)}
-                                        className='w-full flex flex-row justify-center items-center gap-2 p-3 text-center'
-                                        key={index}
-                                    >
-                                        {/* TODO: COOL MESSAGE ICON */}
-                                        <div>+</div>
-                                        <span className='text-md font-medium'>새로운 대화</span>
-                                        <span className='text-sm font-thin'>22.07.15</span>
-                                    </li>
-                                ))}
-                            </ul>
+                            {contextLoading ? (
+                                <LoadingSpinner />
+                            ) : (
+                                <ul className='w-full divide-y divide-slate-100'>
+                                    {contexts.map((cid, index) => (
+                                        <li
+                                            onClick={() => changeContext(cid)}
+                                            className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
+                                            key={index}
+                                        >
+                                            {/* TODO: COOL MESSAGE ICON */}
+                                            <div>+</div>
+                                            <span className='text-md font-medium'>새로운 대화</span>
+                                            <span className='text-sm font-thin'>22.07.15</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                         <div className='p-3'>
                             <button
@@ -399,6 +483,40 @@ export default function Home() {
                     </form>
                 </dialog>
 
+                {/* LOGIN REQUEST MODAL FOR OUTDATED TOKEN USER */}
+                <dialog id='share_modal' className='modal'>
+                    <form method='dialog' className='modal-box'>
+                        <div className='w-full flex justify-center'>
+                            <div className='w-[90%] max-w-[640px] flex flex-col items-center rounded-md p-1 pb-1'>
+                                <div className='mb-2'>
+                                    <span className='text-2xl font-bold highlight dark:bg-none'>여러분의 대화 내용을 공유하고 싶나요?</span>
+                                </div>
+                                <div className='mt-2 join w-full flex justify-center'>
+                                    <button className='w-[50%] btn btn-outline join-item' onClick={() => shareAPI()}>
+                                        예
+                                    </button>
+                                    <button className='w-[50%] btn btn-outline join-item'>아니요</button>
+                                </div>
+                                <div className='divider'>OR</div>
+                                <div className="flex flex-row gap-2">
+                                    <FacebookShareButton url={shareURL}>
+                                        <FacebookIcon size={48} round={true} borderRadius={24}></FacebookIcon>
+                                    </FacebookShareButton>
+                                    <FacebookMessengerShareButton url={shareURL}>
+                                        <FacebookMessengerIcon size={48} round={true} borderRadius={24}></FacebookMessengerIcon>
+                                    </FacebookMessengerShareButton>
+                                    <TwitterShareButton url={shareURL}>
+                                        <TwitterIcon size={48} round={true} borderRadius={24}></TwitterIcon>
+                                    </TwitterShareButton>
+                                    <LineShareButton url={shareURL}>
+                                        <LineIcon size={48} round={true} borderRadius={24}></LineIcon>
+                                    </LineShareButton>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </dialog>
+
                 {/* Main Chat Space */}
                 <div className='relative overflow-hidden h-full flex flex-col w-full drawer'>
                     <div className={`${chats.length != 0 && "hidden"}  flex-1 flex flex-col items-center text-center w-full md:justify-center`}>
@@ -419,7 +537,9 @@ export default function Home() {
                     {/* Chat UI */}
                     <main className={`${chats.length == 0 && "hidden"} w-full flex flex-col h-full`}>
                         <div className='w-full h-full flex flex-col items-center overflow-hidden'>
-                            <div className='w-full overflow-y-scroll flex-1' ref={chatContainerRef}>
+                            {/* TODO: Loading UX improve with Blurred CHAT UI */}
+                            {chatLoading && <LoadingSpinner />}
+                            <div className={`w-full overflow-y-scroll flex-1 ${chatLoading && "hidden"}`} ref={chatContainerRef}>
                                 {chats.map((chat, i) => {
                                     return (
                                         <>

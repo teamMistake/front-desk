@@ -31,7 +31,7 @@ const MessageBox = ({ talker, prompt, event, onlive }) => {
     }, [prompt]);
 
     useEffect(() => {
-        if (!onlive) return
+        if (!onlive) return;
 
         const timeout = setTimeout(() => {
             if (cursor < prompt.length) {
