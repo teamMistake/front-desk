@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { MessageBox } from "../components/message";
 import ndjsonStream from "can-ndjson-stream";
-import { AnimateButton, AnimateRegenerateButton, AnimateSendButton, Button } from "../components/button";
+import { AnimateButton, AnimateRegenerateButton, AnimateSendButton, Button, GhostButton } from "../components/button";
 import { ErrorMessage } from "../components/error";
 import {
     AB_MODEL_TEST_EVENT,
@@ -22,9 +22,14 @@ import BottomSelectorUI from "../components/bottomSelector";
 import { RegenerateIcon } from "../components/regenerateicon";
 import { useRouter } from "next/router";
 import { StarRating } from "../components/rating";
+import Drawer from "react-modern-drawer";
+import "react-modern-drawer/dist/index.css";
 
 export default function Home() {
     const router = useRouter();
+
+    const [auth, setAuth] = useState(false);
+    const [isMine, setIsMine] = useState(true);
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
@@ -32,14 +37,15 @@ export default function Home() {
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
 
+    // Context ID for the set context
+    const [seeContexts, setSeeContexts] = useState(false);
+    const [contextID, setContextID] = useState("");
+
     // Loading State for Disable the chatting while getting the response.
     const [loading, setLoading] = useState(false);
     const [update, setUpdate] = useState(0);
     // Set error while responding.
     const [error, setError] = useState(false);
-
-    const [auth, setAuth] = useState(false);
-
     const [event, setEvent] = useState(MSG_EVENT);
 
     // If your visit is first or not
@@ -69,14 +75,48 @@ export default function Home() {
     useEffect(() => {
         setChats([
             { talker: USER, prompt: "안녕 반가워.", event: MSG_EVENT },
-            { talker: COMPUTER, prompt: "반가워요.", event: MSG_EVENT },
+            { talker: COMPUTER, prompt: "반가워요.", event: MSG_EVENT, onlive: true },
         ]);
 
         const { redirectFromPrivacy } = router.query;
         if (redirectFromPrivacy) {
             setEvent(LOGIN_EVENT);
         }
+
+        console.log(router);
+        const { sharedContextId } = router.query;
+        if (sharedContextId) {
+            setIsMine(false);
+        }
     }, []);
+
+    // =========================== DEAL CONTEXT =================================
+    const toggleContextDrawer = () => {
+        return setSeeContexts(() => !seeContexts);
+    };
+
+    useEffect(() => {
+        if (contextID == "" || !contextID) return;
+
+        // TODO: request to the server set chat data
+        console.log(contextID);
+
+        setChats([
+            { talker: USER, prompt: "안녕 반가워.", event: MSG_EVENT },
+            { talker: COMPUTER, prompt: "안녕화살법.", event: MSG_EVENT, onlive: false },
+        ]);
+    }, [contextID]);
+
+    const changeContext = (cid) => {
+        setContextID(cid);
+        toggleContextDrawer();
+    };
+
+    const startNewChat = () => {
+        setContextID("");
+        setChats([]);
+        toggleContextDrawer();
+    };
 
     // =========================== GENERATE CHAT EVENT =================================
     const onSubmit = (data) => {
@@ -94,6 +134,7 @@ export default function Home() {
             talker: USER,
             prompt: prompt,
             event: MSG_EVENT,
+            onlive: true,
         };
 
         return setChats([...chats, chat]);
@@ -171,6 +212,7 @@ export default function Home() {
                             talker: COMPUTER,
                             prompt: response.value.resp_full,
                             event: MSG_EVENT,
+                            onlive: true,
                         };
                         setChats([..._chats, chat]);
                     }
@@ -211,6 +253,7 @@ export default function Home() {
                 talker: COMPUTER,
                 prompt: "자모와 대화를 더 나누기 위해서는 로그인이 필요합니다...",
                 event: LOGIN_EVENT,
+                onlive: true,
             };
 
             // LOGIN EVENT Trigger
@@ -298,7 +341,50 @@ export default function Home() {
 
     return (
         <>
+            <div className='navbar bg-base-100 border-b-2'>
+                <div className='navbar-start'>
+                    <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
+                        <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M4 6h16M4 12h16M4 18h7' />
+                        </svg>
+                    </label>
+                </div>
+                <div className='navbar-center'></div>
+                <div className='navbar-end'>
+                    <GhostButton onClick={() => router.push("/rank")}>Rank</GhostButton>
+                </div>
+            </div>
+
             <main className='bg-base-100 flex flex-row h-full w-screen overflow-hidden'>
+                <Drawer open={seeContexts} onClose={toggleContextDrawer} direction='bottom' size={500}>
+                    <div className='w-full h-full flex flex-col justify-center items-center'>
+                        <div className='w-full flex-1 overflow-hidden overflow-y-scroll'>
+                            <ul className='w-full divide-y divide-slate-100'>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((cid, index) => (
+                                    <li
+                                        onClick={() => changeContext(cid)}
+                                        className='w-full flex flex-row justify-center items-center gap-2 p-3 text-center'
+                                        key={index}
+                                    >
+                                        {/* TODO: COOL MESSAGE ICON */}
+                                        <div>+</div>
+                                        <span className='text-md font-medium'>새로운 대화</span>
+                                        <span className='text-sm font-thin'>22.07.15</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className='p-3'>
+                            <button
+                                onClick={() => startNewChat()}
+                                className='btn btn-wide btn-outline border-gray-500 font-medium rounded-lg text-sm px-4 py-2.5 shadow-lg'
+                            >
+                                새로운 대화 시작하기
+                            </button>
+                        </div>
+                    </div>
+                </Drawer>
+
                 {/* LOGIN REQUEST MODAL FOR OUTDATED TOKEN USER */}
                 <dialog id='login_request_modal' className='modal'>
                     <form method='dialog' className='modal-box'>
@@ -314,7 +400,7 @@ export default function Home() {
                 </dialog>
 
                 {/* Main Chat Space */}
-                <div className='relative overflow-hidden h-full flex flex-col w-full'>
+                <div className='relative overflow-hidden h-full flex flex-col w-full drawer'>
                     <div className={`${chats.length != 0 && "hidden"}  flex-1 flex flex-col items-center text-center w-full md:justify-center`}>
                         <div className='text-4xl text-accent font-extrabold mt-10 md:mt-0'>MOJA</div>
                         <p className='text-md text-neutral dark:text-gray-300'>GPT as a Hat</p>
@@ -414,7 +500,7 @@ export default function Home() {
                             </BottomSelectorUI>
                         )}
 
-                        {!loading && chats.length != 0 && (
+                        {isMine && !loading && chats.length != 0 && (
                             <div className={`my-2 ${event != MSG_EVENT && "hidden"}`}>
                                 <AnimateRegenerateButton onClick={Regenerate}>
                                     <span>다시 물어보기</span>
@@ -433,7 +519,7 @@ export default function Home() {
 
                         <form
                             onKeyDown={enterSubmit}
-                            className={`flex w-full justify-center gap-2 md:gap-4 px-4 items-center ${(event != MSG_EVENT || thankyou) && "hidden"}`}
+                            className={`flex w-full justify-center gap-2 md:gap-4 px-4 items-center ${(event != MSG_EVENT || thankyou || !isMine) && "hidden"}`}
                             onSubmit={handleSubmit(onSubmit)}
                         >
                             <div className='relative flex-1 max-w-[48rem] flex flex-col justify-center items-center bg-white dark:bg-black rounded-xl shadow-xl '>

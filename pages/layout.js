@@ -22,27 +22,6 @@ const metadata = {
 export default function RootLayout({ children }) {
     return (
         <main className='h-screen w-screen flex flex-col'>
-            {/* <div className='py-3 px-4 w-full  flex flex-row gap-2 justify-end text-content '>
-                <Link className='font-bold' href='/'>
-                    Chat
-                </Link>
-                <Link className='font-bold' href='/rank'>
-                    Rank
-                </Link>
-            </div> */}
-            <div className='navbar bg-base-100 border-b-2'>
-                <div className='navbar-start'>
-                    <GhostButton>
-                        <Link href='/'>JAMO</Link>
-                    </GhostButton>
-                </div>
-                <div className='navbar-center'></div>
-                <div className='navbar-end'>
-                    <GhostButton>
-                        <Link href='/rank'>Rank</Link>
-                    </GhostButton>
-                </div>
-            </div>
             <Head>
                 <title>모자와 대화해봐요. Chat with MOJA.</title>
                 <meta description='2023 R&E Project by 물실 소프트웨어 엔지니어 일동' />

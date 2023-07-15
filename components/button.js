@@ -19,8 +19,8 @@ const IconButton = ({ children, onClick }) => {
     );
 };
 
-const GhostButton = ({ children }) => {
-    return <button className='btn btn-ghost normal-case text-xl'>{children}</button>;
+const GhostButton = ({ children, onClick }) => {
+    return <button onClick={() => onClick()} className='btn btn-ghost normal-case text-xl'>{children}</button>;
 };
 
 const AnimateButton = ({ children, className, disabled, animatedClass, duration }) => {
