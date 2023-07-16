@@ -47,6 +47,9 @@ export default function Home() {
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
+
+    const [ABTests, setABTests] = useState([])
+
     // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
@@ -92,8 +95,8 @@ export default function Home() {
     // =========================== START EVENT =================================
     useEffect(() => {
         setChats([
-            { talker: USER, prompt: "안녕 반가워.", event: MSG_EVENT },
-            { talker: COMPUTER, prompt: "반가워요.", event: MSG_EVENT, onlive: true },
+            { talker: USER, prompt: [{resp:"안녕 반가워."}], event: MSG_EVENT,onlive: false, seqID: 10 },
+            { talker: COMPUTER, prompt: [{resp:"안녕."}], event: MSG_EVENT, onlive: false , onlive: true, seqID: 10},
         ]);
 
         const { redirectFromPrivacy } = router.query;
@@ -117,8 +120,8 @@ export default function Home() {
         setLoading(true);
         setChatLoading(true);
         setChats([
-            { talker: USER, prompt: "안녕 반가워.", event: MSG_EVENT },
-            { talker: COMPUTER, prompt: "안녕.", event: MSG_EVENT, onlive: false },
+            { talker: USER, prompt: ["안녕 반가워."], event: MSG_EVENT },
+            { talker: COMPUTER, prompt: ["안녕."], event: MSG_EVENT, onlive: false },
         ]);
         setTimeout(() => {
             // JUST FOR THE TEST
@@ -250,6 +253,7 @@ export default function Home() {
         let target_prompt;
         for (let i = 1; i <= _chats.length; i++) {
             const target = _chats[_chats.length - i];
+            console.log(target)
             if (target.talker == USER) {
                 target_prompt = target.prompt;
                 break;
@@ -326,7 +330,7 @@ export default function Home() {
 
             const login_request_data = {
                 talker: COMPUTER,
-                prompt: "자모와 대화를 더 나누기 위해서는 로그인이 필요합니다...",
+                prompt: ["자모와 대화를 더 나누기 위해서는 로그인이 필요합니다..."],
                 event: LOGIN_EVENT,
                 onlive: true,
             };
