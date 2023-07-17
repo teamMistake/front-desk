@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { set, useForm } from "react-hook-form";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { MessageBox } from "../components/message";
 import ndjsonStream from "can-ndjson-stream";
@@ -37,17 +37,19 @@ import {
     TwitterIcon,
     TwitterShareButton,
 } from "react-share";
-import { getUserInfoAPI } from "../utils/api";
+import { getChatsByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
 import { useUser } from "../hook/useUser";
 
 export default function Home() {
     const router = useRouter();
 
-    const {isAuth:auth, userID} = useUser()
+    const [isMine, setIsMine] = useState(true)
+    const { isAuth: auth, userID } = useUser();
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
+    const [seqID, setSeqID] = useState()
 
     const [ABTests, setABTests] = useState([]);
 
@@ -73,7 +75,7 @@ export default function Home() {
 
     // If your visit is first or not
     const [firstVisit, setFirstVisit] = useLocalStorage("firstVisit");
-    const [logined, setLogined] = useLocalStorage("logined")
+    const [logined, setLogined] = useLocalStorage("logined");
 
     const [privacyChecked, setPrivacyChecked] = useState(false);
     const [privacyError, setPrivacyError] = useState(false);
@@ -97,18 +99,21 @@ export default function Home() {
 
     // =========================== START EVENT =================================
     useEffect(() => {
-        setChats([
-            { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
-            { talker: COMPUTER, prompt: [{ resp: "안녕." }], event: MSG_EVENT, onlive: false, onlive: true, seqID: 10 },
-        ]);
+        // setChats([
+        //     { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
+        //     { talker: COMPUTER, prompt: [{ resp: "안녕." }], event: MSG_EVENT, onlive: false, onlive: true, seqID: 10 },
+        // ]);
 
         const { redirectFromPrivacy } = router.query;
         if (redirectFromPrivacy) {
             setEvent(LOGIN_EVENT);
         }
 
+        // TODO: JUST TEST
+        // setContextID(10)
+
         // If this page was shared context page. and so
-        const { share: sharedContextId } = queryString.parse(location.search);        
+        const { share: sharedContextId } = queryString.parse(location.search);
 
         if (sharedContextId) {
             setContextID(sharedContextId);
@@ -121,79 +126,43 @@ export default function Home() {
     }, []);
 
     // =========================== DEAL CONTEXT =================================
-    const getChatsByContextId = (id) => {
-        setLoading(true);
-        setChatLoading(true);
-        setChats([
-            { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
-            {
-                talker: COMPUTER,
-                prompt: [
-                    {
-                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                        selected: false
-                    },
-                    {
-                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                        selected: false
-                    },
-                    {
-                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                        selected: false
-                    },
-                    {
-                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                        selected: false
-                    },
-                    {
-                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                        selected: false
-                    },
-                    {
-                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                        selected: false
-                    },
-                    { resp: "안녕.", selected: false},
-                    { resp: "안녕.", selected: true },
-                ],
-                event: MSG_EVENT,
-                onlive: false,
-                onlive: true,
-                seqID: 10,
-            },
-        ]);
-        setTimeout(() => {
-            // JUST FOR THE TEST
-            setLoading(false);
-            setChatLoading(false);
-        }, 1000);
-    };
-
-    const getContextsByUserId = (id) => {
-        setContexts([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
-    };
-
     useEffect(() => {
         if (contextID == "" || !contextID) return;
 
+        // set share url for future sharing event
         const urlPieces = [location.protocol, "//", location.host, location.pathname];
         let url = urlPieces.join("");
         const turl = `${url}/?share=${contextID}`;
         setShareURL(turl);
 
         // TODO: request to the server set chat data
-        console.log(contextID);
-        getChatsByContextId(contextID);
+        async function fetchChats() {
+            setLoading(true);
+            setChatLoading(true);
+
+            const chats = await getChatsByContextIDAPI(contextID)
+            setChats(chats)
+
+            setLoading(false);
+            setChatLoading(false);
+        }
+
+        fetchChats()
     }, [contextID]);
 
     useEffect(() => {
-        if (seeContexts) {
+        async function fetchContexts() {
             setContextLoading(true);
 
             // TODO: GET contexts
-            getContextsByUserId(1234);
+            const contexts = await getContextsByUserIDAPI(1234);
+            setContexts(contexts)
 
             setContextLoading(false);
+        }
+
+        if (seeContexts) {
+            fetchContexts()
         }
     }, [seeContexts]);
 
@@ -209,18 +178,6 @@ export default function Home() {
         toggleContextDrawer();
         setIsMine(true);
     };
-
-    const toggleContextDrawer = () => {
-        return setSeeContexts(() => !seeContexts);
-    };
-
-    const toggleShareModal = () => {
-        return window.share_modal.showModal();
-    };
-
-    useEffect(() => {
-        console.log(shareURL);
-    }, [shareURL]);
 
     const shareAPI = () => {
         if (navigator.share) {
@@ -259,17 +216,6 @@ export default function Home() {
         return setChats([...chats, chat]);
     };
 
-    useEffect(() => {
-        const value = watch("prompt");
-        if (!value) return;
-        const removedSpaceValue = value.replace(/(\r\n|\n|\r)/gm, "");
-        if (value != "" && removedSpaceValue == "") {
-            setFormError("prompt", { message: NON_INPUT_ERROR });
-            return;
-        }
-        setFormError("prompt", { message: "" });
-    }, [watch("prompt")]);
-
     // Submit data using watching
     const SubmitData = () => {
         const prompt = watch("prompt");
@@ -294,7 +240,6 @@ export default function Home() {
         let target_prompt;
         for (let i = 1; i <= _chats.length; i++) {
             const target = _chats[_chats.length - i];
-            console.log(target);
             if (target.talker == USER) {
                 target_prompt = target.prompt[0].resp;
                 break;
@@ -335,6 +280,9 @@ export default function Home() {
                             onlive: true,
                         };
                         setChats([..._chats, chat]);
+
+                        // TODO: SET sequence ID for various event
+                        setSeqID(1234)
                     }
                 });
 
@@ -346,20 +294,6 @@ export default function Home() {
                 setError(COMPUTING_LIMITATION_ERROR);
             });
     };
-
-    // chatting textarea size adjusting for UX
-    useEffect(() => {
-        if (textAreaRef.current.style) {
-            if (textAreaRef.current.scrollHeight > 24 * 5) {
-                return;
-            }
-
-            textAreaRef.current.style.height = "0px";
-            const scrollHeight = textAreaRef.current.scrollHeight;
-
-            textAreaRef.current.style.height = Math.max(...[scrollHeight, 24 * 2]) + "px";
-        }
-    }, [textAreaRef, watch("prompt")]);
 
     // chat state update event management such as login event, generate event, scroll trigger
     useEffect(() => {
@@ -373,7 +307,7 @@ export default function Home() {
 
             const login_request_data = {
                 talker: COMPUTER,
-                prompt: [{ resp: "자모와 대화를 더 나누기 위해서는 로그인이 필요합니다..."}],
+                prompt: [{ resp: "자모와 대화를 더 나누기 위해서는 로그인이 필요합니다..." }],
                 event: LOGIN_EVENT,
                 onlive: true,
             };
@@ -392,12 +326,12 @@ export default function Home() {
         }
 
         if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
-            let isEnded = false
+            let isEnded = false;
 
-            const tChat = chats[chats.length - 1]
+            const tChat = chats[chats.length - 1];
             tChat.prompt.map((p) => {
-                isEnded = p?.selected && true
-            })
+                isEnded = p?.selected && true;
+            });
 
             if (!isEnded) {
                 setEvent(AB_MODEL_TEST_EVENT);
@@ -413,53 +347,38 @@ export default function Home() {
 
     const selectABTestItem = (index) => {
         // Post the answer and set event msg event
-        setEvent(MSG_EVENT)
-        setLoading(true)
+        setEvent(MSG_EVENT);
+        setLoading(true);
 
-        const _chats = chats
-        const lastChat = _chats[_chats.length -1]
+        const _chats = chats;
 
-        _chats[_chats.length -1].prompt[index].selected = true
-        // console.log(lastChat.prompt[index])
+        // Update for UI
+        _chats[_chats.length - 1].prompt[index].selected = true;
 
-        setLoading(false)
-    }
+        async function fetchABTest(){
+            await selectABTestItemAPI({seq_id: seqID, index: index})
 
-    // Set timeout for clearing the chatting response error.
-    useEffect(() => {
-        if (!error) return;
-        scrollToBottom();
-        const timeout = setTimeout(() => {
             setLoading(false);
-            setError("");
-        }, 1000);
-
-        return () => clearTimeout(timeout);
-    }, [error]);
-
-    const scrollToBottom = () => {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+        
+        fetchABTest()
     };
 
     // =========================== AUTH EVENT =================================
     // =========================== LOGIN =================================
     useEffect(() => {
-        if(auth){
-            setLogined(true)
+        if (auth) {
+            setLogined(true);
+        } else if (auth == false && logined) {
+            toggleLoginModal();
         }
-    }, [auth])
-
+    }, [auth]);
 
     const loginEventHandler = () => {
-        if (!privacyChecked) return setPrivacyError(true); 
-        
-        console.log("DEX LOGIN");
-        router.push("/login")
-    };
+        if (!privacyChecked) return setPrivacyError(true);
 
-    // =========================== RELOGIN REQUEST =================================
-    const toggleLoginModal = () => {
-        return window.login_request_modal.showModal();
+        console.log("DEX LOGIN");
+        router.push("/login");
     };
 
     // =========================== PRIVACY EVENT =================================
@@ -478,6 +397,7 @@ export default function Home() {
 
     const queryRateAnswer = () => {
         // TODO: SEND REQUEST TO SERVER
+        rateAnswerAPI({seq_id: seqID, rate: rating})
 
         // AFTER
         setThankYou(true);
@@ -497,6 +417,58 @@ export default function Home() {
             return () => clearTimeout(tout);
         }
     }, [thankyou]);
+
+    // Set timeout for clearing the chatting response error.
+    useEffect(() => {
+        if (!error) return;
+        scrollToBottom();
+        const timeout = setTimeout(() => {
+            setLoading(false);
+            setError("");
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+    }, [error]);
+
+    // chatting textarea size adjusting for UX
+    useEffect(() => {
+        if (textAreaRef.current.style) {
+            if (textAreaRef.current.scrollHeight > 24 * 5) {
+                return;
+            }
+
+            textAreaRef.current.style.height = "0px";
+            const scrollHeight = textAreaRef.current.scrollHeight;
+
+            textAreaRef.current.style.height = Math.max(...[scrollHeight, 24 * 2]) + "px";
+        }
+    }, [textAreaRef, watch("prompt")]);
+
+    useEffect(() => {
+        const value = watch("prompt");
+        if (!value) return;
+        const removedSpaceValue = value.replace(/(\r\n|\n|\r)/gm, "");
+        if (value != "" && removedSpaceValue == "") {
+            setFormError("prompt", { message: NON_INPUT_ERROR });
+            return;
+        }
+        setFormError("prompt", { message: "" });
+    }, [watch("prompt")]);
+
+    const scrollToBottom = () => {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    };
+
+    // =========================== TOGGLE MODAL EVENT =================================
+    const toggleContextDrawer = () => {
+        return setSeeContexts(() => !seeContexts);
+    };
+    const toggleShareModal = () => {
+        return window.share_modal.showModal();
+    };
+    const toggleLoginModal = () => {
+        return window.login_request_modal.showModal();
+    };
 
     return (
         <>
@@ -689,9 +661,13 @@ export default function Home() {
 
                         {event == AB_MODEL_TEST_EVENT && ABBtnCount && (
                             <BottomSelectorUI title='어떤 대답이 가장 마음에 드시나요?'>
-                                {Array(ABBtnCount).fill(1).map((_, i) => (
-                                    <button onClick={() => selectABTestItem(i)} className='flex-1 btn btn-outline join-item'>{i+1}번</button>
-                                ))}
+                                {Array(ABBtnCount)
+                                    .fill(1)
+                                    .map((_, i) => (
+                                        <button onClick={() => selectABTestItem(i)} className='flex-1 btn btn-outline join-item'>
+                                            {i + 1}번
+                                        </button>
+                                    ))}
                             </BottomSelectorUI>
                         )}
 

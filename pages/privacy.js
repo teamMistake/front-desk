@@ -1,12 +1,26 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { GhostButton } from "../components/button";
 
 export default function Home() {
+    const router = useRouter()
+
     return (
-        <div className='flex w-full text-md text-content justify-center items-center '>
-            <div className='max-w-[640px] p-4 flex flex-col gap-10 break-words whitespace-break-spaces'>
-                <div className='text-xs max-h-[600px] overflow-hidden overflow-y-scroll'>
-                    <span>
-                        {`JAMO 빌드 팀은 이용자들의 개인정보보호를 매우 중요시하며, 개인정보보호법, 정보통신망 이용촉진 및 정보보호 등에 관한 법률 등 개인정보 보호와 관련된 법령상의 개인정보보호 규정을 준수하고 있습니다.
+        <>
+            <div className='navbar bg-base-100 border-b-2'>
+                <div className='navbar-start'>
+                <GhostButton onClick={() => router.push("/")}>MOJA</GhostButton>
+                </div>
+                <div className='navbar-center'></div>
+                <div className='navbar-end'>
+                <GhostButton onClick={() => router.push("/rank")}>Rank</GhostButton>
+                </div>
+            </div>
+            <div className='relative flex w-full text-md text-content justify-center items-center '>
+                <div className='max-w-[640px] p-4 flex flex-col gap-10 break-words whitespace-break-spaces'>
+                    <div className='text-xs max-h-[600px] overflow-hidden overflow-y-scroll'>
+                        <span>
+                            {`JAMO 빌드 팀은 이용자들의 개인정보보호를 매우 중요시하며, 개인정보보호법, 정보통신망 이용촉진 및 정보보호 등에 관한 법률 등 개인정보 보호와 관련된 법령상의 개인정보보호 규정을 준수하고 있습니다.
 
 아래와 같이 개인정보처리방침을 명시하여 이용자가 제공한 개인정보가 어떠한 용도와 방식으로 이용되고 있으며 개인정보보호를 위해 어떠한 조치를 취하는지 알려드립니다.
 
@@ -44,15 +58,21 @@ JAMO 빌드 팀이 수집한 개인정보는 다음의 목적을 위해 활용�
     2) 파기방법
     종이(인쇄물, 서면 등)에 출력된 개인정보는 분쇄기로 분쇄하거나 소각을 통하여 파기하고 전자적 파일형태로 저장된 개인정보는 복원이 불가능한 방법으로 영구 삭제합니다.
 `}
-                    </span>
+                        </span>
+                    </div>
+                    
                 </div>
-                <Link href={{
-                    pathname: "/",
-                    query: { redirectFromPrivacy: true },
-                }}>
-                    <button className='w-full btn btn-primary'>돌아가기</button>
-                </Link>
+                <div className="fixed bottom-0 w-full max-w-[640px] p-3">
+                <Link
+                        href={{
+                            pathname: "/",
+                            query: { redirectFromPrivacy: true },
+                        }}
+                    >
+                        <button className='w-full btn btn-primary'>돌아가기</button>
+                    </Link>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
