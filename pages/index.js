@@ -53,9 +53,7 @@ export default function Home() {
 
     // TODO: Set isMine false for safety
     const [isMine, setIsMine] = useState(true);
-    // const { isAuth: auth, userID } = useUser();
-    const [auth, setAuth] = useState(false)
-    const [userID, setUserID] = useState()
+    const { isAuth: auth, userID } = useUser();
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
@@ -110,20 +108,13 @@ export default function Home() {
 
     // =========================== Initiate EVENT =================================
     useEffect(() => {
-        // setChats([
-        //     { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
-        //     { talker: COMPUTER, prompt: [{ resp: "안녕." }], event: MSG_EVENT, onlive: false, onlive: true, seqID: 10 },
-        // ]);
-
         // Redirect Event Handler for the Login event enabling
         const { redirectFromPrivacy } = router.query;
         if (redirectFromPrivacy) {
             setEvent(LOGIN_EVENT);
         }
 
-        const { isAuth , userID } = useUser();
-        setAuth(isAuth)
-        setUserID(userID)
+        console.log(auth)
 
         // If this page was shared context page. and so
         const { share: sharedContextId } = queryString.parse(location.search);
@@ -141,7 +132,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        console.log(auth);
+        console.log("console auth status", auth);
     }, [auth]);
 
     const clearChat = () => {
