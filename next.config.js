@@ -7,5 +7,15 @@ module.exports = {
       use: ["@svgr/webpack"]
     });
     return config;
-  }
+  },
+  async redirects() {
+    return [
+      {
+        // does not add /docs since basePath: false is set
+        source: '/login',
+        destination: '/api/oauth2/sign_in',
+        permanent: false,
+      },
+    ]
+  },
 }

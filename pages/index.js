@@ -37,12 +37,14 @@ import {
     TwitterIcon,
     TwitterShareButton,
 } from "react-share";
+import { getUserInfoAPI } from "../utils/api";
 
 export default function Home() {
     const router = useRouter();
 
     const [auth, setAuth] = useState(false);
-    const [isMine, setIsMine] = useState(true);
+    // const [isMine, setIsMine] = useState(true);
+    const [userID, setUserID] = useState()
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
@@ -72,6 +74,7 @@ export default function Home() {
 
     // If your visit is first or not
     const [firstVisit, setFirstVisit] = useLocalStorage("firstVisit");
+    const [logined, setLogined] = useLocalStorage("logined")
 
     const [privacyChecked, setPrivacyChecked] = useState(false);
     const [privacyError, setPrivacyError] = useState(false);
@@ -105,13 +108,25 @@ export default function Home() {
             setEvent(LOGIN_EVENT);
         }
 
+        // Check user is logined or not
+        const user = getUserInfoAPI()
+        if (user) {
+            setLogined(true)
+            setAuth(true)
+            setUserID(user.user)
+        } else if (logined) {
+            toggleLoginModal()
+        }
+
         // If this page was shared context page. and so
-        const { share: sharedContextId } = queryString.parse(location.search);
+        const { share: sharedContextId } = queryString.parse(location.search);        
 
         if (sharedContextId) {
             setContextID(sharedContextId);
             getChatsByContextId(sharedContextId);
-            // it may be possible that this chat was written by me. so change this state by situation
+
+            // it may be possible that this chat was written by me. so change this state case by case
+            // identify the user authorization with userId and context writer id
             setIsMine(false);
         }
     }, []);
@@ -440,13 +455,14 @@ export default function Home() {
     // =========================== AUTH EVENT =================================
     // =========================== LOGIN =================================
     const loginEventHandler = () => {
-        if (!privacyChecked) return setPrivacyError(true);
-
+        if (!privacyChecked) return setPrivacyError(true); 
+        
         console.log("DEX LOGIN");
+        router.push("/login")
     };
 
     // =========================== RELOGIN REQUEST =================================
-    const showAuthModal = () => {
+    const toggleLoginModal = () => {
         return window.login_request_modal.showModal();
     };
 

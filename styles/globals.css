@@ -20,8 +20,6 @@ body {
   color: rgb(var(--foreground-rgb));
 }
 
-
-
 .blinking-cursor::after {
   content: "|";
   animation: blink 1s step-end infinite;
