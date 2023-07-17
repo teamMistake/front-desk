@@ -39,6 +39,7 @@ import {
 } from "react-share";
 import { getChatsByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
 import { useUser } from "../hook/useUser";
+import SendIcon from "../components/sendicon";
 
 export default function Home() {
     const router = useRouter();
@@ -735,7 +736,8 @@ export default function Home() {
                                 </button> */}
                                 <AnimateSendButton disabled={loading}>
                                     {!loading ? (
-                                        <Image src='/white_hand.png' alt='' width={30} height={30} />
+                                        // <Image src='/white_hand.png' alt='' width={30} height={30} />
+                                        <SendIcon width="27" height="27" />
                                     ) : (
                                         <span className='loading loading-spinner'></span>
                                     )}

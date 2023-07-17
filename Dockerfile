@@ -1,30 +1,23 @@
-FROM node:18-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+FROM node:16-alpine AS dependencies
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
-
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+WORKDIR /home/app
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm i
+FROM node:16-alpine AS builder
+WORKDIR /home/app
+COPY --from=dependencies /home/app/node_modules ./node_modules
 COPY . .
-
+ENV NEXT_TELEMETRY_DISABLED 1
+ARG NODE_ENV
+ENV NODE_ENV=”${NODE_ENV}”
 RUN npm run build
-
-ENV NODE_ENV=production
-RUN npm install --frozen-lockfile --production
-RUN rm -rf ./.next/cache
-
-CMD ["npm", "run", "start"]
+FROM mhart/alpine-node:slim-14 AS runner
+WORKDIR /home/app
+ENV NEXT_TELEMETRY_DISABLED 1
+COPY --from=builder /home/app/.next/standalone ./standalone
+COPY --from=builder /home/app/public /home/app/standalone/public
+COPY --from=builder /home/app/.next/static /home/app/standalone/.next/static
+EXPOSE 3000
+ENV PORT 3000
+CMD [“node”, “./standalone/server.js”]
