@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { MessageBox } from "../components/message";
@@ -15,6 +15,7 @@ import {
     MSG_EVENT,
     NON_INPUT_ERROR,
     RANK_RES_EVENT,
+    SHARED_CONTENT_EVENT,
     USER,
 } from "../components/constant";
 import useLocalStorage from "../hook/useLocalStorage";
@@ -42,19 +43,22 @@ import { useUser } from "../hook/useUser";
 import SendIcon from "../components/sendicon";
 import Head from "next/head";
 import Opengraph from "../components/opengraph";
+import { KakaoBtn } from "../components/kakaobutton";
+import ContextIcon from "../components/contexticon";
 
 export default function Home() {
     const router = useRouter();
 
+    // TODO: Set isMine false for safety
     const [isMine, setIsMine] = useState(true);
     const { isAuth: auth, userID } = useUser();
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
-    const [seqID, setSeqID] = useState();
 
-    const [ABTests, setABTests] = useState([]);
+    // current dialogue seqID
+    const [seqID, setSeqID] = useState();
 
     // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
@@ -100,36 +104,58 @@ export default function Home() {
 
     const { ref, ...rest } = register("prompt");
 
-    // =========================== START EVENT =================================
+    // =========================== Initiate EVENT =================================
     useEffect(() => {
         // setChats([
         //     { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
         //     { talker: COMPUTER, prompt: [{ resp: "안녕." }], event: MSG_EVENT, onlive: false, onlive: true, seqID: 10 },
         // ]);
 
+        // Redirect Event Handler for the Login event enabling
         const { redirectFromPrivacy } = router.query;
         if (redirectFromPrivacy) {
             setEvent(LOGIN_EVENT);
         }
-
-        // TODO: JUST TEST
-        // setContextID(10)
 
         // If this page was shared context page. and so
         const { share: sharedContextId } = queryString.parse(location.search);
 
         if (sharedContextId) {
             setContextID(sharedContextId);
-            getChatsByContextId(sharedContextId);
-
             // it may be possible that this chat was written by me. so change this state case by case
+            // TODO: ISMINE
             // identify the user authorization with userId and context writer id
+
+            // IF NOT MINE
+            setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
+
+            // ELSE
+            setEvent(MSG_EVENT)
+            setIsMine(true)
         }
     }, []);
 
+    const clearChat = () => {
+        setChats([]);
+        setEvent(MSG_EVENT);
+        setIsMine(true);
+        router.push("/");
+    };
+
+    const clearAll = () => {
+        clearChat()
+        setContextID()
+    }
+
+    const startNewChat = () => {
+        clearAll();
+        toggleContextDrawer();
+    };
+
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
+        clearChat()
         if (contextID == "" || !contextID) return;
 
         // set share url for future sharing event
@@ -156,7 +182,7 @@ export default function Home() {
     useEffect(() => {
         async function fetchContexts() {
             setContextLoading(true);
-
+            
             // TODO: GET contexts
             const contexts = await getContextsByUserIDAPI(1234);
             setContexts(contexts);
@@ -173,20 +199,14 @@ export default function Home() {
         setContextID(cid);
         toggleContextDrawer();
         setIsMine(true);
-    };
-
-    const startNewChat = () => {
-        setContextID("");
-        setChats([]);
-        toggleContextDrawer();
-        setIsMine(true);
+        setEvent(MSG_EVENT)
     };
 
     const shareAPI = () => {
         if (navigator.share) {
             navigator
                 .share({
-                    title: "모자와 대화해봐요! Chat with MOJA.",
+                    title: "모자와 대화 해모자. Chat with MOJA.",
                     text: "저와 모자의 재밌는 대화 기록 한번 보실래요?",
                     url: shareURL,
                 })
@@ -399,7 +419,6 @@ export default function Home() {
     };
 
     const queryRateAnswer = () => {
-        // TODO: SEND REQUEST TO SERVER
         rateAnswerAPI({ seq_id: seqID, rate: rating });
 
         // AFTER
@@ -475,10 +494,15 @@ export default function Home() {
 
     return (
         <>
-            <Opengraph title="" ogTitle="" description={`MOJA(모자)는 언어모델 "자모"를 기반으로 한 인공지능 채팅 서비스입니다. 자모는 GPT-3 같은 대규모 언어모델과 비등한 성능을 가지면서도, 낮은 성능의 컴퓨터에서도 구동이 가능할 수 있도록 만들어진 인공지능 언어 모델입니다. ChatGPT와 비교하자면 낮은 성능을 보이기는 하지만… OpenAI는 몇천억을 들여서 모델을 만들고 저희는 무자본으로 만들었는걸요. 이런 “자모”와 한번 대화해 볼래요?`} isMainPage={true} />
+            <Opengraph
+                title=''
+                ogTitle=''
+                description={`MOJA(모자)는 언어모델 "자모"를 기반으로 한 인공지능 채팅 서비스입니다. 자모는 GPT-3 같은 대규모 언어모델과 비등한 성능을 가지면서도, 낮은 성능의 컴퓨터에서도 구동이 가능할 수 있도록 만들어진 인공지능 언어 모델입니다. ChatGPT와 비교하자면 낮은 성능을 보이기는 하지만… OpenAI는 몇천억을 들여서 모델을 만들고 저희는 무자본으로 만들었는걸요. 이런 “자모”와 한번 대화해 볼래요?`}
+                isMainPage={true}
+            />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    {auth && (
+                    {!auth && (
                         <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
                             <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M4 6h16M4 12h16M4 18h7' />
@@ -488,7 +512,7 @@ export default function Home() {
                 </div>
                 <div className='navbar-center'></div>
                 <div className='navbar-end'>
-                    {chats.length > 0 && (
+                    {chats.length > 0 && shareURL && (
                         <GhostButton onClick={() => toggleShareModal()}>
                             <ShareIcon width='40' />
                         </GhostButton>
@@ -511,8 +535,11 @@ export default function Home() {
                                             className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
                                             key={index}
                                         >
-                                            {/* TODO: COOL MESSAGE ICON */}
-                                            <div>+</div>
+                                            <div>
+                                                <ContextIcon width="20" height="20" />
+                                            </div>
+
+                                            {/* TODO: set appropriate item */}
                                             <span className='text-md font-medium'>새로운 대화</span>
                                             <span className='text-sm font-thin'>22.07.15</span>
                                         </li>
@@ -559,8 +586,9 @@ export default function Home() {
                                     </button>
                                     <button className='w-[50%] btn btn-outline join-item'>아니요</button>
                                 </div>
-                                <div className='divider'>OR</div>
+                                <div className='divider'>SNS</div>
                                 <div className='flex flex-row gap-2'>
+                                    <KakaoBtn shareURL={shareURL} />
                                     <FacebookShareButton url={shareURL}>
                                         <FacebookIcon size={48} round={true} borderRadius={24}></FacebookIcon>
                                     </FacebookShareButton>
@@ -662,6 +690,14 @@ export default function Home() {
                                     </div>
                                 </div>
                             </>
+                        )}
+
+                        {event == SHARED_CONTENT_EVENT && (
+                            <BottomSelectorUI title={`자모와 직접 대화를 시작해봐요! Let's just chat with JAMO`}>
+                                <button className='btn btn-outline flex-1 max-w-[400px]' onClick={() => clearAll()}>
+                                    시작하기
+                                </button>
+                            </BottomSelectorUI>
                         )}
 
                         {event == AB_MODEL_TEST_EVENT && ABBtnCount && (

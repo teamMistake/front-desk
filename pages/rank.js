@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { GhostButton } from "../components/button";
 import { useRouter } from "next/router";
 import { useUser } from "../hook/useUser";
-import { Opengraph } from "../components/opengraph";
+import Opengraph from "../components/opengraph";
+import ContextIcon from "../components/contexticon";
 
 export default function Home() {
     const [ranks, setRanks] = useState([]);
@@ -65,7 +66,10 @@ export default function Home() {
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
-                    <GhostButton onClick={() => router.push("/")}>Chat</GhostButton>
+                    <GhostButton onClick={() => router.push("/")}>
+                        <ContextIcon width="30" height="30" />
+                        <span className="text-xs">Chat</span>
+                    </GhostButton>
                 </div>
             </div>
 
