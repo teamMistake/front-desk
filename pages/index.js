@@ -53,7 +53,9 @@ export default function Home() {
 
     // TODO: Set isMine false for safety
     const [isMine, setIsMine] = useState(true);
-    const { isAuth: auth, userID } = useUser();
+    // const { isAuth: auth, userID } = useUser();
+    const [auth, setAuth] = useState(false)
+    const [userID, setUserID] = useState()
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
@@ -118,6 +120,10 @@ export default function Home() {
         if (redirectFromPrivacy) {
             setEvent(LOGIN_EVENT);
         }
+
+        const { isAuth , userID } = useUser();
+        setAuth(isAuth)
+        setUserID(userID)
 
         // If this page was shared context page. and so
         const { share: sharedContextId } = queryString.parse(location.search);
