@@ -506,7 +506,7 @@ export default function Home() {
             />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    {auth && (
+                    {!auth && (
                         <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
                             <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M4 6h16M4 12h16M4 18h7' />
@@ -536,7 +536,7 @@ export default function Home() {
                                 <LoadingSpinner />
                             ) : (
                                 <ul className='w-full divide-y divide-slate-100'>
-                                    {contexts.map((cid, index) => (
+                                    {contexts.length == 0 ? contexts.map((cid, index) => (
                                         <li
                                             onClick={() => changeContext(cid)}
                                             className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
@@ -550,7 +550,9 @@ export default function Home() {
                                             <span className='text-md font-medium'>새로운 대화</span>
                                             <span className='text-sm font-thin'>22.07.15</span>
                                         </li>
-                                    ))}
+                                    )) : (
+                                        <div className="text-center w-full text-xl font-bold">None</div>
+                                    )}
                                 </ul>
                             )}
                         </div>
