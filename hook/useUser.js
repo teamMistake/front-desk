@@ -20,7 +20,7 @@ const useUser = () => {
         fetchUser()
     }, [])
 
-    return {isAuth: isAuth, userID: userID}
+    return [isAuth, userID]
 }
 
 

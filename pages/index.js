@@ -52,7 +52,7 @@ export default function Home() {
 
     // TODO: Set isMine false for safety
     const [isMine, setIsMine] = useState(true);
-    const { isAuth: auth, userID } = useUser();
+    const [auth, userID] = useUser();
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
@@ -186,6 +186,7 @@ export default function Home() {
 
             // TODO: GET contexts
             const contexts = await getContextsByUserIDAPI(1234);
+            console.log("Context!!!!!!", contexts)
             setContexts(contexts);
 
             setContextLoading(false);
@@ -276,15 +277,15 @@ export default function Home() {
         return handleSubmit(onSubmit(data));
     };
 
-    const PostGenerate = async (prompt) => {
-        const data = { req: prompt, model: "prod", stream: true, max_token: 120, context: [] };
+    const PostGenerate = (prompt) => {
+        const data = { initialPrompt: prompt };
 
         // Timeout Detector
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 10s
 
         const _chats = chats;
-        const stream = fetch("/api/generate", { body: JSON.stringify(data), method: "POST", signal: controller.signal })
+        const stream = fetch("/api/chat/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal })
             .then((response) => ndjsonStream(response.body))
             .then((stream) => {
                 clearTimeout(timeoutId);
@@ -308,11 +309,10 @@ export default function Home() {
                         // TODO: SET sequence ID for various event
                         setSeqID(1234);
                     }
+                    if (event != AB_MODEL_TEST_EVENT) {
+                        randomRatingEventTrigger();
+                    }
                 });
-
-                if (event != AB_MODEL_TEST_EVENT) {
-                    randomRatingEventTrigger();
-                }
             })
             .catch((e) => {
                 setError(COMPUTING_LIMITATION_ERROR);
@@ -325,6 +325,9 @@ export default function Home() {
 
         const trigger = firstVisit == undefined ? LOGIN_TRIGGER_NUM : 3;
         // Login Event Trigger
+
+        console.log("Auth", auth, "USERID", userID)
+
         if (chats[chats.length - 1].talker == USER && chats.length >= trigger && !auth) {
             const _chats = chats;
             setFirstVisit(false);
@@ -503,7 +506,7 @@ export default function Home() {
             />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    {!auth && (
+                    {auth && (
                         <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
                             <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M4 6h16M4 12h16M4 18h7' />

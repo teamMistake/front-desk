@@ -67,8 +67,13 @@ const getChatsByContextIDAPI = (contextID) => {
     return parsedChat
 };
 
-const getContextsByUserIDAPI = (userID) => {
-    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+const getContextsByUserIDAPI = async (userID) => {
+    const res = await fetch("/chat/chats", {"method": "GET"})
+    const response = res.json()
+
+    console.log(response)
+
+    return response.body
 }
 
 export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatsByContextIDAPI, getContextsByUserIDAPI };

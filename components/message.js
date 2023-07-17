@@ -28,12 +28,13 @@ const MessageBox = ({ talker, prompt, event, onlive }) => {
         if (payload[0].resp == "") {
             return setCursor(1);
         }
+
         setUpdates(updates + 1);
-        setCursor(cursor);
+        setCursor(talker == USER ? payload[0].resp.length : 1);
     }, [payload]);
 
     useEffect(() => {
-        if (!onlive || type != SINGLE_MESSAGE) return setEnd(true);
+        if (!onlive || type != SINGLE_MESSAGE || talker == USER) return setEnd(true);
 
         setEnd(cursor == payload[0]?.resp?.length);
         const timeout = setTimeout(() => {
