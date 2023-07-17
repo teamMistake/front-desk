@@ -9,7 +9,6 @@ const useUser = () => {
     useEffect(() => {
         async function fetchUser() {
             const user = await getUserInfoAPI()
-            console.log(user)
             if (user) {
                 setIsAuth(true)
                 setUserID(user.user)

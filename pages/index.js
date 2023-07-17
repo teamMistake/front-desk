@@ -46,6 +46,7 @@ import Opengraph from "../components/opengraph";
 import { KakaoBtn } from "../components/kakaobutton";
 import ContextIcon from "../components/contexticon";
 import RankIcon from "../components/rankicon";
+import { parsingChatItem } from "../utils/parsing";
 
 export default function Home() {
     const router = useRouter();
@@ -130,10 +131,6 @@ export default function Home() {
             // IF NOT MINE
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
-
-            // ELSE
-            setEvent(MSG_EVENT)
-            setIsMine(true)
         }
     }, []);
 
@@ -170,9 +167,17 @@ export default function Home() {
             setLoading(true);
             setChatLoading(true);
 
-            const chats = await getChatsByContextIDAPI(contextID);
-            setChats(chats);
+            const _chats = await getChatsByContextIDAPI(contextID);
+            const { messages} = _chats
 
+            if (_chats.userId = userID){
+                setEvent(MSG_EVENT)
+                setIsMine(true)
+            }
+
+            const parsed_chats = parsingChatItem(messages)
+            setChats(() => parsed_chats)
+            
             setLoading(false);
             setChatLoading(false);
         }
@@ -536,7 +541,7 @@ export default function Home() {
                                 <LoadingSpinner />
                             ) : (
                                 <ul className='w-full divide-y divide-slate-100'>
-                                    {contexts.length == 0 ? contexts.map((cid, index) => (
+                                    {contexts.length == 0 ? contexts.map(({chatId, title, creationTimeStamp}, index) => (
                                         <li
                                             onClick={() => changeContext(cid)}
                                             className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
@@ -545,13 +550,14 @@ export default function Home() {
                                             <div>
                                                 <ContextIcon width="20" height="20" />
                                             </div>
-
                                             {/* TODO: set appropriate item */}
-                                            <span className='text-md font-medium'>새로운 대화</span>
-                                            <span className='text-sm font-thin'>22.07.15</span>
+                                            <span className='text-md font-medium'>{title == "" ? "새로운 대화" : title}</span>
+                                            <span className='text-sm font-thin'>{creationTimeStamp}</span>
                                         </li>
                                     )) : (
-                                        <div className="text-center w-full text-xl font-bold">None</div>
+                                        <div className="text-center w-full text-2xl p-2 font-bold">
+                                            헉.. 아무 대화가 없네요..    
+                                        </div>
                                     )}
                                 </ul>
                             )}

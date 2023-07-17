@@ -1,6 +1,3 @@
-import { COMPUTER, MSG_EVENT, USER } from "../components/constant";
-import { parsingChatItem } from "./parsing";
-
 const getUserInfoAPI = async () => {
     const res = fetch("/api/oauth2/userinfo", {
         method: "GET",
@@ -24,56 +21,21 @@ const selectABTestItemAPI = ({ seq_id, index }) => {
     return;
 };
 
-const getChatsByContextIDAPI = (contextID) => {
-    const mockChat = [
-        { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
-        {
-            talker: COMPUTER,
-            prompt: [
-                {
-                    resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                    selected: false,
-                },
-                {
-                    resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                    selected: false,
-                },
-                {
-                    resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                    selected: false,
-                },
-                {
-                    resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                    selected: false,
-                },
-                {
-                    resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
-                    selected: false,
-                },
-                {
-                    resp: "안녕",
-                    selected: false,
-                },
-                { resp: "안녕.", selected: false },
-                { resp: "안녕.", selected: true },
-            ],
-            event: MSG_EVENT,
-            onlive: false,
-            onlive: true,
-            seqID: 10,
-        },
-    ]
-    const parsedChat = parsingChatItem(mockChat)
-
-    return parsedChat
+const getChatsByContextIDAPI = async (contextID) => {
+    try {
+        const res = await fetch(`/chat/${contextID}`)   
+        const response = await res.json()
+    
+        return response
+    } catch (e) {
+        return undefined
+    }
 };
 
-const getContextsByUserIDAPI = async (userID) => {
+const getContextsByUserIDAPI = async () => {
     try{
         const res = await fetch("/chat/chats", {"method": "GET"})
         const response = await res.json()
-    
-        console.log(response)
     
         return response
     } catch(e) {
