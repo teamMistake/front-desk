@@ -75,7 +75,7 @@ const getContextsByUserIDAPI = async (userID) => {
     
         console.log(response)
     
-        return response.body
+        return response
     } catch(e) {
         return []
     }
