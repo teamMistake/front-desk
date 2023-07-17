@@ -48,7 +48,7 @@ export default function Home() {
     const [chats, setChats] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
 
-    const [ABTests, setABTests] = useState([])
+    const [ABTests, setABTests] = useState([]);
 
     // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
@@ -59,6 +59,7 @@ export default function Home() {
     const [seeContexts, setSeeContexts] = useState(false);
     const [contextID, setContextID] = useState("");
     const [contextLoading, setContextLoading] = useState(false);
+    const [ABBtnCount, setABBtnCount] = useState(3);
 
     const [shareURL, setShareURL] = useState("");
 
@@ -95,8 +96,8 @@ export default function Home() {
     // =========================== START EVENT =================================
     useEffect(() => {
         setChats([
-            { talker: USER, prompt: [{resp:"안녕 반가워."}], event: MSG_EVENT,onlive: false, seqID: 10 },
-            { talker: COMPUTER, prompt: [{resp:"안녕."}], event: MSG_EVENT, onlive: false , onlive: true, seqID: 10},
+            { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
+            { talker: COMPUTER, prompt: [{ resp: "안녕." }], event: MSG_EVENT, onlive: false, onlive: true, seqID: 10 },
         ]);
 
         const { redirectFromPrivacy } = router.query;
@@ -108,7 +109,7 @@ export default function Home() {
         const { share: sharedContextId } = queryString.parse(location.search);
 
         if (sharedContextId) {
-            setContextID(sharedContextId)
+            setContextID(sharedContextId);
             getChatsByContextId(sharedContextId);
             // it may be possible that this chat was written by me. so change this state by situation
             setIsMine(false);
@@ -120,14 +121,48 @@ export default function Home() {
         setLoading(true);
         setChatLoading(true);
         setChats([
-            { talker: USER, prompt: ["안녕 반가워."], event: MSG_EVENT },
-            { talker: COMPUTER, prompt: ["안녕."], event: MSG_EVENT, onlive: false },
+            { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
+            {
+                talker: COMPUTER,
+                prompt: [
+                    {
+                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
+                        selected: false
+                    },
+                    {
+                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
+                        selected: false
+                    },
+                    {
+                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
+                        selected: false
+                    },
+                    {
+                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
+                        selected: false
+                    },
+                    {
+                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
+                        selected: false
+                    },
+                    {
+                        resp: "안녕은 말 그대로 안녕이라는 의미입니다. 대부분의 사람들은 일상 대화에서부터 부정적인 뉘앙스를 드러냅니다. 하지만, 이 문구는 언제나 기쁨과 안녕함을 전합니다.",
+                        selected: false
+                    },
+                    { resp: "안녕.", selected: false},
+                    { resp: "안녕.", selected: true },
+                ],
+                event: MSG_EVENT,
+                onlive: false,
+                onlive: true,
+                seqID: 10,
+            },
         ]);
         setTimeout(() => {
             // JUST FOR THE TEST
             setLoading(false);
             setChatLoading(false);
-        }, 10000);
+        }, 1000);
     };
 
     const getContextsByUserId = (id) => {
@@ -137,8 +172,8 @@ export default function Home() {
     useEffect(() => {
         if (contextID == "" || !contextID) return;
 
-        const urlPieces = [location.protocol, '//', location.host, location.pathname]
-        let url = urlPieces.join('')
+        const urlPieces = [location.protocol, "//", location.host, location.pathname];
+        let url = urlPieces.join("");
         const turl = `${url}/?share=${contextID}`;
         setShareURL(turl);
 
@@ -180,8 +215,8 @@ export default function Home() {
     };
 
     useEffect(() => {
-        console.log(shareURL)
-    }, [shareURL])
+        console.log(shareURL);
+    }, [shareURL]);
 
     const shareAPI = () => {
         if (navigator.share) {
@@ -208,9 +243,11 @@ export default function Home() {
 
         setValue("prompt", "");
 
+        const chatPrompt = { resp: prompt };
+
         const chat = {
             talker: USER,
-            prompt: prompt,
+            prompt: [chatPrompt],
             event: MSG_EVENT,
             onlive: true,
         };
@@ -253,9 +290,9 @@ export default function Home() {
         let target_prompt;
         for (let i = 1; i <= _chats.length; i++) {
             const target = _chats[_chats.length - i];
-            console.log(target)
+            console.log(target);
             if (target.talker == USER) {
-                target_prompt = target.prompt;
+                target_prompt = target.prompt[0].resp;
                 break;
             }
         }
@@ -297,7 +334,9 @@ export default function Home() {
                     }
                 });
 
-                randomRatingEventTrigger();
+                if (event != AB_MODEL_TEST_EVENT) {
+                    randomRatingEventTrigger();
+                }
             })
             .catch((e) => {
                 setError(COMPUTING_LIMITATION_ERROR);
@@ -330,7 +369,7 @@ export default function Home() {
 
             const login_request_data = {
                 talker: COMPUTER,
-                prompt: ["자모와 대화를 더 나누기 위해서는 로그인이 필요합니다..."],
+                prompt: [{ resp: "자모와 대화를 더 나누기 위해서는 로그인이 필요합니다..."}],
                 event: LOGIN_EVENT,
                 onlive: true,
             };
@@ -341,10 +380,25 @@ export default function Home() {
             return setChats([..._chats, login_request_data]);
         }
 
-        if (chats[chats.length - 1].talker == USER) {
+        const lastChat = chats[chats.length - 1];
+        if (lastChat.talker == USER) {
             setLoading(true);
             const target_prompt = chats[chats.length - 1].prompt;
             PostGenerate(target_prompt);
+        }
+
+        if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
+            let isEnded = false
+
+            const tChat = chats[chats.length - 1]
+            tChat.prompt.map((p) => {
+                isEnded = p?.selected && true
+            })
+
+            if (!isEnded) {
+                setEvent(AB_MODEL_TEST_EVENT);
+                setABBtnCount(lastChat.prompt.length);
+            }
         }
 
         if (chats.length != update) {
@@ -352,6 +406,20 @@ export default function Home() {
             setUpdate(chats.length);
         }
     }, [chats]);
+
+    const selectABTestItem = (index) => {
+        // Post the answer and set event msg event
+        setEvent(MSG_EVENT)
+        setLoading(true)
+
+        const _chats = chats
+        const lastChat = _chats[_chats.length -1]
+
+        _chats[_chats.length -1].prompt[index].selected = true
+        // console.log(lastChat.prompt[index])
+
+        setLoading(false)
+    }
 
     // Set timeout for clearing the chatting response error.
     useEffect(() => {
@@ -441,7 +509,7 @@ export default function Home() {
 
             <main className='bg-base-100 flex flex-row h-full w-screen overflow-hidden'>
                 <Drawer open={seeContexts} onClose={toggleContextDrawer} direction='bottom' size={500}>
-                    <div className='w-full h-full flex flex-col justify-center items-center'>
+                    <div className='w-full h-full flex flex-col justify-center items-center bg-base-100'>
                         <div className='w-full flex-1 overflow-hidden overflow-y-scroll'>
                             {contextLoading ? (
                                 <LoadingSpinner />
@@ -502,7 +570,7 @@ export default function Home() {
                                     <button className='w-[50%] btn btn-outline join-item'>아니요</button>
                                 </div>
                                 <div className='divider'>OR</div>
-                                <div className="flex flex-row gap-2">
+                                <div className='flex flex-row gap-2'>
                                     <FacebookShareButton url={shareURL}>
                                         <FacebookIcon size={48} round={true} borderRadius={24}></FacebookIcon>
                                     </FacebookShareButton>
@@ -607,11 +675,11 @@ export default function Home() {
                             </>
                         )}
 
-                        {event == AB_MODEL_TEST_EVENT && (
+                        {event == AB_MODEL_TEST_EVENT && ABBtnCount && (
                             <BottomSelectorUI title='어떤 대답이 가장 마음에 드시나요?'>
-                                <button className='w-[30%] btn btn-outline join-item'>1번</button>
-                                <button className='w-[30%] btn btn-outline join-item'>2번</button>
-                                <button className='w-[30%] btn btn-outline join-item'>3번</button>
+                                {Array(ABBtnCount).fill(1).map((_, i) => (
+                                    <button onClick={() => selectABTestItem(i)} className='flex-1 btn btn-outline join-item'>{i+1}번</button>
+                                ))}
                             </BottomSelectorUI>
                         )}
 
