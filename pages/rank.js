@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
 import { GhostButton } from "../components/button";
 import { useRouter } from "next/router";
-import { getUserInfoAPI } from "../utils/api";
 import { useUser } from "../hook/useUser";
 
 export default function Home() {
+    const [ranks, setRanks] = useState([]);
+
     const router = useRouter();
     const {isAuth, userID} = useUser();
 
-    const [ranks, setRanks] = useState([]);
-
     const getRank = () => {
-        const response = fetch({/* getRankAPI */}, {
+        const res = fetch("/api/ranking", {
             method: "GET"
         })
         .then((res) => res.json()).then((res) => {
             setRanks(res);
-        })
+        });
     };
 
     useEffect(() => {
@@ -29,7 +28,7 @@ export default function Home() {
 
     const Rank = (user, rank, name, score) => {
         return (
-            <tr className={"text-content "
+            <tr className={""
             + (rank == 1 ? "text-3xl " : "")
             + (rank == 2 ? "text-2xl " : "")
             + (rank == 3 ? "text-xl " : "")
@@ -46,7 +45,7 @@ export default function Home() {
         <>
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    <GhostButton>JAMO</GhostButton>
+                    <GhostButton onClick={() => router.push("")}>MOJA</GhostButton>
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
@@ -56,12 +55,12 @@ export default function Home() {
 
             <main className="bg-greyscale-1 flex flex-row h-screen w-screen">
                 <div className="relative overflow-hidden h-full flex flex-col w-full">
-                    <p className="font-bold text-3xl text-primary justify-center my-10 flex">Rank</p>
-                    <div>
+                    <p className="font-bold text-3xl text-primary justify-center my-10 flex select-none">Rank</p>
+                    <div className="overflow-y-auto">
                         <div className="overflow-x-auto">
                             <table className="table">
                                 <thead>
-                                    <tr className="text-base text-content">
+                                    <tr className="text-base text-content select-none">
                                         <th>Top</th>
                                         <th>Name</th>
                                         <th>Score</th>
