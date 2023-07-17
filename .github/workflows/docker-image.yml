@@ -39,3 +39,12 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        
+    - name: Kubernetes context
+      uses: Azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.K8S_SERVICEACCOUNT }}
+        namespace: team-mistake
+    - name: Deploy
+      run: kubectl rollout restart deployment chatjamo-frontdesk-test
