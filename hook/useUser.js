@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { getUserInfoAPI } from "../utils/api"
 
 const useUser = () => {
-    const [isAuth, setIsAuth] = useState(false)
+    const [isAuth, setIsAuth] = useState()
     const [userID, setUserID] = useState()
 
     // AUTHORIZATION identification
@@ -12,6 +12,8 @@ const useUser = () => {
             if (user) {
                 setIsAuth(true)
                 setUserID(user.user)
+            } else {
+                setIsAuth(false)
             }
         }
 
