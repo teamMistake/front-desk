@@ -1,7 +1,7 @@
 import { COMPUTER, MSG_EVENT, USER } from "../components/constant";
 import { parsingChatItem } from "./parsing";
 
-const getUserInfoAPI = () => {
+const getUserInfoAPI = async () => {
     const res = fetch("/api/oauth2/userinfo", {
         method: "GET",
     })
@@ -13,6 +13,7 @@ const getUserInfoAPI = () => {
             console.log(e)
             return undefined;
         });
+    return res
 };
 
 const rateAnswerAPI = ({ seq_id, rate }) => {
@@ -68,12 +69,16 @@ const getChatsByContextIDAPI = (contextID) => {
 };
 
 const getContextsByUserIDAPI = async (userID) => {
-    const res = await fetch("/chat/chats", {"method": "GET"})
-    const response = res.json()
-
-    console.log(response)
-
-    return response.body
+    try{
+        const res = await fetch("/chat/chats", {"method": "GET"})
+        const response = await res.json()
+    
+        console.log(response)
+    
+        return response
+    } catch(e) {
+        return []
+    }
 }
 
 export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatsByContextIDAPI, getContextsByUserIDAPI };
