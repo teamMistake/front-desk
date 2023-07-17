@@ -1,19 +1,22 @@
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { GhostButton } from "../components/button";
+import Opengraph from "../components/opengraph";
 
 export default function Home() {
-    const router = useRouter()
+    const router = useRouter();
 
     return (
         <>
+            <Opengraph title="개인정보처리방침" ogTitle="개인정보처리방침을 확인해보세요!" description="개인정보처리방침 안내 페이지입니다." />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                <GhostButton onClick={() => router.push("/")}>MOJA</GhostButton>
+                    <GhostButton onClick={() => router.push("/")}>MOJA</GhostButton>
                 </div>
                 <div className='navbar-center'></div>
                 <div className='navbar-end'>
-                <GhostButton onClick={() => router.push("/rank")}>Rank</GhostButton>
+                    <GhostButton onClick={() => router.push("/rank")}>Rank</GhostButton>
                 </div>
             </div>
             <div className='relative flex w-full text-md text-content justify-center items-center '>
@@ -60,10 +63,9 @@ JAMO 빌드 팀이 수집한 개인정보는 다음의 목적을 위해 활용�
 `}
                         </span>
                     </div>
-                    
                 </div>
-                <div className="fixed bottom-0 w-full max-w-[640px] p-3">
-                <Link
+                <div className='fixed bottom-0 w-full max-w-[640px] p-3'>
+                    <Link
                         href={{
                             pathname: "/",
                             query: { redirectFromPrivacy: true },

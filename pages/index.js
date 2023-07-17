@@ -40,17 +40,19 @@ import {
 import { getChatsByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
 import { useUser } from "../hook/useUser";
 import SendIcon from "../components/sendicon";
+import Head from "next/head";
+import Opengraph from "../components/opengraph";
 
 export default function Home() {
     const router = useRouter();
 
-    const [isMine, setIsMine] = useState(true)
+    const [isMine, setIsMine] = useState(true);
     const { isAuth: auth, userID } = useUser();
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
-    const [seqID, setSeqID] = useState()
+    const [seqID, setSeqID] = useState();
 
     const [ABTests, setABTests] = useState([]);
 
@@ -141,14 +143,14 @@ export default function Home() {
             setLoading(true);
             setChatLoading(true);
 
-            const chats = await getChatsByContextIDAPI(contextID)
-            setChats(chats)
+            const chats = await getChatsByContextIDAPI(contextID);
+            setChats(chats);
 
             setLoading(false);
             setChatLoading(false);
         }
 
-        fetchChats()
+        fetchChats();
     }, [contextID]);
 
     useEffect(() => {
@@ -157,13 +159,13 @@ export default function Home() {
 
             // TODO: GET contexts
             const contexts = await getContextsByUserIDAPI(1234);
-            setContexts(contexts)
+            setContexts(contexts);
 
             setContextLoading(false);
         }
 
         if (seeContexts) {
-            fetchContexts()
+            fetchContexts();
         }
     }, [seeContexts]);
 
@@ -283,7 +285,7 @@ export default function Home() {
                         setChats([..._chats, chat]);
 
                         // TODO: SET sequence ID for various event
-                        setSeqID(1234)
+                        setSeqID(1234);
                     }
                 });
 
@@ -356,13 +358,13 @@ export default function Home() {
         // Update for UI
         _chats[_chats.length - 1].prompt[index].selected = true;
 
-        async function fetchABTest(){
-            await selectABTestItemAPI({seq_id: seqID, index: index})
+        async function fetchABTest() {
+            await selectABTestItemAPI({ seq_id: seqID, index: index });
 
             setLoading(false);
         }
-        
-        fetchABTest()
+
+        fetchABTest();
     };
 
     // =========================== AUTH EVENT =================================
@@ -398,7 +400,7 @@ export default function Home() {
 
     const queryRateAnswer = () => {
         // TODO: SEND REQUEST TO SERVER
-        rateAnswerAPI({seq_id: seqID, rate: rating})
+        rateAnswerAPI({ seq_id: seqID, rate: rating });
 
         // AFTER
         setThankYou(true);
@@ -473,13 +475,16 @@ export default function Home() {
 
     return (
         <>
+            <Opengraph title="" ogTitle="" description={`MOJA(모자)는 언어모델 "자모"를 기반으로 한 인공지능 채팅 서비스입니다. 자모는 GPT-3 같은 대규모 언어모델과 비등한 성능을 가지면서도, 낮은 성능의 컴퓨터에서도 구동이 가능할 수 있도록 만들어진 인공지능 언어 모델입니다. ChatGPT와 비교하자면 낮은 성능을 보이기는 하지만… OpenAI는 몇천억을 들여서 모델을 만들고 저희는 무자본으로 만들었는걸요. 이런 “자모”와 한번 대화해 볼래요?`} isMainPage={true} />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
-                        <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M4 6h16M4 12h16M4 18h7' />
-                        </svg>
-                    </label>
+                    {auth && (
+                        <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
+                            <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M4 6h16M4 12h16M4 18h7' />
+                            </svg>
+                        </label>
+                    )}
                 </div>
                 <div className='navbar-center'></div>
                 <div className='navbar-end'>
@@ -576,7 +581,7 @@ export default function Home() {
 
                 {/* Main Chat Space */}
                 <div className='relative overflow-hidden h-full flex flex-col w-full drawer'>
-                    <div className={`${chats.length != 0 && "hidden"}  flex-1 flex flex-col items-center text-center w-full md:justify-center`}>
+                    <div className={`${chats.length != 0 && "hidden"}  flex-1 flex flex-col items-center text-center w-full md:justify-center select-none`}>
                         <div className='text-4xl text-accent font-extrabold mt-10 md:mt-0'>MOJA</div>
                         <p className='text-md text-neutral dark:text-gray-300'>GPT as a Hat</p>
                         <div className='flex items-center mx-20 my-10'>
@@ -601,7 +606,6 @@ export default function Home() {
                                     return (
                                         <>
                                             <MessageBox key={i} {...chat} />
-                                            {/* <div className="divider m-0"></div> */}
                                         </>
                                     );
                                 })}
@@ -665,7 +669,7 @@ export default function Home() {
                                 {Array(ABBtnCount)
                                     .fill(1)
                                     .map((_, i) => (
-                                        <button onClick={() => selectABTestItem(i)} className='flex-1 btn btn-outline join-item'>
+                                        <button key={i} onClick={() => selectABTestItem(i)} className='flex-1 btn btn-outline join-item'>
                                             {i + 1}번
                                         </button>
                                     ))}
@@ -685,7 +689,6 @@ export default function Home() {
                             <div className={`my-2 ${event != MSG_EVENT && "hidden"}`}>
                                 <AnimateRegenerateButton onClick={Regenerate}>
                                     <span>다시 물어보기</span>
-                                    {/* <Image alt='regenerate' src='/regenerate.svg' width={18} height={18} /> */}
                                     <RegenerateIcon width='15' height='15' />
                                 </AnimateRegenerateButton>
                             </div>
@@ -713,7 +716,6 @@ export default function Home() {
                                             ref(e);
                                             textAreaRef.current = e;
                                         }}
-                                        // {...register("prompt", { required: true })}
                                         className={`resize-none  border-box border-none outline-none w-full text-content leading-[1.5rem] align-middle overflow-hidden bg-white dark:bg-black dark:text-gray-100 dark:placeholder:text-white  ${
                                             errors.prompt && "placeholder:font-bold"
                                         }`}
@@ -726,29 +728,15 @@ export default function Home() {
                             </div>
 
                             <div className='flex h-[45px] w-[45px] md:h-[60px] md:w-[60px]'>
-                                {/* <button
-                                    disabled={loading}
-                                    className={`text-gray-700  border border-gray-300 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-4 h-full py-5 shadow-lg ${
-                                        loading ? "cursor-wait bg-gray-100" : "cursor-pointer bg-white"
-                                    }`}
-                                >
-                                    <span className='font-bold text-xs md:text-sm'>SEND</span>
-                                </button> */}
-                                <AnimateSendButton disabled={loading}>
-                                    {!loading ? (
-                                        // <Image src='/white_hand.png' alt='' width={30} height={30} />
-                                        <SendIcon width="27" height="27" />
-                                    ) : (
-                                        <span className='loading loading-spinner'></span>
-                                    )}
+                                <AnimateSendButton disabled={loading} name='send'>
+                                    {!loading ? <SendIcon width='27' height='27' /> : <span className='loading loading-spinner'></span>}
                                 </AnimateSendButton>
                             </div>
                         </form>
-                        {/* {errors.prompt && errors.prompt.message != "" && <span className=' text-sm text-error font-bold'>{errors?.prompt.message}</span>} */}
 
                         {event != LOGIN_EVENT && (
                             <div className='pt-[6px] pb-[12px]'>
-                                <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마인입니다.</span>
+                                <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마고 R&E TeamMistake입니다.</span>
                             </div>
                         )}
                     </div>

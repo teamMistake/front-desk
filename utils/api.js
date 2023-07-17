@@ -9,7 +9,8 @@ const getUserInfoAPI = () => {
         .then((res) => {
             return res;
         })
-        .catch((e) => {
+        .catch(e => {
+            console.log(e)
             return undefined;
         });
 };

@@ -23,7 +23,7 @@ const GhostButton = ({ children, onClick }) => {
     return <button onClick={() => onClick()} className='btn btn-ghost normal-case text-xl'>{children}</button>;
 };
 
-const AnimateButton = ({ children, className, disabled, animatedClass, duration }) => {
+const AnimateButton = ({ children, className, disabled, animatedClass, duration, name="" }) => {
     const [animate, setAnimate] = useState(false);
 
     useEffect(() => {
@@ -39,19 +39,20 @@ const AnimateButton = ({ children, className, disabled, animatedClass, duration 
     }, [animate]);
 
     return (
-        <button disabled={disabled} onClick={() => setAnimate(true)} className={`${className} ${animate && animatedClass}`}>
+        <button aria-label={name} disabled={disabled} onClick={() => setAnimate(true)} className={`${className} ${animate && animatedClass}`}>
             {children}
         </button>
     );
 };
 
-const AnimateSendButton = ({ children, disabled }) => {
+const AnimateSendButton = ({ children, disabled, name }) => {
     return (
         <AnimateButton
             className='w-full h-full btn btn-circle btn-neutral text-white outline-none md:shadow-md'
             animatedClass='rotate bg-base-300'
             duration={1000}
             disabled={disabled}
+            name={name}
         >
             {children}
         </AnimateButton>
