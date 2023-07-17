@@ -45,6 +45,7 @@ import Head from "next/head";
 import Opengraph from "../components/opengraph";
 import { KakaoBtn } from "../components/kakaobutton";
 import ContextIcon from "../components/contexticon";
+import RankIcon from "../components/rankicon";
 
 export default function Home() {
     const router = useRouter();
@@ -182,7 +183,7 @@ export default function Home() {
     useEffect(() => {
         async function fetchContexts() {
             setContextLoading(true);
-            
+
             // TODO: GET contexts
             const contexts = await getContextsByUserIDAPI(1234);
             setContexts(contexts);
@@ -517,7 +518,10 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    <GhostButton onClick={() => router.push("/rank")}>Rank</GhostButton>
+                    <GhostButton onClick={() => router.push("/rank")}>
+                        <RankIcon width="32" height="32" />
+                        <span className="text-xs">Rank</span>
+                    </GhostButton>
                 </div>
             </div>
 
