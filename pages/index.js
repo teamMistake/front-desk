@@ -41,7 +41,6 @@ import {
 import { getChatsByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
 import { useUser } from "../hook/useUser";
 import SendIcon from "../components/sendicon";
-import Head from "next/head";
 import Opengraph from "../components/opengraph";
 import { KakaoBtn } from "../components/kakaobutton";
 import ContextIcon from "../components/contexticon";

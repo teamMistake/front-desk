@@ -1,4 +1,4 @@
-const getUserInfoAPI = async () => {
+const getUserInfoAPI = () => {
     const res = fetch("/api/oauth2/userinfo", {
         method: "GET",
     })
@@ -10,6 +10,7 @@ const getUserInfoAPI = async () => {
             console.log(e)
             return undefined;
         });
+    console.log(res)
     return res
 };
 
