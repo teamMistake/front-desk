@@ -38,13 +38,12 @@ import {
     TwitterShareButton,
 } from "react-share";
 import { getUserInfoAPI } from "../utils/api";
+import { useUser } from "../hook/useUser";
 
 export default function Home() {
     const router = useRouter();
 
-    const [auth, setAuth] = useState(false);
-    // const [isMine, setIsMine] = useState(true);
-    const [userID, setUserID] = useState()
+    const {isAuth:auth, userID} = useUser()
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
@@ -106,16 +105,6 @@ export default function Home() {
         const { redirectFromPrivacy } = router.query;
         if (redirectFromPrivacy) {
             setEvent(LOGIN_EVENT);
-        }
-
-        // Check user is logined or not
-        const user = getUserInfoAPI()
-        if (user) {
-            setLogined(true)
-            setAuth(true)
-            setUserID(user.user)
-        } else if (logined) {
-            toggleLoginModal()
         }
 
         // If this page was shared context page. and so
@@ -454,6 +443,13 @@ export default function Home() {
 
     // =========================== AUTH EVENT =================================
     // =========================== LOGIN =================================
+    useEffect(() => {
+        if(auth){
+            setLogined(true)
+        }
+    }, [auth])
+
+
     const loginEventHandler = () => {
         if (!privacyChecked) return setPrivacyError(true); 
         

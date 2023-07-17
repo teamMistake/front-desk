@@ -1,21 +1,24 @@
 import { useEffect, useState } from "react"
-import useLocalStorage from "./useLocalStorage"
+import { getUserInfoAPI } from "../utils/api"
 
 const useUser = () => {
     const [isAuth, setIsAuth] = useState(false)
-    const [token, setToken] = useLocalStorage("jwt")
+    const [userID, setUserID] = useState()
 
     // AUTHORIZATION identification
     useEffect(() => {
-        // if not me 
-        setToken(undefined)
-        isAuth(false)
+        async function fetchUser() {
+            const user = await getUserInfoAPI()
+            if (user) {
+                setIsAuth(true)
+                setUserID(user.user)
+            }
+        }
 
-        // else 
-        isAuth(true)
-    }, [token])
+        fetchUser()
+    }, [])
 
-    return isAuth
+    return {isAuth: isAuth, userID: userID}
 }
 
 
