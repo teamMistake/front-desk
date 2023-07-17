@@ -8,7 +8,7 @@ const RankIcon = ({ width, height }) => {
             viewBox='0 0 1169.000000 1000.000000'
             preserveAspectRatio='xMidYMid meet'
         >
-            <g transform='translate(0.000000,1000.000000) scale(0.100000,-0.100000)' fill='#FFFFFF' stroke='none'>
+            <g transform='translate(0.000000,1000.000000) scale(0.100000,-0.100000)' fill='currentColor' stroke='none'>
                 <path
                     d='M5675 8610 c-147 -38 -266 -109 -368 -219 -194 -210 -251 -513 -146
 -779 71 -179 219 -335 391 -410 l47 -20 -36 -119 c-307 -1038 -727 -1823

@@ -7,6 +7,7 @@ export default function RootLayout({ children }) {
         try{
             window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_API_KEY);
         } catch (e) {
+            console.log(e)
             return
         }
     }, []);  
