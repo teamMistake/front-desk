@@ -134,6 +134,10 @@ export default function Home() {
         }
     }, []);
 
+    useEffect(() => {
+        console.log(auth)
+    }, [auth])
+
     const clearChat = () => {
         setChats([]);
         setEvent(MSG_EVENT);
