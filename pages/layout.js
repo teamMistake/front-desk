@@ -1,4 +1,3 @@
-import { NextScript } from "next/document";
 import Head from "next/head";
 import { useEffect } from "react";
 import MetaIcon from "../components/metaicon";
@@ -17,7 +16,6 @@ export default function RootLayout({ children }) {
             <Head>
                 <script defer src='https://developers.kakao.com/sdk/js/kakao.min.js'></script>
             </Head>
-            {/* <NextScript /> */}
             <MetaIcon />
             {children}
         </main>
