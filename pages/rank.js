@@ -5,26 +5,11 @@ import { useUser } from "../hook/useUser";
 
 export default function Home() {
     const [ranks, setRanks] = useState([]);
+    const [loaded, setLoaded] = useState(false);
+    const [error, setError] = useState(false);
 
     const router = useRouter();
     const {isAuth, userID} = useUser();
-
-    const getRank = () => {
-        const res = fetch("/api/ranking", {
-            method: "GET"
-        })
-        .then((res) => res.json()).then((res) => {
-            setRanks(res);
-        });
-    };
-
-    useEffect(() => {
-        const timeInterval = setInterval(() => {
-            getRank();
-        }, 10000);
-
-        return () => clearInterval(timeInterval)
-    }, []);
 
     const Rank = (user, rank, name, score) => {
         return (
@@ -41,6 +26,35 @@ export default function Home() {
         )
     };
 
+    const getRank = () => {
+        const res = fetch("/api/ranking", {
+            method: "GET"
+        })
+        .then((res) => res.json()).then((res) => {
+            setRanks(res);
+            setLoaded(true);
+        }).catch((e) => {
+            setError(true);
+        });
+    };
+
+    useEffect(() => {
+        const timeInterval = setInterval(() => {
+            getRank();
+        }, 10000);
+
+        return () => clearInterval(timeInterval)
+    }, []);
+
+    useEffect(() => {
+        if (!error) return;
+        const timeout = setTimeout(() => {
+            setError("");
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+    }, [error]);
+
     return (
         <>
             <div className='navbar bg-base-100 border-b-2'>
@@ -55,8 +69,8 @@ export default function Home() {
 
             <main className="bg-greyscale-1 flex flex-row h-screen w-screen">
                 <div className="relative overflow-hidden h-full flex flex-col w-full">
-                    <p className="font-bold text-3xl text-primary justify-center my-10 flex select-none">Rank</p>
-                    <div className="overflow-y-auto">
+                    <p className="font-bold text-3xl text-accent justify-center my-10 flex select-none">Rank</p>
+                    <div>
                         <div className="overflow-x-auto">
                             <table className="table">
                                 <thead>
@@ -69,13 +83,16 @@ export default function Home() {
                                 <tbody>
                                     {/* Users Rank (Scrollable) */}
                                     {ranks.map((data, i) => {
-                                        if (i < 10){
+                                        if (i < 10 && loaded === true){
                                             return <Rank key={i} {...data} />
                                         }
                                     })}
                                     {/* My Rank (fixed) */}
                                     {ranks.map((data, i) => {
-                                        if (isAuth === True && ranks[i].user == userID && i >= 10){
+                                        if (isAuth === true
+                                            && ranks[i].user == userID
+                                            && i >= 10
+                                            && loaded === true){
                                             return <Rank key={i} {...data} />
                                         }
                                     })}
