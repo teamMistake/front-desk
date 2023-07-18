@@ -7,16 +7,17 @@ import ContextIcon from "../components/contexticon";
 
 export default function Home() {
     const [ranks, setRanks] = useState([]);
+    const [myrank, setMyRank] = useState();
     const [loaded, setLoaded] = useState(false);
     const [error, setError] = useState(false);
 
     const router = useRouter();
     // get user identity by api
-    const {isAuth, userID} = useUser();
+    const {isAuth} = useUser();
 
     // Define Rank Element
     // gets user id by ranks form, but not visible
-    const Rank = (user, rank, name, score) => {
+    const Rank = (username, rank, score) => {
         return (
             // text size adjustment by rank in row 1~3
             <tr className={""
@@ -25,17 +26,17 @@ export default function Home() {
             + (rank == 3 ? "text-xl " : "")
             + (rank > 3 ? "text-base " : "")
             // syntax my rank row
-            + (user == currentUser ? "text-white bg-base-content fixed" : "text-primary ")}>
+            + (username == myrank.username ? "text-white bg-base-content " : "text-primary ")}>
                 <th>{rank}</th>
-                <th>{name}</th>
+                <th>{username}</th>
                 <th>{score}</th>
             </tr>
         )
     };
 
-    //getrank by fetch(GET)
+    // get rank by fetch(GET)
     const getRank = () => {
-        const res = fetch("/api/ranking", {
+        const res = fetch("/api/leaderboard", {
             method: "GET"
         })
         // parse to json
@@ -47,10 +48,24 @@ export default function Home() {
         });
     };
 
+    // get myrank by fetch(GET)
+    const getMyRank = () => {
+        const res = fetch("/api/leaderboard/me", {
+            method: "GET"
+        })
+        // parse to json
+        .then((res) => res.json()).then((res) => {
+            setMyRank(res);
+        }).catch((e) => {
+            setError(true);
+        });
+    };
+
     // fetch again in 10s
     useEffect(() => {
         const timeInterval = setInterval(() => {
             getRank();
+            getMyRank();
         }, 10000);
 
         return () => clearInterval(timeInterval)
@@ -108,17 +123,19 @@ export default function Home() {
                                             return <Rank key={i} {...data} />
                                         }
                                     })}
-                                    {/* My Rank (fixed) */}
-                                    {ranks.map((data, i) => {
-                                        if (isAuth === true
-                                            && ranks[i].user == userID
-                                            && i >= 10
-                                            && loaded === true){
-                                            return <Rank key={i} {...data} />
-                                        }
-                                    })}
                                 </tbody>
                             </table>
+                            <table className="table">
+                                <tbody>
+                                    {/* My Rank (fixed) */}
+                                    {isAuth && myrank.rank < 10 && (
+                                        <Rank {...myrank} />
+                                    )}
+                                </tbody>
+                            </table>
+                            {!isAuth && (
+                                <span className=" text-bold flex">로그인 정보를 불러올 수 없습니다...</span>
+                            )}
                         </div>
                     </div>
                 </div>

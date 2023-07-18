@@ -21,7 +21,7 @@ export default function Home() {
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
                     <GhostButton onClick={() => router.back()}>
-                        <span className="text-base">Back</span>
+                        <span className="text-xs">Back</span>
                     </GhostButton>
                 </div>
             </div>
