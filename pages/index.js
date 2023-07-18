@@ -343,7 +343,6 @@ export default function Home() {
                                 item[reqId] = d.resp_full;
 
                                 const parsed = Object.entries(item).map((_data) => {
-                                    console.log(_data)
                                     try {
                                         let tempReqId = _data[0];
                                         let tempMsg = _data[1];
