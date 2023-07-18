@@ -10,8 +10,7 @@ const useUser = () => {
         async function fetchUser() {
             const user = await getUserInfoAPI()
 
-            if (user) {
-                console.log("엥")
+            if (user && user.user) {
                 setIsAuth(true)
                 setUserID(user.user)
             } else {

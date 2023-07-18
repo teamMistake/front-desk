@@ -21,7 +21,7 @@ const selectABTestItemAPI = ({ seq_id, index }) => {
 
 const getChatsByContextIDAPI = async (contextID) => {
     try {
-        const res = await fetch(`/chat/${contextID}`)   
+        const res = await fetch(`/api/chat/${contextID}`)   
         const response = await res.json()
     
         return response
@@ -32,7 +32,7 @@ const getChatsByContextIDAPI = async (contextID) => {
 
 const getContextsByUserIDAPI = async () => {
     try{
-        const res = await fetch("/chat/chats", {"method": "GET"})
+        const res = await fetch("/api/chat/chats", {"method": "GET"})
         const response = await res.json()
     
         return response
