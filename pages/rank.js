@@ -13,7 +13,7 @@ export default function Home() {
 
     const router = useRouter();
     // get user identity by api
-    const {isAuth} = useUser();
+    const [isAuth, userID] = useUser();
 
     // Define Rank Element
     // gets user id by ranks form, but not visible
@@ -37,9 +37,7 @@ export default function Home() {
     const getRank = () => {
         const res = fetch("/api/leaderboard", {
             method: "GET"
-        })
-        // parse to json
-        .then((res) => res.json()).then((res) => {
+        }).then((res) => res.json()).then((res) => {
             setRanks(res);
             setLoaded(true);
         }).catch((e) => {
@@ -51,9 +49,7 @@ export default function Home() {
     const getMyRank = () => {
         const res = fetch("/api/leaderboard/me", {
             method: "GET"
-        })
-        // parse to json
-        .then((res) => res.json()).then((res) => {
+        }).then((res) => res.json()).then((res) => {
             setMyRank(res);
         }).catch((e) => {
             setError(true);
@@ -134,7 +130,7 @@ export default function Home() {
                                     <span className="text-xl font-bold highlight dark:bg-none select-none">로그인 정보를 불러올 수 없습니다...</span>
                                 </div>
                             )}
-                            {isAuth && myrank.rank > 9 && (
+                            {(isAuth && myrank.rank > 9) && (
                                 <table className="table fixed bottom-0">
                                     <thead>
                                         <tr className="text-base text-content select-none border-none">
