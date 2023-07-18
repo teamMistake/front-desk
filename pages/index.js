@@ -413,7 +413,7 @@ export default function Home() {
             setLoading(true);
             const target_prompt = chats[chats.length - 1].prompt;
 
-            PostGenerate(target_prompt[0].resp, regenerate=target_prompt[0].regenerate);
+            PostGenerate(target_prompt[0].resp, regenerate=target_prompt.regenerate);
         }
 
         // // AB TESTING EVENT Trigger
