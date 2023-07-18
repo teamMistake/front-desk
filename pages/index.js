@@ -118,9 +118,7 @@ export default function Home() {
         if (sharedContextId) {
             setContextID(sharedContextId);
             // it may be possible that this chat was written by me. so change this state case by case
-            // TODO: ISMINE
             // identify the user authorization with userId and context writer id
-
             // IF NOT MINE
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
@@ -192,7 +190,14 @@ export default function Home() {
 
             if (_contexts) {
                 console.log("Context!!!!!!", _contexts);
-                setContexts(_contexts);
+
+                const sorted_context = _contexts.sort(function (a, b) {
+                    const a_timestamp = new Date(a.creationTimestamp).getTime()
+                    const b_timestamp = new Date(b.creationTimeStamp).getTime()
+                    return a_timestamp - b_timestamp
+                })
+
+                setContexts(sorted_context);
 
                 setContextLoading(false);
             }
@@ -453,7 +458,7 @@ export default function Home() {
 
         async function fetchABTest() {
             const reqId = _chats[_chats.length - 1].prompt[index].reqId;
-            await selectABTestItemAPI({ messageId: messageId, reqId: reqId });
+            await selectABTestItemAPI({ messageId: messageId, chatId: contextID, reqId: reqId });
 
             setLoading(false);
         }
@@ -570,6 +575,14 @@ export default function Home() {
         return window.login_request_modal.showModal();
     };
 
+    const formatUTCTime = (time) => {
+        const d = new Date(time)
+        const date = new Date(d.getTime() + TIME_ZONE).toISOString().split('T')[0].split("-");
+        const time = d.toTimeString().split(' ')[0].split(":")[0];
+
+        return `${date[1]}/${date[2]}/${time}`
+    }
+
     return (
         <>
             <Opengraph
@@ -613,7 +626,7 @@ export default function Home() {
                                 <>
                                     {contexts.length > 0 ? (
                                         <ul className='w-full divide-y divide-slate-100'>
-                                            {contexts.map(({ chatId, title, creationTimeStamp }, index) => (
+                                            {contexts.map(({ chatId, title, creationTimestamp }, index) => (
                                                 <li
                                                     onClick={() => changeContext(chatId)}
                                                     className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
@@ -624,7 +637,7 @@ export default function Home() {
                                                     </div>
                                                     {/* TODO: set appropriate item */}
                                                     <span className='text-md font-medium'>{title == "" ? "새로운 대화" : title}</span>
-                                                    <span className='text-sm font-thin'>{creationTimeStamp}</span>
+                                                    <span className='text-sm font-thin'>{formatUTCTime(creationTimestamp)}</span>
                                                 </li>
                                             ))}
                                         </ul>
