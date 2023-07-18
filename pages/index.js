@@ -285,33 +285,68 @@ export default function Home() {
     };
 
     const PostGenerate = (prompt) => {
-        const data = { initialPrompt: prompt };
-
+        
         // Timeout Detector
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 10s
-
+        
+        const isFirstChat = chats.length == 1
         const _chats = chats;
-        const stream = fetch("/api/chat/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal })
+        
+        if (isFirstChat) {
+            const data = { initialPrompt: prompt };
+            const stream = fetch("/api/chats/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal })
             .then((response) => ndjsonStream(response.body))
             .then((stream) => {
                 clearTimeout(timeoutId);
                 const streamReader = stream.getReader();
                 streamReader.read().then(async (response) => {
-                    while (!response || !response.done) {
+                    while (!response) {
                         response = await streamReader.read();
-                        if (response.done) {
-                            setLoading(false);
-                            return;
+                        const data = response.data
+
+                        console.log(data)
+// class Chat(
+//     @MongoId
+//     var chatId: String,
+//     @Indexed
+//     var userId: String?,
+//     var shared: Boolean,
+//     var messages: MutableList<ChatMessage>,
+//     var title: String = "",
+//     var creationTimestamp: Instant,
+//     var generating: Boolean = false
+// )
+// class ChatMessage(
+//     var messageId: String?, // null if it does not belong to current chat
+//     var req: String,
+//     var resp: MutableList<ChatMessageResponse>,
+//     var experiment: Experiment
+// );
+
+                        if (data.type == "chat"){
+                            const chat = {
+                                talker: COMPUTER,
+                                prompt: response.value.resp_full,
+                                event: MSG_EVENT,
+                                onlive: true,
+                            };
+                            setChats([..._chats, chat]);
+                        } else if (data.type == "message") {
+
+                        } else if (data.type == "lm_reqids") {
+
+                        } else if (data.type == "lm_response" || data.type == "lm_error"){
+
+                        } else if (data.type == "error") {
+                            console.log(data)
+                            return 
                         }
 
-                        const chat = {
-                            talker: COMPUTER,
-                            prompt: response.value.resp_full,
-                            event: MSG_EVENT,
-                            onlive: true,
-                        };
-                        setChats([..._chats, chat]);
+                        // if (response.done) {
+                        //     setLoading(false);
+                        //     return;
+                        // }
                     }
                     if (event != AB_MODEL_TEST_EVENT) {
                         randomRatingEventTrigger();
@@ -321,6 +356,9 @@ export default function Home() {
             .catch((e) => {
                 setError(COMPUTING_LIMITATION_ERROR);
             });
+        }
+
+        
     };
 
     // TODO: Chats
