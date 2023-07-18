@@ -16,29 +16,28 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
     const [type, setType] = useState();
 
     useEffect(() => {
-        if (prompt == undefined ) return;
+        if (prompt) return;
 
         console.log(prompt, typeof(prompt))
 
         if (prompt.length > 0) {
             console.log("21", prompt)
             console.log("22", prompt.length)
-    
+
             setType(() => prompt.length == 1 ? SINGLE_MESSAGE : MULTIPLE_MESSAGES);
             setPayload(prompt);
         }
     }, [prompt]);
 
     useEffect(() => {
-        console.log("28", payload)
-        if (!payload || payload.length == 0 || type != SINGLE_MESSAGE) return;
-        console.log("30")
-        if (payload[0].resp == "") {
-            return setCursor(1);
+        if (talker == USER) {
+            setCursor(prompt[0].resp.length)
         }
 
+        if (!payload || payload.length == 0 || type != SINGLE_MESSAGE) return;
+        console.log("28", payload)
+        console.log("30")
         setUpdates(updates + 1);
-        setCursor(talker == USER ? payload[0].resp.length : 1);
     }, [payload]);
 
     useEffect(() => {

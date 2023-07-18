@@ -342,6 +342,7 @@ export default function Home() {
                             } else if (data.type == "lm_response") {
                                 const { reqId, messageId, data: d } = data;
                                 item[reqId] = d.resp_full;
+                                console.log("345", item)
 
                                 const parsed = Object.entries(item).map((_data) => {
                                     try {
