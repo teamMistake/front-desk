@@ -8,7 +8,7 @@ import copy from "copy-to-clipboard";
 
 const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
     const [payload, setPayload] = useState();
-    const [cursor, setCursor] = useState(0);
+    const [cursor, setCursor] = useState(1);
     const [updates, setUpdates] = useState(0);
     const [end, setEnd] = useState(false);
     const [think, setThink] = useState("");
@@ -16,18 +16,20 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
     const [type, setType] = useState();
 
     useEffect(() => {
-        if (prompt == undefined) return;
-
-        console.log("21", prompt)
-
-        setType(() => (prompt.length == 1 ? SINGLE_MESSAGE : MULTIPLE_MESSAGES));
-        setPayload(prompt);
+        if (prompt == undefined ) return;
+        if (prompt.length > 0) {
+            console.log("21", prompt)
+            console.log("22", prompt.length)
+    
+            setType(() => prompt.length == 1 ? SINGLE_MESSAGE : MULTIPLE_MESSAGES);
+            setPayload(prompt);
+        }
     }, [prompt]);
 
     useEffect(() => {
         console.log("28", payload)
         if (!payload || payload.length == 0 || type != SINGLE_MESSAGE) return;
-
+        console.log("30")
         if (payload[0].resp == "") {
             return setCursor(1);
         }
