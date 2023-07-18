@@ -13,7 +13,7 @@ export default function Home() {
 
     const router = useRouter();
     // get user identity by api
-    const { isAuth, userID } = useUser();
+    const { isAuth } = useUser();
 
     // Define Rank Element
     // gets user id by ranks form, but not visible
@@ -25,7 +25,7 @@ export default function Home() {
             + (rank == 1 ? "text-2xl " : "")
             + (rank == 2 ? "text-xl " : "")
             + (rank > 2 ? "text-base " : "")
-            + (username == myrank?.username ? "text-white bg-base-content border-none " : "text-gray-600 ")}>
+            + (username == myrank?.username ? "text-white bg-base-content border-none " : "text-base-content ")}>
                 <th>{rank + 1}</th>
                 <th>{username}</th>
                 <th>{score}</th>
@@ -56,7 +56,7 @@ export default function Home() {
         });
     };
 
-    // fetch again in 10s
+    // fetch at each 10s
     useEffect(() => {
         const fetchStuffs = () => {
             getRank();
@@ -71,7 +71,7 @@ export default function Home() {
     useEffect(() => {
         if (!error) return;
         const timeout = setTimeout(() => {
-            setError("");
+            setError(false);
         }, 1000);
 
         return () => clearTimeout(timeout);
@@ -123,10 +123,10 @@ export default function Home() {
 
                         {!isAuth && (
                             <div className="fixed bottom-0 p-5 flex w-full justify-center">
-                                <span className="text-xl font-bold highlight dark:bg-none select-none">로그인 정보를 불러올 수 없습니다...</span>
+                                <span className="text-xl font-bold highlight dark:bg-none select-none">로그인 정보가 없습니다.</span>
                             </div>
                         )}
-                        {(isAuth && myrank?.rank > 9) && (
+                        {(isAuth && myrank?.rank >= 10) && (
                             <table className="table fixed bottom-0">
                                 <tbody>
                                     {/* My Rank (fixed) */}
