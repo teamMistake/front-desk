@@ -189,7 +189,7 @@ export default function Home() {
             setContextLoading(true);
 
             // TODO: GET contexts
-            const _contexts = await getContextsByUserIDAPI(userID);
+            const _contexts = await getContextsByUserIDAPI();
 
             if (_contexts) {
                 console.log("Context!!!!!!", _contexts);
