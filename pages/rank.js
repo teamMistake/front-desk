@@ -25,7 +25,7 @@ export default function Home() {
             + (rank == 1 ? "text-2xl " : "")
             + (rank == 2 ? "text-xl " : "")
             + (rank > 2 ? "text-base " : "")
-            + (username == myrank.username ? "text-white bg-base-content border-none " : "text-gray-600 ")}>
+            + (username == myrank?.username ? "text-white bg-base-content border-none " : "text-gray-600 ")}>
                 <th>{rank + 1}</th>
                 <th>{username}</th>
                 <th>{score}</th>
@@ -58,12 +58,13 @@ export default function Home() {
 
     // fetch again in 10s
     useEffect(() => {
-        const timeInterval = setInterval(() => {
+        const fetchStuffs = () => {
             getRank();
             getMyRank();
-        }, 10000);
-
-        return () => clearInterval(timeInterval)
+        }
+        const timeInterval = setInterval(fetchStuffs, 10000);
+        fetchStuffs();
+        return () => clearInterval(timeInterval);
     }, []);
 
     // get Error
