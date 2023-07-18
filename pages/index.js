@@ -312,7 +312,7 @@ export default function Home() {
                             // AB TESTING EVENT Trigger
                             if (Object.keys(item).length > 1) {
                                 setEvent(AB_MODEL_TEST_EVENT);
-                                setABBtnCount(lastChat.prompt.length);
+                                setABBtnCount(Object.keys(item).length);
                             } else {
                                 randomRatingEventTrigger();
                             }
