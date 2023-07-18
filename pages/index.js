@@ -307,10 +307,18 @@ export default function Home() {
                 clearTimeout(timeoutId);
                 const streamReader = stream.getReader();
                 console.log("GEt response successfully")
+                console.log(stream)
                 streamReader.read().then(async (response) => {
-                    while (!response) {
-                        console.log("LOOP")
+                    while (!response || !response.done) {
                         response = await streamReader.read();
+                        if (response.done) {
+                            if (event != AB_MODEL_TEST_EVENT) {
+                                randomRatingEventTrigger();
+                            }
+                            setLoading(false);
+                            return;
+                        }
+                        console.log("LOOP")
                         console.log(response)
                         const data = response.data
                         console.log(data)
@@ -329,21 +337,14 @@ export default function Home() {
                         } else if (data.type == "lm_response" || data.type == "lm_error"){
 
                         } else if (data.type == "error") {
-                            if (event != AB_MODEL_TEST_EVENT) {
-                                randomRatingEventTrigger();
-                            }
                             console.log(data)
                             return 
                         }
-
-                        // if (response.done) {
-                        //     setLoading(false);
-                        //     return;
-                        // }
                     }
                 });
             })
             .catch((e) => {
+                console.log(e)
                 setError(COMPUTING_LIMITATION_ERROR);
             });
         }
