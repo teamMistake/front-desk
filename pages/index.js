@@ -334,8 +334,8 @@ export default function Home() {
                             const {reqIds} = data
                             
                             reqIds.map((id) => {
-                                console.log(id)
-                                item[id] = {message: ""}
+                                // console.log(id)
+                                item[id.req_id] = {message: ""}
                             })
                         } else if (data.type == "lm_response"){
                             const {reqId, messageId, data:d} = data
