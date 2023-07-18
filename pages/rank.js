@@ -11,15 +11,20 @@ export default function Home() {
     const [error, setError] = useState(false);
 
     const router = useRouter();
+    // get user identity by api
     const {isAuth, userID} = useUser();
 
+    // Define Rank Element
+    // gets user id by ranks form, but not visible
     const Rank = (user, rank, name, score) => {
         return (
+            // text size adjustment by rank in row 1~3
             <tr className={""
             + (rank == 1 ? "text-3xl " : "")
             + (rank == 2 ? "text-2xl " : "")
             + (rank == 3 ? "text-xl " : "")
             + (rank > 3 ? "text-base " : "")
+            // syntax my rank row
             + (user == currentUser ? "text-white bg-base-content fixed" : "text-primary ")}>
                 <th>{rank}</th>
                 <th>{name}</th>
@@ -28,10 +33,12 @@ export default function Home() {
         )
     };
 
+    //getrank by fetch(GET)
     const getRank = () => {
         const res = fetch("/api/ranking", {
             method: "GET"
         })
+        // parse to json
         .then((res) => res.json()).then((res) => {
             setRanks(res);
             setLoaded(true);
@@ -40,6 +47,7 @@ export default function Home() {
         });
     };
 
+    // fetch again in 10s
     useEffect(() => {
         const timeInterval = setInterval(() => {
             getRank();
@@ -48,6 +56,7 @@ export default function Home() {
         return () => clearInterval(timeInterval)
     }, []);
 
+    // get Error
     useEffect(() => {
         if (!error) return;
         const timeout = setTimeout(() => {
@@ -65,9 +74,10 @@ export default function Home() {
                 description={`MOJA(모자)는 언어모델 "자모"를 기반으로 한 인공지능 채팅 서비스입니다. 자모는 GPT-3 같은 대규모 언어모델과 비등한 성능을 가지면서도, 낮은 성능의 컴퓨터에서도 구동이 가능할 수 있도록 만들어진 인공지능 언어 모델입니다. ChatGPT와 비교하자면 낮은 성능을 보이기는 하지만… OpenAI는 몇천억을 들여서 모델을 만들고 저희는 무자본으로 만들었는걸요. 이런 “자모”와 한번 대화해 볼래요?`}
                 isMainPage={false}
             />
+            {/* Navigation bar */}
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    <GhostButton onClick={() => router.push("")}>MOJA</GhostButton>
+                    <GhostButton onClick={() => router.push("story")}>MOJA</GhostButton>
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
