@@ -10,8 +10,8 @@ const parsingChatItem = (chat) => {
         })
         const comChat = {talker: COMPUTER, prompt: parsedResp, event: MSG_EVENT, onlive: false, messageId: messageId}
 
-        chats.append(userChat)
-        chats.append(comChat)
+        chats.push(userChat)
+        chats.push(comChat)
     })
 
     return chats

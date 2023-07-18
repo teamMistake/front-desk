@@ -299,43 +299,62 @@ export default function Home() {
                 "Accept": "application/x-ndjson",
                 "Content-Type": "application/json"
             } })
-            .then((response) => {
-                console.log(response)
-                return ndjsonStream(response.body)
-            })
+            .then((response) => ndjsonStream(response.body))
             .then((stream) => {
                 clearTimeout(timeoutId);
                 const streamReader = stream.getReader();
-                console.log("GEt response successfully")
-                console.log(stream)
                 streamReader.read().then(async (response) => {
+                    let item = {}
+
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
-                            if (event != AB_MODEL_TEST_EVENT) {
+                            // AB TESTING EVENT Trigger
+                            if (Object.keys(item).length > 1) {
+                                setEvent(AB_MODEL_TEST_EVENT);
+                                setABBtnCount(lastChat.prompt.length);
+                            } else {
                                 randomRatingEventTrigger();
                             }
+
                             setLoading(false);
                             return;
                         }
-                        console.log("LOOP")
-                        console.log(response)
+
                         const data = response.value.data
-                        console.log(data)
+
                         if (data.type == "chat"){
-                            const chat = {
-                                talker: COMPUTER,
-                                prompt: response.value.resp_full,
-                                event: MSG_EVENT,
-                                onlive: true,
-                            };
-                            setChats([..._chats, chat]);
+                            console.log("type chat", data)
                         } else if (data.type == "message") {
-
+                            const {chatId, message} = data
+                            setContextID(chatId)
+                            setMessageId(message.messageId)
                         } else if (data.type == "lm_reqids") {
+                            // prepare to getting req
+                            const {reqIds} = data
+                            
+                            reqIds.map((id) => {
+                                item[id] = {message: ""}
+                            })
+                        } else if (data.type == "lm_response"){
+                            const {reqId, messageId, data:d} = data
+                            item[reqId] = d.resp_full
+                            
+                            const parsed = Object.entries(item).map(_data => {
+                                try{
+                                    let tempReqId = _data[0]
+                                    let tempMsg = _data[1]
+                                    return {resp: tempMsg, selected: false, reqId: tempReqId}
+                                }catch(e) {
+                                    console.log(e)
+                                }
+                            })
+                            const comChat = {talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId}
 
-                        } else if (data.type == "lm_response" || data.type == "lm_error"){
-
+                            setChats([..._chats, comChat])
+                        } else if (data.type == "lm_error") {
+                            console.log(data)
+                            return
                         } else if (data.type == "error") {
                             console.log(data)
                             return 
@@ -384,20 +403,20 @@ export default function Home() {
             PostGenerate(target_prompt[0].resp);
         }
 
-        // AB TESTING EVENT Trigger
-        if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
-            let isEnded = false;
+        // // AB TESTING EVENT Trigger
+        // if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
+        //     let isEnded = false;
 
-            const tChat = chats[chats.length - 1];
-            tChat.prompt.map((p) => {
-                isEnded = p?.selected && true;
-            });
+        //     const tChat = chats[chats.length - 1];
+        //     tChat.prompt.map((p) => {
+        //         isEnded = p?.selected && true;
+        //     });
 
-            if (!isEnded) {
-                setEvent(AB_MODEL_TEST_EVENT);
-                setABBtnCount(lastChat.prompt.length);
-            }
-        }
+        //     if (!isEnded) {
+        //         setEvent(AB_MODEL_TEST_EVENT);
+        //         setABBtnCount(lastChat.prompt.length);
+        //     }
+        // }
 
         if (lastChat.talker == COMPUTER) {
             setMessageId(lastChat.messageId)
