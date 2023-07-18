@@ -339,6 +339,7 @@ export default function Home() {
                         } else if (data.type == "lm_response"){
                             const {reqId, messageId, data:d} = data
                             item[reqId] = d.resp_full
+                            console.log(item)
                             
                             const parsed = Object.entries(item).map(_data => {
                                 try{
@@ -349,8 +350,10 @@ export default function Home() {
                                     console.log(e)
                                 }
                             })
-                            const comChat = {talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId}
+                            console.log(parsed)
 
+                            const comChat = {talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId}
+                            console.log(comChat)
                             setChats([..._chats, comChat])
                         } else if (data.type == "lm_error") {
                             console.log(data)
