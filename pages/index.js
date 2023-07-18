@@ -58,17 +58,17 @@ export default function Home() {
     const [chats, setChats] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
 
-    // current dialogue seqID
-    const [seqID, setSeqID] = useState();
-
     // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
 
+    const [contextID, setContextID] = useState("");
+    const [messageId, setMessageId] = useState();
+    const [reqId, setReqId] = useState()
+
     // Context ID for setting the chat context
     const [contexts, setContexts] = useState([]);
-    const [seeContexts, setSeeContexts] = useState(false);
-    const [contextID, setContextID] = useState("");
+    const [seeContexts, setSeeContexts] = useState(false);    
     const [contextLoading, setContextLoading] = useState(false);
     const [ABBtnCount, setABBtnCount] = useState(3);
 
@@ -128,10 +128,6 @@ export default function Home() {
         }
     }, []);
 
-    useEffect(() => {
-        console.log("console auth status", auth);
-    }, [auth]);
-
     const clearChat = () => {
         setChats([]);
         setEvent(MSG_EVENT);
@@ -165,19 +161,24 @@ export default function Home() {
             setLoading(true);
             setChatLoading(true);
 
-            const _chats = await getChatsByContextIDAPI(contextID);
-            const { messages } = _chats;
-
-            if ((_chats.userId = userID)) {
-                setEvent(MSG_EVENT);
-                setIsMine(true);
+            try {
+                const _chats = await getChatsByContextIDAPI(contextID);
+                const { messages } = _chats;
+    
+                if ((_chats.userId = userID)) {
+                    setEvent(MSG_EVENT);
+                    setIsMine(true);
+                }
+    
+                const parsed_chats = parsingChatItem(messages);
+                setChats(() => parsed_chats);
+    
+                setLoading(false);
+                setChatLoading(false);
+            } catch(e) {
+                console.log("183", e)
+                return
             }
-
-            const parsed_chats = parsingChatItem(messages);
-            setChats(() => parsed_chats);
-
-            setLoading(false);
-            setChatLoading(false);
         }
 
         fetchChats();
@@ -188,7 +189,8 @@ export default function Home() {
             setContextLoading(true);
 
             // TODO: GET contexts
-            const contexts = await getContextsByUserIDAPI(1234);
+            const contexts = await getContextsByUserIDAPI(userID);
+
             console.log("Context!!!!!!", contexts);
             setContexts(contexts);
 
@@ -262,6 +264,7 @@ export default function Home() {
     };
 
     // Regenerate the user prompt.
+    // TODO: Turn this into new api 
     const Regenerate = () => {
         // const target_prompt = chats[chats.length - 2].prompt;
         const _chats = chats;
@@ -308,9 +311,6 @@ export default function Home() {
                             onlive: true,
                         };
                         setChats([..._chats, chat]);
-
-                        // TODO: SET sequence ID for various event
-                        setSeqID(1234);
                     }
                     if (event != AB_MODEL_TEST_EVENT) {
                         randomRatingEventTrigger();
@@ -328,8 +328,6 @@ export default function Home() {
 
         const trigger = firstVisit == undefined ? LOGIN_TRIGGER_NUM : 3;
         // Login Event Trigger
-
-        console.log("Auth", auth, "USERID", userID);
 
         if (chats[chats.length - 1].talker == USER && chats.length >= trigger && !auth) {
             const _chats = chats;
@@ -386,7 +384,7 @@ export default function Home() {
         _chats[_chats.length - 1].prompt[index].selected = true;
 
         async function fetchABTest() {
-            await selectABTestItemAPI({ seq_id: seqID, index: index });
+            await selectABTestItemAPI({ messageId: messageId, req_id: reqId });
 
             setLoading(false);
         }
@@ -407,7 +405,6 @@ export default function Home() {
     const loginEventHandler = () => {
         if (!privacyChecked) return setPrivacyError(true);
 
-        console.log("DEX LOGIN");
         router.push("/login");
     };
 
@@ -426,7 +423,7 @@ export default function Home() {
     };
 
     const queryRateAnswer = () => {
-        rateAnswerAPI({ seq_id: seqID, rate: rating });
+        rateAnswerAPI({chatId: contextID, messageId: messageId, reqId: reqId, stars: rating})
 
         // AFTER
         setThankYou(true);
