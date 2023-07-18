@@ -311,11 +311,8 @@ export default function Home() {
                         let item = {};
 
                         while (!response || !response.done) {
-                            console.log("current chat", _chats)
-
                             response = await streamReader.read();
                             if (response.done) {
-                                // AB TESTING EVENT Trigger
                                 console.log("319",Object.keys(item).length)
                                 if (Object.keys(item).length > 1) {
                                     setEvent(AB_MODEL_TEST_EVENT);
@@ -323,7 +320,6 @@ export default function Home() {
                                 } else {
                                     randomRatingEventTrigger();
                                 }
-
                                 setLoading(false);
                                 return;
                             }
@@ -357,7 +353,6 @@ export default function Home() {
                                     }
                                 });
                                 const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId };
-
                                 setChats(() => [..._chats, comChat]);
 
                             } else if (data.type == "lm_error") {

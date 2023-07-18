@@ -17,6 +17,9 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
 
     useEffect(() => {
         if (prompt == undefined ) return;
+
+        console.log(prompt, typeof(prompt))
+
         if (prompt.length > 0) {
             console.log("21", prompt)
             console.log("22", prompt.length)
