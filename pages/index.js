@@ -472,6 +472,10 @@ export default function Home() {
         router.push("/login");
     };
 
+    const reLoginEventHandler = () => {
+        router.push("/login")
+    }
+
     // =========================== PRIVACY EVENT =================================
     useEffect(() => {
         if (privacyChecked) setPrivacyError(false);
@@ -643,7 +647,7 @@ export default function Home() {
                     <form method='dialog' className='modal-box'>
                         <div className='w-full flex justify-center'>
                             <BottomSelectorUI title='다시 로그인해주세요.'>
-                                <button className='w-[50%] btn btn-outline join-item' onClick={() => loginEventHandler()}>
+                                <button className='w-[50%] btn btn-outline join-item' onClick={() => reLoginEventHandler()}>
                                     예
                                 </button>
                                 <button className='w-[50%] btn btn-outline join-item'>아니요</button>
