@@ -17,7 +17,7 @@ export default function Home() {
 
     // Define Rank Element
     // gets user id by ranks form, but not visible
-    const Rank = (username, rank, score) => {
+    const Rank = ({username, rank, score}) => {
         return (
             // text size adjustment by rank in row 1~3
             <tr className={""
@@ -25,8 +25,7 @@ export default function Home() {
             + (rank == 2 ? "text-2xl " : "")
             + (rank == 3 ? "text-xl " : "")
             + (rank > 3 ? "text-base " : "")
-            // syntax my rank row
-            + (username == myrank.username ? "text-white bg-base-content " : "text-primary ")}>
+            + (isAuth ? "text-white bg-base-content " : "text-primary ")}>
                 <th>{rank}</th>
                 <th>{username}</th>
                 <th>{score}</th>
@@ -117,16 +116,16 @@ export default function Home() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {/* Users Rank (Scrollable) */}
-                                    {ranks.map((data, i) => {
-                                        if (i < 10 && loaded === true){
+                                    {/* Users Rank */}
+                                    {loaded && (ranks.map((data, i) => {
+                                        {
                                             return <Rank key={i} {...data} />
                                         }
-                                    })}
+                                    }))}
                                 </tbody>
                             </table>
                             <table className="table">
-                                <tbody>
+                                <tbody className="fixed bottom-20 flex">
                                     {/* My Rank (fixed) */}
                                     {isAuth && myrank.rank < 10 && (
                                         <Rank {...myrank} />
@@ -134,7 +133,7 @@ export default function Home() {
                                 </tbody>
                             </table>
                             {!isAuth && (
-                                <span className=" text-bold flex">로그인 정보를 불러올 수 없습니다...</span>
+                                <span className="fixed bottom-20 flex w-full justify-center font-bold">로그인 정보를 불러올 수 없습니다...</span>
                             )}
                         </div>
                     </div>
