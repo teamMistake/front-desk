@@ -25,7 +25,7 @@ export default function Home() {
             + (rank == 1 ? "text-2xl " : "")
             + (rank == 2 ? "text-xl " : "")
             + (rank > 2 ? "text-base " : "")
-            + (username == myrank?.username ? "text-base-100 bg-base-content border-none " : "text-base-content ")}>
+            + (username == myrank?.username ? "text-base-100 dark bg-base-content border-none " : "text-base-content ")}>
                 <th>{rank + 1}</th>
                 <th>{username}</th>
                 <th>{score}</th>
@@ -99,8 +99,8 @@ export default function Home() {
                 </div>
             </div>
 
-            <main className="bg-greyscale-1 flex flex-row h-screen w-screen">
-                <div className="relative overflow-hidden h-full flex flex-col w-full">
+            <main className="bg-base-100 flex flex-row h-full w-screen overflow-hidden">
+                <div className="relative overflow-hidden h-full flex flex-col w-full drawer">
                     <p className="font-bold text-3xl text-accent justify-center my-10 flex select-none">Rank</p>
                     <div className="flex justify-center">
                         <table className="table max-w-md">
