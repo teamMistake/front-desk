@@ -13,7 +13,7 @@ export default function Home() {
 
     const router = useRouter();
     // get user identity by api
-    const [isAuth, userID] = useUser();
+    const { isAuth, userID } = useUser();
 
     // Define Rank Element
     // gets user id by ranks form, but not visible
