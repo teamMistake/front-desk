@@ -299,34 +299,21 @@ export default function Home() {
                 "Accept": "application/x-ndjson",
                 "Content-Type": "application/json"
             } })
-            .then((response) => ndjsonStream(response.body))
+            .then((response) => {
+                console.log(response)
+                return ndjsonStream(response.body)
+            })
             .then((stream) => {
                 clearTimeout(timeoutId);
                 const streamReader = stream.getReader();
+                console.log("GEt response successfully")
                 streamReader.read().then(async (response) => {
                     while (!response) {
+                        console.log("LOOP")
                         response = await streamReader.read();
+                        console.log(response)
                         const data = response.data
-
                         console.log(data)
-// class Chat(
-//     @MongoId
-//     var chatId: String,
-//     @Indexed
-//     var userId: String?,
-//     var shared: Boolean,
-//     var messages: MutableList<ChatMessage>,
-//     var title: String = "",
-//     var creationTimestamp: Instant,
-//     var generating: Boolean = false
-// )
-// class ChatMessage(
-//     var messageId: String?, // null if it does not belong to current chat
-//     var req: String,
-//     var resp: MutableList<ChatMessageResponse>,
-//     var experiment: Experiment
-// );
-
                         if (data.type == "chat"){
                             const chat = {
                                 talker: COMPUTER,
