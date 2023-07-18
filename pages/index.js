@@ -296,7 +296,8 @@ export default function Home() {
         if (isFirstChat) {
             const data = { initialPrompt: prompt };
             const stream = fetch("/api/chat/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal, headers: {
-                Accept: "application/x-ndjson",
+                "Accept": "text/event-stream",
+                "Content-Type": "application/x-ndjson"
             } })
             .then((response) => ndjsonStream(response.body))
             .then((stream) => {
