@@ -102,52 +102,45 @@ export default function Home() {
             <main className="bg-greyscale-1 flex flex-row h-screen w-screen">
                 <div className="relative overflow-hidden h-full flex flex-col w-full">
                     <p className="font-bold text-3xl text-accent justify-center my-10 flex select-none">Rank</p>
-                    <div className="flex-1 overflow-x-auto justify-center">
-                            <table className="table max-w-md">
-                                <thead>
-                                    <tr className="text-base text-content dark:bg-none select-none">
-                                        <th>Top</th>
-                                        <th>Name</th>
-                                        <th>Score</th>
-                                    </tr>
-                                </thead>
+                    <div className="flex justify-center">
+                        <table className="table max-w-md">
+                            <thead>
+                                <tr className="text-base text-content dark:bg-none select-none">
+                                    <th>Top</th>
+                                    <th>Name</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/* Users Rank */}
+                                {loaded && (ranks.map((data, i) => {
+                                    {
+                                        return <Rank key={i} {...data} />
+                                    }
+                                }))}
+                            </tbody>
+                        </table>
+
+                        {!isAuth && (
+                            <div className="fixed bottom-0 p-5 flex w-full justify-center">
+                                <span className="text-xl font-bold highlight dark:bg-none select-none">로그인 정보를 불러올 수 없습니다...</span>
+                            </div>
+                        )}
+                        {(isAuth && myrank?.rank > 9) && (
+                            <table className="table fixed bottom-0">
                                 <tbody>
-                                    {/* Users Rank */}
-                                    {loaded && (ranks.map((data, i) => {
-                                        {
-                                            return <Rank key={i} {...data} />
-                                        }
-                                    }))}
+                                    {/* My Rank (fixed) */}
+                                    <Rank {...myrank} />
                                 </tbody>
                             </table>
-
-                            {!loaded && (
-                                <div className="fixed p-2 flex w-full justify-center">
-                                    <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
-                                </div>
-                            )}
-                            {!isAuth && (
-                                <div className="fixed bottom-0 p-5 flex w-full justify-center">
-                                    <span className="text-xl font-bold highlight dark:bg-none select-none">로그인 정보를 불러올 수 없습니다...</span>
-                                </div>
-                            )}
-                            {(isAuth && myrank?.rank > 9) && (
-                                <table className="table fixed bottom-0">
-                                    <thead>
-                                        <tr className="text-base text-content select-none border-none">
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {/* My Rank (fixed) */}
-                                        <Rank {...myrank} />
-                                    </tbody>
-                                </table>
-                            )}
-                        </div>
+                        )}
                     </div>
+                    {!loaded && (
+                        <div className="flex my-20 w-full justify-center bottom-0">
+                            <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
+                        </div>
+                    )}
+                </div>
             </main>
         </>
     );
