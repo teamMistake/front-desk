@@ -313,7 +313,6 @@ export default function Home() {
                         while (!response || !response.done) {
                             response = await streamReader.read();
                             if (response.done) {
-                                console.log("319",Object.keys(item).length)
                                 if (Object.keys(item).length > 1) {
                                     setEvent(AB_MODEL_TEST_EVENT);
                                     setABBtnCount(Object.keys(item).length);
@@ -342,9 +341,9 @@ export default function Home() {
                             } else if (data.type == "lm_response") {
                                 const { reqId, messageId, data: d } = data;
                                 item[reqId] = d.resp_full;
-                                console.log("345", item)
 
                                 const parsed = Object.entries(item).map((_data) => {
+                                    console.log(_data)
                                     try {
                                         let tempReqId = _data[0];
                                         let tempMsg = _data[1];
