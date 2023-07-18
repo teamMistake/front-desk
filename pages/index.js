@@ -295,7 +295,9 @@ export default function Home() {
         
         if (isFirstChat) {
             const data = { initialPrompt: prompt };
-            const stream = fetch("/api/chat/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal })
+            const stream = fetch("/api/chat/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal, headers: {
+                Accept: "text/event-stream",
+            } })
             .then((response) => ndjsonStream(response.body))
             .then((stream) => {
                 clearTimeout(timeoutId);
