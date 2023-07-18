@@ -295,7 +295,7 @@ export default function Home() {
         
         if (isFirstChat) {
             const data = { initialPrompt: prompt };
-            const stream = fetch("/api/chats/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal })
+            const stream = fetch("/api/chat/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal })
             .then((response) => ndjsonStream(response.body))
             .then((stream) => {
                 clearTimeout(timeoutId);
@@ -339,6 +339,9 @@ export default function Home() {
                         } else if (data.type == "lm_response" || data.type == "lm_error"){
 
                         } else if (data.type == "error") {
+                            if (event != AB_MODEL_TEST_EVENT) {
+                                randomRatingEventTrigger();
+                            }
                             console.log(data)
                             return 
                         }
@@ -347,9 +350,6 @@ export default function Home() {
                         //     setLoading(false);
                         //     return;
                         // }
-                    }
-                    if (event != AB_MODEL_TEST_EVENT) {
-                        randomRatingEventTrigger();
                     }
                 });
             })
