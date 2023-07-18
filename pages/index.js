@@ -578,9 +578,9 @@ export default function Home() {
     const formatUTCTime = (time) => {
         const d = new Date(time)
         const date = new Date(d.getTime() + TIME_ZONE).toISOString().split('T')[0].split("-");
-        const time = d.toTimeString().split(' ')[0].split(":")[0];
+        const hour = d.toTimeString().split(' ')[0].split(":")[0];
 
-        return `${date[1]}/${date[2]}/${time}`
+        return `${date[1]}/${date[2]}/${hour}`
     }
 
     return (
