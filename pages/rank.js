@@ -134,7 +134,7 @@ export default function Home() {
                                     <span className="text-xl font-bold highlight dark:bg-none select-none">로그인 정보를 불러올 수 없습니다...</span>
                                 </div>
                             )}
-                            {isAuth && myrank.rank > 9(
+                            {isAuth && myrank.rank > 9 && (
                                 <table className="table fixed bottom-0">
                                     <thead>
                                         <tr className="text-base text-content select-none border-none">
