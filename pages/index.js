@@ -64,7 +64,6 @@ export default function Home() {
 
     const [contextID, setContextID] = useState("");
     const [messageId, setMessageId] = useState();
-    const [reqId, setReqId] = useState();
 
     // Context ID for setting the chat context
     const [contexts, setContexts] = useState([]);
@@ -324,6 +323,7 @@ export default function Home() {
             });
     };
 
+    // TODO: Chats
     // chat state update event management such as login event, generate event, scroll trigger
     useEffect(() => {
         if (chats.length == 0) return;
@@ -355,6 +355,7 @@ export default function Home() {
             PostGenerate(target_prompt);
         }
 
+        // AB TESTING EVENT Trigger
         if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
             let isEnded = false;
 
@@ -367,6 +368,10 @@ export default function Home() {
                 setEvent(AB_MODEL_TEST_EVENT);
                 setABBtnCount(lastChat.prompt.length);
             }
+        }
+
+        if (lastChat.talker == COMPUTER) {
+            setMessageId(lastChat.messageId)
         }
 
         if (chats.length != update) {
@@ -386,7 +391,8 @@ export default function Home() {
         _chats[_chats.length - 1].prompt[index].selected = true;
 
         async function fetchABTest() {
-            await selectABTestItemAPI({ messageId: messageId, req_id: reqId });
+            const reqId =  _chats[_chats.length - 1].prompt[index].reqId
+            await selectABTestItemAPI({ messageId: messageId, reqId: reqId });
 
             setLoading(false);
         }
@@ -425,6 +431,7 @@ export default function Home() {
     };
 
     const queryRateAnswer = () => {
+        const reqId = chats[chats.length - 1].prompt[0].reqId
         rateAnswerAPI({ chatId: contextID, messageId: messageId, reqId: reqId, stars: rating });
 
         // AFTER
