@@ -41,18 +41,18 @@ import {
 import { getChatsByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
 import { useUser } from "../hook/useUser";
 import SendIcon from "../components/sendicon";
-import Head from "next/head";
 import Opengraph from "../components/opengraph";
 import { KakaoBtn } from "../components/kakaobutton";
 import ContextIcon from "../components/contexticon";
 import RankIcon from "../components/rankicon";
+import { parsingChatItem } from "../utils/parsing";
 
 export default function Home() {
     const router = useRouter();
 
     // TODO: Set isMine false for safety
     const [isMine, setIsMine] = useState(true);
-    const [auth, userID] = useUser();
+    const { isAuth: auth, userID } = useUser();
 
     // Chat state list of chat item.
     const [chats, setChats] = useState([]);
@@ -107,11 +107,6 @@ export default function Home() {
 
     // =========================== Initiate EVENT =================================
     useEffect(() => {
-        // setChats([
-        //     { talker: USER, prompt: [{ resp: "안녕 반가워." }], event: MSG_EVENT, onlive: false, seqID: 10 },
-        //     { talker: COMPUTER, prompt: [{ resp: "안녕." }], event: MSG_EVENT, onlive: false, onlive: true, seqID: 10 },
-        // ]);
-
         // Redirect Event Handler for the Login event enabling
         const { redirectFromPrivacy } = router.query;
         if (redirectFromPrivacy) {
@@ -130,12 +125,12 @@ export default function Home() {
             // IF NOT MINE
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
-
-            // ELSE
-            setEvent(MSG_EVENT)
-            setIsMine(true)
         }
     }, []);
+
+    useEffect(() => {
+        console.log("console auth status", auth);
+    }, [auth]);
 
     const clearChat = () => {
         setChats([]);
@@ -145,9 +140,9 @@ export default function Home() {
     };
 
     const clearAll = () => {
-        clearChat()
-        setContextID()
-    }
+        clearChat();
+        setContextID();
+    };
 
     const startNewChat = () => {
         clearAll();
@@ -156,7 +151,7 @@ export default function Home() {
 
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
-        clearChat()
+        clearChat();
         if (contextID == "" || !contextID) return;
 
         // set share url for future sharing event
@@ -170,8 +165,16 @@ export default function Home() {
             setLoading(true);
             setChatLoading(true);
 
-            const chats = await getChatsByContextIDAPI(contextID);
-            setChats(chats);
+            const _chats = await getChatsByContextIDAPI(contextID);
+            const { messages } = _chats;
+
+            if ((_chats.userId = userID)) {
+                setEvent(MSG_EVENT);
+                setIsMine(true);
+            }
+
+            const parsed_chats = parsingChatItem(messages);
+            setChats(() => parsed_chats);
 
             setLoading(false);
             setChatLoading(false);
@@ -186,7 +189,7 @@ export default function Home() {
 
             // TODO: GET contexts
             const contexts = await getContextsByUserIDAPI(1234);
-            console.log("Context!!!!!!", contexts)
+            console.log("Context!!!!!!", contexts);
             setContexts(contexts);
 
             setContextLoading(false);
@@ -201,7 +204,7 @@ export default function Home() {
         setContextID(cid);
         toggleContextDrawer();
         setIsMine(true);
-        setEvent(MSG_EVENT)
+        setEvent(MSG_EVENT);
     };
 
     const shareAPI = () => {
@@ -326,7 +329,7 @@ export default function Home() {
         const trigger = firstVisit == undefined ? LOGIN_TRIGGER_NUM : 3;
         // Login Event Trigger
 
-        console.log("Auth", auth, "USERID", userID)
+        console.log("Auth", auth, "USERID", userID);
 
         if (chats[chats.length - 1].talker == USER && chats.length >= trigger && !auth) {
             const _chats = chats;
@@ -506,7 +509,7 @@ export default function Home() {
             />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    {!auth && (
+                    {auth && (
                         <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
                             <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M4 6h16M4 12h16M4 18h7' />
@@ -522,8 +525,8 @@ export default function Home() {
                         </GhostButton>
                     )}
                     <GhostButton onClick={() => router.push("/rank")}>
-                        <RankIcon width="32" height="32" />
-                        <span className="text-xs">Rank</span>
+                        <RankIcon width='32' height='32' />
+                        <span className='text-xs'>Rank</span>
                     </GhostButton>
                 </div>
             </div>
@@ -536,22 +539,23 @@ export default function Home() {
                                 <LoadingSpinner />
                             ) : (
                                 <ul className='w-full divide-y divide-slate-100'>
-                                    {contexts.length == 0 ? contexts.map((cid, index) => (
-                                        <li
-                                            onClick={() => changeContext(cid)}
-                                            className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
-                                            key={index}
-                                        >
-                                            <div>
-                                                <ContextIcon width="20" height="20" />
-                                            </div>
-
-                                            {/* TODO: set appropriate item */}
-                                            <span className='text-md font-medium'>새로운 대화</span>
-                                            <span className='text-sm font-thin'>22.07.15</span>
-                                        </li>
-                                    )) : (
-                                        <div className="text-center w-full text-xl font-bold">None</div>
+                                    {contexts.length == 0 ? (
+                                        contexts.map(({ chatId, title, creationTimeStamp }, index) => (
+                                            <li
+                                                onClick={() => changeContext(cid)}
+                                                className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
+                                                key={index}
+                                            >
+                                                <div>
+                                                    <ContextIcon width='20' height='20' />
+                                                </div>
+                                                {/* TODO: set appropriate item */}
+                                                <span className='text-md font-medium'>{title == "" ? "새로운 대화" : title}</span>
+                                                <span className='text-sm font-thin'>{creationTimeStamp}</span>
+                                            </li>
+                                        ))
+                                    ) : (
+                                        <div className='text-center w-full text-2xl p-2 font-bold'>헉.. 아무 대화가 없네요..</div>
                                     )}
                                 </ul>
                             )}

@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://chatjamo.vercel.app
+Host: https://chatmoja.seda.club/
 
 # Sitemaps
-Sitemap: https://chatjamo.vercel.app/sitemap.xml
+Sitemap: https://chatmoja.seda.club/sitemap.xml

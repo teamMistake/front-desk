@@ -9,8 +9,9 @@ const useUser = () => {
     useEffect(() => {
         async function fetchUser() {
             const user = await getUserInfoAPI()
-            console.log(user)
+
             if (user) {
+                console.log("엥")
                 setIsAuth(true)
                 setUserID(user.user)
             } else {
@@ -21,7 +22,7 @@ const useUser = () => {
         fetchUser()
     }, [])
 
-    return [isAuth, userID]
+    return {isAuth, userID}
 }
 
 
