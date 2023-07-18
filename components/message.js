@@ -6,7 +6,7 @@ import { COMPUTER, LOGIN_EVENT, MULTIPLE_MESSAGES, SINGLE_MESSAGE, USER } from "
 import { IconButton } from "./button";
 import copy from "copy-to-clipboard";
 
-const MessageBox = ({ talker, prompt, event, onlive }) => {
+const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
     const [payload, setPayload] = useState();
     const [cursor, setCursor] = useState(0);
     const [updates, setUpdates] = useState(0);
@@ -23,6 +23,7 @@ const MessageBox = ({ talker, prompt, event, onlive }) => {
     }, [prompt]);
 
     useEffect(() => {
+        console.log(payload)
         if (!payload || payload.length == 0 || type != SINGLE_MESSAGE) return;
 
         if (payload[0].resp == "") {

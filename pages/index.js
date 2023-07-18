@@ -285,95 +285,93 @@ export default function Home() {
     };
 
     const PostGenerate = (prompt) => {
-        
         // Timeout Detector
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 10s
-        
-        const isFirstChat = chats.length == 1
+
+        const isFirstChat = chats.length == 1;
         const _chats = chats;
-        
+
         if (isFirstChat) {
             const data = { initialPrompt: prompt };
-            const stream = fetch("/api/chat/create", { body: JSON.stringify(data), method: "POST", signal: controller.signal, headers: {
-                "Accept": "application/x-ndjson",
-                "Content-Type": "application/json"
-            } })
-            .then((response) => ndjsonStream(response.body))
-            .then((stream) => {
-                clearTimeout(timeoutId);
-                const streamReader = stream.getReader();
-                streamReader.read().then(async (response) => {
-                    let item = {}
+            const stream = fetch("/api/chat/create", {
+                body: JSON.stringify(data),
+                method: "POST",
+                signal: controller.signal,
+                headers: {
+                    Accept: "application/x-ndjson",
+                    "Content-Type": "application/json",
+                },
+            })
+                .then((response) => ndjsonStream(response.body))
+                .then((stream) => {
+                    clearTimeout(timeoutId);
+                    const streamReader = stream.getReader();
+                    streamReader.read().then(async (response) => {
+                        let item = {};
 
-                    while (!response || !response.done) {
-                        response = await streamReader.read();
-                        if (response.done) {
-                            // AB TESTING EVENT Trigger
-                            if (Object.keys(item).length > 1) {
-                                setEvent(AB_MODEL_TEST_EVENT);
-                                setABBtnCount(Object.keys(item).length);
-                            } else {
-                                randomRatingEventTrigger();
+                        while (!response || !response.done) {
+                            response = await streamReader.read();
+                            if (response.done) {
+                                // AB TESTING EVENT Trigger
+                                if (Object.keys(item).length > 1) {
+                                    setEvent(AB_MODEL_TEST_EVENT);
+                                    setABBtnCount(Object.keys(item).length);
+                                } else {
+                                    randomRatingEventTrigger();
+                                }
+
+                                setLoading(false);
+                                return;
                             }
 
-                            setLoading(false);
-                            return;
+                            const data = response.value.data;
+
+                            if (data.type == "chat") {
+                                console.log("type chat", data);
+                            } else if (data.type == "message") {
+                                const { chatId, message } = data;
+                                setContextID(chatId);
+                                setMessageId(message.messageId);
+                            } else if (data.type == "lm_reqids") {
+                                // prepare to getting req
+                                const { reqIds } = data;
+
+                                reqIds.map((id) => {
+                                    item[id.req_id] = { message: "" };
+                                });
+                            } else if (data.type == "lm_response") {
+                                const { reqId, messageId, data: d } = data;
+                                item[reqId] = d.resp_full;
+
+                                const parsed = Object.entries(item).map((_data) => {
+                                    try {
+                                        let tempReqId = _data[0];
+                                        let tempMsg = _data[1];
+                                        return { resp: tempMsg, selected: false, reqId: tempReqId };
+                                    } catch (e) {
+                                        console.log(e);
+                                    }
+                                });
+                                const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId };
+
+                                setChats(() => [..._chats, comChat]);
+                                
+                            } else if (data.type == "lm_error") {
+                                console.log(data);
+                                return;
+                            } else if (data.type == "error") {
+                                console.log(data);
+                                return;
+                            }
                         }
-
-                        const data = response.value.data
-
-                        if (data.type == "chat"){
-                            console.log("type chat", data)
-                        } else if (data.type == "message") {
-                            const {chatId, message} = data
-                            setContextID(chatId)
-                            setMessageId(message.messageId)
-                        } else if (data.type == "lm_reqids") {
-                            // prepare to getting req
-                            const {reqIds} = data
-                            
-                            reqIds.map((id) => {
-                                // console.log(id)
-                                item[id.req_id] = {message: ""}
-                            })
-                        } else if (data.type == "lm_response"){
-                            const {reqId, messageId, data:d} = data
-                            item[reqId] = d.resp_full
-                            console.log(reqId)
-                            console.log(item)
-                            
-                            const parsed = Object.entries(item).map(_data => {
-                                try{
-                                    let tempReqId = _data[0]
-                                    let tempMsg = _data[1]
-                                    return {resp: tempMsg, selected: false, reqId: tempReqId}
-                                }catch(e) {
-                                    console.log(e)
-                                }
-                            })
-                            console.log(parsed)
-
-                            const comChat = {talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId}
-                            console.log(comChat)
-                            setChats([..._chats, comChat])
-                        } else if (data.type == "lm_error") {
-                            console.log(data)
-                            return
-                        } else if (data.type == "error") {
-                            console.log(data)
-                            return 
-                        }
-                    }
+                    });
+                })
+                .catch((e) => {
+                    console.log(e);
+                    setError(COMPUTING_LIMITATION_ERROR);
                 });
-            })
-            .catch((e) => {
-                console.log(e)
-                setError(COMPUTING_LIMITATION_ERROR);
-            });
         }
-
-        
     };
 
     // TODO: Chats
@@ -424,7 +422,7 @@ export default function Home() {
         // }
 
         if (lastChat.talker == COMPUTER) {
-            setMessageId(lastChat.messageId)
+            setMessageId(lastChat.messageId);
         }
 
         if (chats.length != update) {
@@ -444,7 +442,7 @@ export default function Home() {
         _chats[_chats.length - 1].prompt[index].selected = true;
 
         async function fetchABTest() {
-            const reqId =  _chats[_chats.length - 1].prompt[index].reqId
+            const reqId = _chats[_chats.length - 1].prompt[index].reqId;
             await selectABTestItemAPI({ messageId: messageId, reqId: reqId });
 
             setLoading(false);
@@ -484,7 +482,7 @@ export default function Home() {
     };
 
     const queryRateAnswer = () => {
-        const reqId = chats[chats.length - 1].prompt[0].reqId
+        const reqId = chats[chats.length - 1].prompt[0].reqId;
         rateAnswerAPI({ chatId: contextID, messageId: messageId, reqId: reqId, stars: rating });
 
         // AFTER
@@ -568,9 +566,7 @@ export default function Home() {
             />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    {!auth && (
-                        <GhostButton onClick={() => router.push("story")}>MOJA</GhostButton>
-                    )}
+                    {!auth && <GhostButton onClick={() => router.push("story")}>MOJA</GhostButton>}
                     {auth && (
                         <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
                             <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -619,7 +615,7 @@ export default function Home() {
                                             ))}
                                         </ul>
                                     ) : (
-                                        <div className="flex w-full h-full flex-col justify-center items-center">
+                                        <div className='flex w-full h-full flex-col justify-center items-center'>
                                             <span className='text-2xl font-bold highlight dark:bg-none'>헉.. 아무 대화가 없어요..</span>
                                         </div>
                                     )}
