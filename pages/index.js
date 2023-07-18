@@ -390,7 +390,7 @@ export default function Home() {
         if (lastChat.talker == USER) {
             setLoading(true);
             const target_prompt = chats[chats.length - 1].prompt;
-            PostGenerate(target_prompt);
+            PostGenerate(target_prompt[0].resp);
         }
 
         // AB TESTING EVENT Trigger
