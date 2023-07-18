@@ -25,7 +25,7 @@ export default function Home() {
             + (rank == 2 ? "text-2xl " : "")
             + (rank == 3 ? "text-xl " : "")
             + (rank > 3 ? "text-base " : "")
-            + (isAuth ? "text-white bg-base-content " : "text-primary ")}>
+            + (username == myrank.username ? "text-white bg-base-content border-none " : "text-gray-600 ")}>
                 <th>{rank}</th>
                 <th>{username}</th>
                 <th>{score}</th>
@@ -105,8 +105,7 @@ export default function Home() {
             <main className="bg-greyscale-1 flex flex-row h-screen w-screen">
                 <div className="relative overflow-hidden h-full flex flex-col w-full">
                     <p className="font-bold text-3xl text-accent justify-center my-10 flex select-none">Rank</p>
-                    <div>
-                        <div className="overflow-x-auto">
+                    <div className="flex-1 overflow-x-auto">
                             <table className="table">
                                 <thead>
                                     <tr className="text-base text-content select-none">
@@ -124,20 +123,34 @@ export default function Home() {
                                     }))}
                                 </tbody>
                             </table>
-                            <table className="table">
-                                <tbody className="fixed bottom-20 flex">
-                                    {/* My Rank (fixed) */}
-                                    {isAuth && myrank.rank < 10 && (
-                                        <Rank {...myrank} />
-                                    )}
-                                </tbody>
-                            </table>
+
+                            {!loaded && (
+                                <div className="fixed p-2 flex w-full justify-center">
+                                    <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
+                                </div>
+                            )}
                             {!isAuth && (
-                                <span className="fixed bottom-20 flex w-full justify-center font-bold">로그인 정보를 불러올 수 없습니다...</span>
+                                <div className="fixed bottom-0 p-5 flex w-full justify-center">
+                                    <span className="text-xl font-bold highlight dark:bg-none select-none">로그인 정보를 불러올 수 없습니다...</span>
+                                </div>
+                            )}
+                            {isAuth && (
+                                <table className="table fixed bottom-0">
+                                    <thead>
+                                        <tr className="text-base text-content select-none border-none">
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {/* My Rank (fixed) */}
+                                        <Rank {...myrank} />
+                                    </tbody>
+                                </table>
                             )}
                         </div>
                     </div>
-                </div>
             </main>
         </>
     );
