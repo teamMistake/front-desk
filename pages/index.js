@@ -334,11 +334,13 @@ export default function Home() {
                             const {reqIds} = data
                             
                             reqIds.map((id) => {
+                                console.log(id)
                                 item[id] = {message: ""}
                             })
                         } else if (data.type == "lm_response"){
                             const {reqId, messageId, data:d} = data
                             item[reqId] = d.resp_full
+                            console.log(reqId)
                             console.log(item)
                             
                             const parsed = Object.entries(item).map(_data => {
