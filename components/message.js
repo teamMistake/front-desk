@@ -18,14 +18,14 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
     useEffect(() => {
         if (prompt == undefined) return;
 
-        console.log(prompt)
+        console.log("21", prompt)
 
         setType(() => (prompt.length == 1 ? SINGLE_MESSAGE : MULTIPLE_MESSAGES));
         setPayload(prompt);
     }, [prompt]);
 
     useEffect(() => {
-        console.log(payload)
+        console.log("28", payload)
         if (!payload || payload.length == 0 || type != SINGLE_MESSAGE) return;
 
         if (payload[0].resp == "") {
