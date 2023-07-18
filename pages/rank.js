@@ -21,12 +21,12 @@ export default function Home() {
         return (
             // text size adjustment by rank in row 1~3
             <tr className={""
-            + (rank == 1 ? "text-3xl " : "")
-            + (rank == 2 ? "text-2xl " : "")
-            + (rank == 3 ? "text-xl " : "")
-            + (rank > 3 ? "text-base " : "")
+            + (rank == 0 ? "text-3xl " : "")
+            + (rank == 1 ? "text-2xl " : "")
+            + (rank == 2 ? "text-xl " : "")
+            + (rank > 2 ? "text-base " : "")
             + (username == myrank.username ? "text-white bg-base-content border-none " : "text-gray-600 ")}>
-                <th>{rank}</th>
+                <th>{rank + 1}</th>
                 <th>{username}</th>
                 <th>{score}</th>
             </tr>
@@ -108,7 +108,7 @@ export default function Home() {
                     <div className="flex-1 overflow-x-auto">
                             <table className="table">
                                 <thead>
-                                    <tr className="text-base text-content select-none">
+                                    <tr className="text-base text-content dark:bg-none select-none">
                                         <th>Top</th>
                                         <th>Name</th>
                                         <th>Score</th>
@@ -134,7 +134,7 @@ export default function Home() {
                                     <span className="text-xl font-bold highlight dark:bg-none select-none">로그인 정보를 불러올 수 없습니다...</span>
                                 </div>
                             )}
-                            {isAuth && (
+                            {isAuth && myrank.rank > 9(
                                 <table className="table fixed bottom-0">
                                     <thead>
                                         <tr className="text-base text-content select-none border-none">
