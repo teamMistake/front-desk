@@ -15,6 +15,9 @@ const rateAnswerAPI = async ({ chatId, messageId, reqId, stars }) => {
         const data = {"stars": stars}
         const res = await fetch(`/api/chat/${chatId}/messages/${messageId}/${reqId}/rating`, {
             method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify(data)
         })    
         const result = await res.json()
@@ -30,6 +33,9 @@ const selectABTestItemAPI = async ({ reqId,chatId, messageId }) => {
         const data = {chosen: reqId}
         const res = await fetch(`/api/chat/${chatId}/messages/${messageId}/chosen`, {
             method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify(data)
         })
 
