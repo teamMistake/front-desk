@@ -1,17 +1,14 @@
-const getUserInfoAPI = () => {
-    const res = fetch("/api/oauth2/userinfo", {
-        method: "GET",
-    })
-        .then((res) => res.json())
-        .then((res) => {
-            return res;
+const getUserInfoAPI = async () => {
+    try {
+        const res = await fetch("/api/oauth2/userinfo", {
+            method: "GET",
         })
-        .catch(e => {
-            console.log(e)
-            return undefined;
-        });
-    console.log(res)
-    return res
+        const data = await res.json()
+        return data
+    } catch (e) {
+        console.log(e)
+        return undefined
+    }
 };
 
 const rateAnswerAPI = ({ seq_id, rate }) => {

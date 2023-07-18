@@ -113,8 +113,6 @@ export default function Home() {
             setEvent(LOGIN_EVENT);
         }
 
-        console.log(auth)
-
         // If this page was shared context page. and so
         const { share: sharedContextId } = queryString.parse(location.search);
 
