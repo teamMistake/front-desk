@@ -5,21 +5,42 @@ const getUserInfoAPI = async () => {
         })
         const data = await res.json()
         return data
-    } catch (e) {
-        console.log(e)
+    } catch (e) {   
         return undefined
     }
 };
 
-const rateAnswerAPI = ({ seq_id, rate }) => {
-    return;
+const rateAnswerAPI = async ({ chatId, messageId, reqId, stars }) => {
+    try {
+        const data = {"stars": stars}
+        const res = await fetch(`/api/chat/${chatId}/messages/${messageId}/${reqId}/rating`, {
+            method: "PUT",
+            body: JSON.stringify(data)
+        })    
+        const result = await res.json()
+        return result
+    } catch (e) {
+        console.log("23", e)
+        return undefined
+    }
 };
 
-const selectABTestItemAPI = ({ seq_id, index }) => {
-    return;
+const selectABTestItemAPI = async ({ req_id, messageId }) => {
+    try {
+        const data = {chosen: req_id}
+        const res = await fetch(`/api/messages/${messageId}/`, {
+            method: "PUT",
+            body: JSON.stringify(data)
+        })
+
+        const result = await res.json()
+        return result
+    } catch (e) {
+        return undefined
+    }
 };
 
-const getChatsByContextIDAPI = async (contextID) => {
+const getChatByContextIDAPI = async (contextID) => {
     try {
         const res = await fetch(`/api/chat/${contextID}`)   
         const response = await res.json()
@@ -41,4 +62,4 @@ const getContextsByUserIDAPI = async () => {
     }
 }
 
-export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatsByContextIDAPI, getContextsByUserIDAPI };
+export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatByContextIDAPI, getContextsByUserIDAPI };

@@ -38,7 +38,7 @@ import {
     TwitterIcon,
     TwitterShareButton,
 } from "react-share";
-import { getChatsByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
+import { getChatByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
 import { useUser } from "../hook/useUser";
 import SendIcon from "../components/sendicon";
 import Opengraph from "../components/opengraph";
@@ -58,17 +58,17 @@ export default function Home() {
     const [chats, setChats] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
 
-    // current dialogue seqID
-    const [seqID, setSeqID] = useState();
-
     // Chatting Ref for scroll down.
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
 
+    const [contextID, setContextID] = useState("");
+    const [messageId, setMessageId] = useState();
+    const [reqId, setReqId] = useState();
+
     // Context ID for setting the chat context
     const [contexts, setContexts] = useState([]);
     const [seeContexts, setSeeContexts] = useState(false);
-    const [contextID, setContextID] = useState("");
     const [contextLoading, setContextLoading] = useState(false);
     const [ABBtnCount, setABBtnCount] = useState(3);
 
@@ -128,10 +128,6 @@ export default function Home() {
         }
     }, []);
 
-    useEffect(() => {
-        console.log("console auth status", auth);
-    }, [auth]);
-
     const clearChat = () => {
         setChats([]);
         setEvent(MSG_EVENT);
@@ -161,26 +157,31 @@ export default function Home() {
         setShareURL(turl);
 
         // TODO: request to the server set chat data
-        async function fetchChats() {
+        async function fetchChat() {
             setLoading(true);
             setChatLoading(true);
 
-            const _chats = await getChatsByContextIDAPI(contextID);
-            const { messages } = _chats;
+            try {
+                const _chats = await getChatByContextIDAPI(contextID);
+                const { messages } = _chats;
 
-            if ((_chats.userId = userID)) {
-                setEvent(MSG_EVENT);
-                setIsMine(true);
+                if ((_chats.userId = userID)) {
+                    setEvent(MSG_EVENT);
+                    setIsMine(true);
+                }
+
+                const parsed_chats = parsingChatItem(messages);
+                setChats(() => parsed_chats);
+
+                setLoading(false);
+                setChatLoading(false);
+            } catch (e) {
+                console.log("183", e);
+                return;
             }
-
-            const parsed_chats = parsingChatItem(messages);
-            setChats(() => parsed_chats);
-
-            setLoading(false);
-            setChatLoading(false);
         }
 
-        fetchChats();
+        fetchChat();
     }, [contextID]);
 
     useEffect(() => {
@@ -188,11 +189,14 @@ export default function Home() {
             setContextLoading(true);
 
             // TODO: GET contexts
-            const contexts = await getContextsByUserIDAPI(1234);
-            console.log("Context!!!!!!", contexts);
-            setContexts(contexts);
+            const _contexts = await getContextsByUserIDAPI();
 
-            setContextLoading(false);
+            if (_contexts) {
+                console.log("Context!!!!!!", _contexts);
+                setContexts(_contexts);
+
+                setContextLoading(false);
+            }
         }
 
         if (seeContexts) {
@@ -262,6 +266,7 @@ export default function Home() {
     };
 
     // Regenerate the user prompt.
+    // TODO: Turn this into new api
     const Regenerate = () => {
         // const target_prompt = chats[chats.length - 2].prompt;
         const _chats = chats;
@@ -308,9 +313,6 @@ export default function Home() {
                             onlive: true,
                         };
                         setChats([..._chats, chat]);
-
-                        // TODO: SET sequence ID for various event
-                        setSeqID(1234);
                     }
                     if (event != AB_MODEL_TEST_EVENT) {
                         randomRatingEventTrigger();
@@ -328,8 +330,6 @@ export default function Home() {
 
         const trigger = firstVisit == undefined ? LOGIN_TRIGGER_NUM : 3;
         // Login Event Trigger
-
-        console.log("Auth", auth, "USERID", userID);
 
         if (chats[chats.length - 1].talker == USER && chats.length >= trigger && !auth) {
             const _chats = chats;
@@ -386,7 +386,7 @@ export default function Home() {
         _chats[_chats.length - 1].prompt[index].selected = true;
 
         async function fetchABTest() {
-            await selectABTestItemAPI({ seq_id: seqID, index: index });
+            await selectABTestItemAPI({ messageId: messageId, req_id: reqId });
 
             setLoading(false);
         }
@@ -407,7 +407,6 @@ export default function Home() {
     const loginEventHandler = () => {
         if (!privacyChecked) return setPrivacyError(true);
 
-        console.log("DEX LOGIN");
         router.push("/login");
     };
 
@@ -426,7 +425,7 @@ export default function Home() {
     };
 
     const queryRateAnswer = () => {
-        rateAnswerAPI({ seq_id: seqID, rate: rating });
+        rateAnswerAPI({ chatId: contextID, messageId: messageId, reqId: reqId, stars: rating });
 
         // AFTER
         setThankYou(true);
@@ -541,26 +540,30 @@ export default function Home() {
                             {contextLoading ? (
                                 <LoadingSpinner />
                             ) : (
-                                <ul className='w-full divide-y divide-slate-100'>
+                                <>
                                     {contexts.length == 0 ? (
-                                        contexts.map(({ chatId, title, creationTimeStamp }, index) => (
-                                            <li
-                                                onClick={() => changeContext(cid)}
-                                                className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
-                                                key={index}
-                                            >
-                                                <div>
-                                                    <ContextIcon width='20' height='20' />
-                                                </div>
-                                                {/* TODO: set appropriate item */}
-                                                <span className='text-md font-medium'>{title == "" ? "새로운 대화" : title}</span>
-                                                <span className='text-sm font-thin'>{creationTimeStamp}</span>
-                                            </li>
-                                        ))
+                                        <ul className='w-full divide-y divide-slate-100'>
+                                            {contexts.map(({ chatId, title, creationTimeStamp }, index) => (
+                                                <li
+                                                    onClick={() => changeContext(chatId)}
+                                                    className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
+                                                    key={index}
+                                                >
+                                                    <div>
+                                                        <ContextIcon width='20' height='20' />
+                                                    </div>
+                                                    {/* TODO: set appropriate item */}
+                                                    <span className='text-md font-medium'>{title == "" ? "새로운 대화" : title}</span>
+                                                    <span className='text-sm font-thin'>{creationTimeStamp}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     ) : (
-                                        <div className='text-center w-full text-2xl p-2 font-bold'>헉.. 아무 대화가 없네요..</div>
+                                        <div className="flex w-full h-full flex-col justify-center items-center">
+                                            <span className='text-2xl font-bold highlight dark:bg-none'>헉.. 아무 대화가 없어요..</span>
+                                        </div>
                                     )}
-                                </ul>
+                                </>
                             )}
                         </div>
                         <div className='p-3'>
