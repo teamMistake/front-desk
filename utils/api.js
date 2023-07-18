@@ -38,10 +38,9 @@ const selectABTestItemAPI = async ({ req_id, messageId }) => {
     } catch (e) {
         return undefined
     }
-    return;
 };
 
-const getChatsByContextIDAPI = async (contextID) => {
+const getChatByContextIDAPI = async (contextID) => {
     try {
         const res = await fetch(`/api/chat/${contextID}`)   
         const response = await res.json()
@@ -63,4 +62,4 @@ const getContextsByUserIDAPI = async () => {
     }
 }
 
-export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatsByContextIDAPI, getContextsByUserIDAPI };
+export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatByContextIDAPI, getContextsByUserIDAPI };
