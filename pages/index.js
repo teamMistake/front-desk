@@ -224,7 +224,7 @@ export default function Home() {
     };
 
     // =========================== GENERATE CHAT EVENT =================================
-    const onSubmit = (data) => {
+    const onSubmit = (data, regenerate=false) => {
         const prompt = data.prompt;
 
         const removedSpaceValue = prompt.replace(/(\r\n|\n|\r)/gm, "");
@@ -242,6 +242,7 @@ export default function Home() {
             prompt: [chatPrompt],
             event: MSG_EVENT,
             onlive: true,
+            regenerate: regenerate
         };
 
         return setChats([...chats, chat]);
@@ -280,11 +281,11 @@ export default function Home() {
         if (!target_prompt) {
             return;
         }
-        const data = { prompt: target_prompt };
+        const data = { prompt: target_prompt, regenerate: true };
         return handleSubmit(onSubmit(data));
     };
 
-    const PostGenerate = (prompt) => {
+    const PostGenerate = (prompt, regenerate=false) => {
         // Timeout Detector
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 10s
@@ -292,85 +293,94 @@ export default function Home() {
         const isFirstChat = chats.length == 1;
         const _chats = chats;
 
-        if (isFirstChat) {
-            const data = { initialPrompt: prompt };
-            const stream = fetch("/api/chat/create", {
-                body: JSON.stringify(data),
-                method: "POST",
-                signal: controller.signal,
-                headers: {
-                    Accept: "application/x-ndjson",
-                    "Content-Type": "application/json",
-                },
-            })
-                .then((response) => ndjsonStream(response.body))
-                .then((stream) => {
-                    clearTimeout(timeoutId);
-                    const streamReader = stream.getReader();
-                    streamReader.read().then(async (response) => {
-                        let item = {};
+        let data = {};
+        let url = "";
+        if (regenerate) {
+            url = `/api/chat/${contextID}/regenerate`
+        } else if (isFirstChat) {
+            data = { initialPrompt: prompt };
+            url = "/api/chat/create";
+        } else {
+            data = { message: prompt };
+            url = `/api/chat/${contextID}/message`;
+        }
 
-                        while (!response || !response.done) {
-                            response = await streamReader.read();
-                            if (response.done) {
+        const stream = fetch(url, {
+            body: JSON.stringify(data),
+            method: "POST",
+            signal: controller.signal,
+            headers: {
+                Accept: "application/x-ndjson",
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => ndjsonStream(response.body))
+            .then((stream) => {
+                clearTimeout(timeoutId);
+                const streamReader = stream.getReader();
+                streamReader.read().then(async (response) => {
+                    let item = {};
+
+                    while (!response || !response.done) {
+                        response = await streamReader.read();
+                        if (response.done) {
+                            if (auth) {
                                 if (Object.keys(item).length > 1) {
                                     setEvent(AB_MODEL_TEST_EVENT);
                                     setABBtnCount(Object.keys(item).length);
-                                } else {
+                                } else if (auth) {
                                     randomRatingEventTrigger();
                                 }
-                                setLoading(false);
-                                return;
                             }
-
-                            const data = response.value.data;
-
-                            if (data.type == "chat") {
-                                console.log("type chat", data);
-                            } else if (data.type == "message") {
-                                const { chatId, message } = data;
-                                setContextID(chatId);
-                                setMessageId(message.messageId);
-                            } else if (data.type == "lm_reqids") {
-                                // prepare to getting req
-                                const { reqIds } = data;
-
-                                reqIds.map((id) => {
-                                    item[id.req_id] = "" ;
-                                });
-                            } else if (data.type == "lm_response") {
-                                const { reqId, messageId, data: d } = data;
-                                item[reqId] = d.resp_full;
-
-                                const parsed = Object.entries(item).map((_data) => {
-                                    try {
-                                        let tempReqId = _data[0];
-                                        let tempMsg = _data[1];
-                                        return { resp: tempMsg, selected: false, reqId: tempReqId };
-                                    } catch (e) {
-                                        console.log(e);
-                                    }
-                                });
-                                const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId };
-                                setChats(() => [..._chats, comChat]);
-
-                            } else if (data.type == "lm_error") {
-                                console.log(data);
-                                setError(COMPUTING_LIMITATION_ERROR);
-                                return;
-                            } else if (data.type == "error") {
-                                console.log(data);
-                                setError(COMPUTING_LIMITATION_ERROR);
-                                return;
-                            }
+                            setLoading(false);
+                            return;
                         }
-                    });
-                })
-                .catch((e) => {
-                    console.log(e);
-                    setError(COMPUTING_LIMITATION_ERROR);
+
+                        const data = response.value.data;
+
+                        if (data.type == "chat") {
+                            console.log("type chat", data);
+                        } else if (data.type == "message") {
+                            const { chatId, message } = data;
+                            setContextID(chatId);
+                            setMessageId(message.messageId);
+                        } else if (data.type == "lm_reqids") {
+                            const { reqIds } = data;
+
+                            reqIds.map((id) => {
+                                item[id.req_id] = "";
+                            });
+                        } else if (data.type == "lm_response") {
+                            const { reqId, messageId, data: d } = data;
+                            item[reqId] = d.resp_full;
+
+                            const parsed = Object.entries(item).map((_data) => {
+                                try {
+                                    let tempReqId = _data[0];
+                                    let tempMsg = _data[1];
+                                    return { resp: tempMsg, selected: false, reqId: tempReqId };
+                                } catch (e) {
+                                    console.log(e);
+                                }
+                            });
+                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId };
+                            setChats(() => [..._chats, comChat]);
+                        } else if (data.type == "lm_error") {
+                            console.log(data);
+                            setError(COMPUTING_LIMITATION_ERROR);
+                            return;
+                        } else if (data.type == "error") {
+                            console.log(data);
+                            setError(COMPUTING_LIMITATION_ERROR);
+                            return;
+                        }
+                    }
                 });
-        }
+            })
+            .catch((e) => {
+                console.log(e);
+                setError(COMPUTING_LIMITATION_ERROR);
+            });
     };
 
     // TODO: Chats
@@ -402,7 +412,8 @@ export default function Home() {
         if (lastChat.talker == USER) {
             setLoading(true);
             const target_prompt = chats[chats.length - 1].prompt;
-            PostGenerate(target_prompt[0].resp);
+
+            PostGenerate(target_prompt[0].resp, target_prompt.regenerate);
         }
 
         // // AB TESTING EVENT Trigger
@@ -467,8 +478,8 @@ export default function Home() {
     };
 
     const reLoginEventHandler = () => {
-        router.push("/login")
-    }
+        router.push("/login");
+    };
 
     // =========================== PRIVACY EVENT =================================
     useEffect(() => {
@@ -580,7 +591,7 @@ export default function Home() {
                 </div>
                 <div className='navbar-center'></div>
                 <div className='navbar-end'>
-                    {chats.length > 0 && shareURL && (
+                    {chats.length > 0 && shareURL && auth && (
                         <GhostButton onClick={() => toggleShareModal()}>
                             <ShareIcon width='40' />
                         </GhostButton>

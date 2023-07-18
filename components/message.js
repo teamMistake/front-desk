@@ -20,9 +20,6 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
             console.log(prompt, typeof(prompt))
 
             if (prompt.length > 0) {
-                console.log("21", prompt)
-                console.log("22", prompt.length)
-
                 setType(() => prompt.length == 1 ? SINGLE_MESSAGE : MULTIPLE_MESSAGES);
                 setPayload(prompt);
             }
@@ -35,8 +32,6 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
         }
 
         if (!payload || payload.length == 0 || type != SINGLE_MESSAGE) return;
-        console.log("28", payload)
-        console.log("30")
         setUpdates(updates + 1);
     }, [payload]);
 
