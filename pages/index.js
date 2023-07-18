@@ -320,7 +320,7 @@ export default function Home() {
                         }
                         console.log("LOOP")
                         console.log(response)
-                        const data = response.data
+                        const data = response.value.data
                         console.log(data)
                         if (data.type == "chat"){
                             const chat = {
