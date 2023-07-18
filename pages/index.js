@@ -548,7 +548,7 @@ export default function Home() {
                                 <LoadingSpinner />
                             ) : (
                                 <>
-                                    {contexts.length == 0 ? (
+                                    {contexts.length > 0 ? (
                                         <ul className='w-full divide-y divide-slate-100'>
                                             {contexts.map(({ chatId, title, creationTimeStamp }, index) => (
                                                 <li
