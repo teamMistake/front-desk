@@ -641,7 +641,7 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    {!auth && <GhostButton onClick={() => router.push("/story")}><span className="text-xs">
+                    {!auth && <GhostButton onClick={() => router.push("/about")}><span className="text-xs">
                     ABOUT</span></GhostButton>}
                     <GhostButton onClick={() => router.push("/rank")}>
                         <RankIcon width='32' height='32' />
