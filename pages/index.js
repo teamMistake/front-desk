@@ -237,6 +237,7 @@ export default function Home() {
 
         //TODO: This is temporary preventation.
         if (!loading){
+            console.log("?????")
             fetchChat();
         }   
     }, [contextID]);
