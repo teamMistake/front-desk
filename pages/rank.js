@@ -135,17 +135,18 @@ export default function Home() {
                             </tbody>
                         </table>
 
+                        {(!loaded || !ranks) && (
+                        <div className="flex my-20 w-full justify-center bottom-0">
+                            <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
+                        </div>
+                        )}
+
                         {(!isAuth || !myrank) && (
                             <div className="fixed bottom-0 p-5 flex w-full justify-center">
                                 <span className="text-xl font-bold highlight dark:bg-none select-none">당신의 순위를 불러올 수 없습니다...</span>
                             </div>
                         )}
                     </div>
-                    {(!loaded || !ranks) && (
-                        <div className="flex my-20 w-full justify-center bottom-0">
-                            <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
-                        </div>
-                    )}
                 </div>
             </main>
         </>
