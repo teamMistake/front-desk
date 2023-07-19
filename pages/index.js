@@ -116,6 +116,7 @@ export default function Home() {
         const { share: sharedContextId } = queryString.parse(location.search);
 
         if (sharedContextId) {
+            console.log(sharedContextId)
             setContextID(sharedContextId);
             // it may be possible that this chat was written by me. so change this state case by case
             // identify the user authorization with userId and context writer id
@@ -781,7 +782,7 @@ export default function Home() {
                         <div className='w-full h-full flex flex-col items-center overflow-hidden'>
                             {/* TODO: Loading UX improve with Blurred CHAT UI */}
                             {chatLoading && <LoadingSpinner />}
-                            <div className={`w-full overflow-y-scroll flex-1 ${chatLoading && "hidden"}`} ref={chatContainerRef}>
+                            <div className={`w-full overflow-y-scroll ${chatLoading && "hidden"}`} ref={chatContainerRef}>
                                 {chats.map((chat, i) => {
                                     return (
                                         <>
@@ -797,14 +798,14 @@ export default function Home() {
                                         </div>
                                     </div>
                                 )}
-                                <div className='h-[50px]'></div>
+                                <div className='h-[120px]'></div>
                             </div>
-                            <div className='w-full h-32 max-h-96'></div>
+                            {/* <div className='w-full h-32 max-h-96'></div> */}
                         </div>
                     </main>
 
                     {/* Fixed Content UI */}
-                    <div className='fixed w-full bottom-0 flex items-center flex-col justify-center'>
+                    <div className='fixed w-full bottom-0 flex items-center flex-col justify-center bg-red  bg-opacity-0'>
                         {event == LOGIN_EVENT && (
                             <>
                                 <BottomSelectorUI title='로그인 하실래요?'>

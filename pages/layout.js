@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
     }, []);  
 
     return (
-        <main className='h-screen w-screen flex flex-col'>
+        <main className='md:h-screen w-screen flex flex-col absolute inset-0'>
             <Head>
                 <script defer src='https://developers.kakao.com/sdk/js/kakao.min.js'></script>
             </Head>
