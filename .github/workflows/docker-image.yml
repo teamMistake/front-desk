@@ -7,8 +7,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  NEXT_PUBLIC_KAKAO_API_KEY: ${{ secrets.KAKAO }}
-
 
 jobs:
 
@@ -42,6 +40,8 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        build-args: | 
+          "NEXT_PUBLIC_KAKAO_API_KEY=${{ secrets.KAKAO }}"
         
     - name: Kubernetes context
       uses: Azure/k8s-set-context@v1
