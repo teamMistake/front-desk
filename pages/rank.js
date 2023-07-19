@@ -125,6 +125,13 @@ export default function Home() {
                                         return <Rank key={i} {...data} />
                                     }
                                 }))}
+
+                                {/* My Rank (fixed) */}
+                                {(isAuth && myrank && myrank?.rank >= 10) && (
+                                    <div className="fixed bottom-0">
+                                        <Rank {...myrank} />
+                                    </div>
+                                )}
                             </tbody>
                         </table>
 
@@ -132,15 +139,6 @@ export default function Home() {
                             <div className="fixed bottom-0 p-5 flex w-full justify-center">
                                 <span className="text-xl font-bold highlight dark:bg-none select-none">당신의 순위를 불러올 수 없습니다...</span>
                             </div>
-                        )}
-                        {(isAuth && myrank && myrank?.rank >= 10) && (
-                            <table className="table fixed bottom-0 max-w-md">
-                                <tbody>
-                                    <Rank className="invisible" username={"Alignment"} rank={0} score={1000}/>
-                                    {/* My Rank (fixed) */}
-                                    <Rank {...myrank} />
-                                </tbody>
-                            </table>
                         )}
                     </div>
                     {(!loaded || !ranks) && (
