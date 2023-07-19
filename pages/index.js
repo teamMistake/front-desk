@@ -213,6 +213,8 @@ export default function Home() {
             const parsed_chats = parsingChatItem(messages);
             setChats(() => parsed_chats);
 
+            const _isMine = _chats.userId == userID;
+
             const lastChat = parsed_chats[parsed_chats.length - 1];
             // AB TESTING EVENT Trigger
             if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
