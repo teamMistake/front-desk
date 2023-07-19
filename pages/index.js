@@ -62,7 +62,7 @@ export default function Home() {
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
 
-    const [contextID, setContextID] = useState("");
+    const [contextID, setContextID] = useState();
     const [messageId, setMessageId] = useState();
 
     // Context ID for setting the chat context
@@ -113,16 +113,15 @@ export default function Home() {
         }
 
         // If this page was shared context page. and so
-        const { share: sharedContextId } = queryString.parse(location.search);
+        const { share: _sharedContextId } = queryString.parse(location.search);
 
-        if (sharedContextId) {
+        if (_sharedContextId) {
             // it may be possible that this chat was written by me. so change this state case by case
             // identify the user authorization with userId and context writer id
             // IF NOT MINE
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
-            setContextID(sharedContextId);
-            fetchChat();
+            fetchChat(_sharedContextId, true)
         }
     }, []);
 
@@ -171,13 +170,12 @@ export default function Home() {
         toggleContextDrawer();
     };
 
-    // TODO: request to the server set chat data
-    async function fetchChat() {
+    async function fetchChat(chatID, shared) {
         setLoading(true);
         setChatLoading(true);
 
         try {
-            const _chats = await getChatByContextIDAPI(contextID);
+            const _chats = await getChatByContextIDAPI(chatID);
             const { messages } = _chats;
             console.log("193", messages);
 
@@ -213,6 +211,10 @@ export default function Home() {
 
             setLoading(false);
             setChatLoading(false);
+            
+            if(shared) {
+                setContextID(chatID)
+            }
         } catch (e) {
             // TODO: invalid access to page preventation
             console.log("183", e);
@@ -237,8 +239,8 @@ export default function Home() {
         setShareURL(turl);
 
         //TODO: This is temporary preventation.
-        if (!loading) {
-            fetchChat();
+        if (!loading && event != SHARED_CONTENT_EVENT) {
+            fetchChat(contextID, false);
         }
     }, [contextID]);
 
