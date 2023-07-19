@@ -195,9 +195,7 @@ export default function Home() {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages } = _chats;
 
-            const _isMine = _chats.userId == userID;
-
-            console.log(event, isMine, _isMine);
+            const _isMine = _chats.userID == userID;
 
             if (_isMine) {
                 setEvent(MSG_EVENT);
@@ -260,6 +258,7 @@ export default function Home() {
 
     const changeContext = (cid) => {
         setContextID(cid);
+        setInit(true);
         toggleContextDrawer();
         setIsMine(true);
         setEvent(MSG_EVENT);
@@ -351,7 +350,6 @@ export default function Home() {
         let data = {};
         let url = "";
         if (regenerate) {
-            console.log("REGENERATE");
             url = `/api/chat/${contextID}/regenerate`;
         } else if (isFirstChat) {
             data = { initialPrompt: prompt };
@@ -660,12 +658,10 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    {!auth && (
-                        <GhostButton onClick={() => router.push("/about")}>
-                            <AboutIcon width='30' height='30' />
-                            <span className='text-xs'>About</span>
-                        </GhostButton>
-                    )}
+                    <GhostButton onClick={() => router.push("/about")}>
+                        <AboutIcon width='30' height='30' />
+                        <span className='text-xs'>About</span>
+                    </GhostButton>
                     <GhostButton onClick={() => router.push("/rank")}>
                         <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
@@ -921,8 +917,8 @@ export default function Home() {
                             className={`flex w-full justify-center gap-2 md:gap-4 px-4 items-center ${(event != MSG_EVENT || thankyou || !isMine) && "hidden"}`}
                             onSubmit={handleSubmit(onSubmit)}
                         >
-                            <div className='relative flex-1 max-w-[48rem] flex flex-col justify-center items-center bg-white dark:bg-black rounded-xl shadow-xl '>
-                                <div className='pl-[1rem] pr-[0.4rem] pt-[0.75rem] pb-[1.2rem] w-full relative flex flex-row'>
+                            <div className='relative flex-1 max-w-[48rem] flex flex-col justify-center items-center bg-white dark:bg-black rounded-xl shadow-xl overflow-hidden'>
+                                <div className='pl-[1rem] pr-[0.4rem] pt-[0.75rem] pb-[1.2rem] w-full relative flex flex-row bg-white dark:bg-black'>
                                     <textarea
                                         maxLength={200}
                                         onKeyPress={enterSubmit}
