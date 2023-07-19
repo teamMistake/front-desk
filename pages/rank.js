@@ -115,7 +115,7 @@ export default function Home() {
                             </thead>
                             <tbody>
                                 {/* Users Rank */}
-                                {(loaded && ranks) && (ranks.map((data, i) => {
+                                {(loaded && !error) && (ranks.map((data, i) => {
                                     {
                                         return <Rank key={i} {...data} />
                                     }
@@ -137,6 +137,11 @@ export default function Home() {
                             </table>
                         )}
                     </div>
+                    {(loaded && error) && (
+                        <div className="flex my-20 w-full justify-center bottom-0">
+                            <span className="text-xl font-bold dark:bg-none select-none">순위 정보를 가져오는 도중 오류가 발생했습니다.</span>
+                        </div>
+                    )}
                     {!loaded && (
                         <div className="flex my-20 w-full justify-center bottom-0">
                             <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
