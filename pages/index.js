@@ -176,8 +176,11 @@ export default function Home() {
                     let isEnded = false;
 
                     const tChat = parsed_chats[parsed_chats.length - 1];
+                    console.log(prompt)
                     tChat.prompt.map((p) => {
-                        isEnded = p?.selected && true;
+                        if (p?.selected) {
+                            isEnded = true
+                        }
                     });
 
                     if (!isEnded) {
@@ -761,7 +764,7 @@ export default function Home() {
                     </main>
 
                     {/* Fixed Content UI */}
-                    <div className='fixed box-content w-full bottom-0 flex items-center flex-col justify-center'>
+                    <div className='fixed box-content w-full bottom-0 flex items-center flex-col justify-center p-2'>
                         {event == LOGIN_EVENT && (
                             <>
                                 <BottomSelectorUI title='로그인 하실래요?'>
@@ -881,7 +884,7 @@ export default function Home() {
 
                         {event != LOGIN_EVENT && (
                             <div className='pt-[6px] pb-[12px]'>
-                                <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마고 R&E TeamMistake입니다.</span>
+                                <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마고 학생입니다.</span>
                             </div>
                         )}
                     </div>
