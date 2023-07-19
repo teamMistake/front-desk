@@ -188,6 +188,26 @@ export default function Home() {
         toggleContextDrawer();
     };
 
+    const checkForAB = (parsed_chats) => {
+        const lastChat = parsed_chats[parsed_chats.length - 1];
+        // AB TESTING EVENT Trigger
+        if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
+            let isEnded = false;
+
+            const tChat = parsed_chats[parsed_chats.length - 1];
+            tChat.prompt.map((p) => {
+                if (p?.selected) {
+                    isEnded = true;
+                }
+            });
+
+            if (!isEnded) {
+                setEvent(AB_MODEL_TEST_EVENT);
+                setABBtnCount(lastChat.prompt.length);
+            }
+        }
+    }
+
     useEffect(() => {
         if (userID && sharedUser) {
             const _isMine = sharedUser == userID;
@@ -195,6 +215,9 @@ export default function Home() {
                 setEvent(MSG_EVENT);
                 setIsMine(true);
             }
+
+            const parsed_chats = chats
+            checkForAB(parsed_chats)
         }
     }, [userID, sharedUser])
 
@@ -213,23 +236,7 @@ export default function Home() {
             const parsed_chats = parsingChatItem(messages);
             setChats(() => parsed_chats);
 
-            const lastChat = parsed_chats[parsed_chats.length - 1];
-            // AB TESTING EVENT Trigger
-            if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
-                let isEnded = false;
-
-                const tChat = parsed_chats[parsed_chats.length - 1];
-                tChat.prompt.map((p) => {
-                    if (p?.selected) {
-                        isEnded = true;
-                    }
-                });
-
-                if (!isEnded) {
-                    setEvent(AB_MODEL_TEST_EVENT);
-                    setABBtnCount(lastChat.prompt.length);
-                }
-            }
+            checkForAB(parsed_chats)
 
             setLoading(false);
             setChatLoading(false);
@@ -370,6 +377,18 @@ export default function Home() {
             url = `/api/chat/${contextID}/message`;
         }
 
+        let item = {};
+
+        function ABTestTrigger() {
+            if (Object.keys(item).length > 1) {
+                setEvent(AB_MODEL_TEST_EVENT);
+                setABBtnCount(Object.keys(item).length);
+            } else if (auth) {
+                randomRatingEventTrigger();
+            }
+            setLoading(false);
+        }
+
         const stream = fetch(url, {
             body: JSON.stringify(data),
             method: "POST",
@@ -384,7 +403,6 @@ export default function Home() {
                 clearTimeout(timeoutId);
                 const streamReader = stream.getReader();
                 streamReader.read().then(async (response) => {
-                    let item = {};
                     if (lastChatItem.talker == COMPUTER) {
                         lastChatItem.prompt.map(({reqId, resp, selected}) => {
                             item[reqId] = resp
@@ -394,13 +412,7 @@ export default function Home() {
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
-                            if (Object.keys(item).length > 1) {
-                                setEvent(AB_MODEL_TEST_EVENT);
-                                setABBtnCount(Object.keys(item).length);
-                            } else if (auth) {
-                                randomRatingEventTrigger();
-                            }
-                            setLoading(false);
+                            ABTestTrigger()
                             return;
                         }
 
@@ -412,9 +424,6 @@ export default function Home() {
                             const { chatId, message } = data;
                             setContextID(chatId);
                             setMessageId(message.messageId);
-                            // if(regenerate) {
-                                // selectABTestItemAPI({chatId: chatId, messageId: messageId, reqId: })
-                            // }
                         } else if (data.type == "lm_reqids") {
                             const { reqIds } = data;
 
@@ -450,6 +459,7 @@ export default function Home() {
             })
             .catch((e) => {
                 console.log(e);
+                ABTestTrigger()
                 setError(COMPUTING_LIMITATION_ERROR);
             });
     };
