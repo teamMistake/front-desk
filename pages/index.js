@@ -296,7 +296,6 @@ export default function Home() {
             prompt: [chatPrompt],
             event: MSG_EVENT,
             onlive: true,
-            regenerate: data.regenerate || false,
         };
 
         return setChats([...chats, chat]);
@@ -306,7 +305,7 @@ export default function Home() {
     const SubmitData = () => {
         const prompt = watch("prompt");
 
-        const data = { prompt: prompt, regenerate: false };
+        const data = { prompt: prompt };
         return handleSubmit(onSubmit(data));
     };
 
@@ -335,8 +334,8 @@ export default function Home() {
         if (!target_prompt) {
             return;
         }
-        const data = { prompt: target_prompt, regenerate: true };
-        return handleSubmit(onSubmit(data));
+        // const data = { prompt: target_prompt, regenerate: true };
+        return PostGenerate(target_prompt, regenerate);
     };
 
     const PostGenerate = (prompt, regenerate = false) => {
@@ -345,7 +344,11 @@ export default function Home() {
         const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 10s
 
         const isFirstChat = chats.length == 1;
-        const _chats = chats;
+        let _chats = chats;
+        const lastChatItem = _chats[_chats.length - 1]
+        if (regenerate) {
+            _chats = _chats.slice(0, _chats.slice-2)
+        }
 
         let data = {};
         let url = "";
@@ -374,6 +377,11 @@ export default function Home() {
                 const streamReader = stream.getReader();
                 streamReader.read().then(async (response) => {
                     let item = {};
+                    if (lastChatItem.talker == COMPUTER) {
+                        lastChatItem.prompt.map(({reqId, resp, selected}) => {
+                            item[reqId] = resp
+                        })
+                    }
 
                     while (!response || !response.done) {
                         response = await streamReader.read();
@@ -396,6 +404,9 @@ export default function Home() {
                             const { chatId, message } = data;
                             setContextID(chatId);
                             setMessageId(message.messageId);
+                            // if(regenerate) {
+                                // selectABTestItemAPI({chatId: chatId, messageId: messageId, reqId: })
+                            // }
                         } else if (data.type == "lm_reqids") {
                             const { reqIds } = data;
 
@@ -466,7 +477,7 @@ export default function Home() {
             const lastItem = chats[chats.length - 1];
             const target_prompt = lastItem.prompt;
 
-            PostGenerate(target_prompt[0].resp, lastItem.regenerate);
+            PostGenerate(target_prompt[0].resp);
         }
 
         if (lastChat.talker == COMPUTER) {
