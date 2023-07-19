@@ -135,14 +135,8 @@ export default function Home() {
                         )}
                         {(isAuth && myrank && myrank?.rank >= 10) && (
                             <table className="table fixed bottom-0 max-w-md">
-                                <thead className="invisible">
-                                    <tr>
-                                        <th>Top</th>
-                                        <th>Name</th>
-                                        <th>Score</th>
-                                    </tr>
-                                </thead>
                                 <tbody>
+                                    <Rank className="invisible" username={"Alignment"} rank={0} score={1000}/>
                                     {/* My Rank (fixed) */}
                                     <Rank {...myrank} />
                                 </tbody>
