@@ -380,6 +380,7 @@ export default function Home() {
         }
 
         let item = {};
+        setInit(false)
 
         function ABTestTrigger() {
             if (Object.keys(item).length > 1) {
@@ -388,6 +389,7 @@ export default function Home() {
             } else if (auth) {
                 randomRatingEventTrigger();
             }
+            console.log("391")
             setLoading(false);
         }
 
@@ -414,6 +416,7 @@ export default function Home() {
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
+                            console.log("416")
                             ABTestTrigger()
                             return;
                         }
@@ -850,7 +853,7 @@ export default function Home() {
                                         </div>
                                     </div>
                                 )}
-                                <div className='h-[120px]'></div>
+                                <div className='h-[150px]'></div>
                             </div>
                             {/* <div className='w-full h-32 max-h-96'></div> */}
                         </div>
