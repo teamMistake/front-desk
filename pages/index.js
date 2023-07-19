@@ -133,10 +133,10 @@ export default function Home() {
             }
         }
 
-        if (!contexts){
-            // fetch contexts at loading
-            fetchContexts()
-        }
+        // if (!contexts){
+        // fetch contexts at loading
+        fetchContexts()
+        // }
 
         // If this page was shared context page. and so
         const { share: sharedContextId } = queryString.parse(location.search);
