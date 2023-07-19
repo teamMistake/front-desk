@@ -195,8 +195,9 @@ export default function Home() {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages } = _chats;
 
-            const _isMine = _chats.userId == userID;
+            const _isMine = _chats.userID == userID;
 
+            console.log(_chats, userID)
             console.log(event, isMine, _isMine);
 
             if (_isMine) {
@@ -921,8 +922,8 @@ export default function Home() {
                             className={`flex w-full justify-center gap-2 md:gap-4 px-4 items-center ${(event != MSG_EVENT || thankyou || !isMine) && "hidden"}`}
                             onSubmit={handleSubmit(onSubmit)}
                         >
-                            <div className='relative flex-1 max-w-[48rem] flex flex-col justify-center items-center bg-white dark:bg-black rounded-xl shadow-xl '>
-                                <div className='pl-[1rem] pr-[0.4rem] pt-[0.75rem] pb-[1.2rem] w-full relative flex flex-row'>
+                            <div className='relative flex-1 max-w-[48rem] flex flex-col justify-center items-center bg-white dark:bg-black rounded-xl shadow-xl overflow-hidden'>
+                                <div className='pl-[1rem] pr-[0.4rem] pt-[0.75rem] pb-[1.2rem] w-full relative flex flex-row bg-white dark:bg-black'>
                                     <textarea
                                         maxLength={200}
                                         onKeyPress={enterSubmit}
