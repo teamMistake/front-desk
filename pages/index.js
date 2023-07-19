@@ -38,7 +38,7 @@ import {
     TwitterIcon,
     TwitterShareButton,
 } from "react-share";
-import { getChatByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
+import { checkForSharing, getChatByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
 import { useUser } from "../hook/useUser";
 import SendIcon from "../components/sendicon";
 import Opengraph from "../components/opengraph";
@@ -188,12 +188,15 @@ export default function Home() {
                         setABBtnCount(lastChat.prompt.length);
                     }
                 }
+            } catch (e) {
+                // invalid access to page preventation
+
+                console.log("183", e);
 
                 setLoading(false);
                 setChatLoading(false);
-            } catch (e) {
-                console.log("183", e);
-                return;
+
+                return router.push("/");
             }
         }
 
@@ -576,6 +579,7 @@ export default function Home() {
         return setSeeContexts(() => !seeContexts);
     };
     const toggleShareModal = () => {
+        checkForSharing({chatId: contextID, share: true})
         return window.share_modal.showModal();
     };
     const toggleLoginModal = () => {

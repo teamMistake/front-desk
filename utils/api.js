@@ -68,4 +68,16 @@ const getContextsByUserIDAPI = async () => {
     }
 }
 
-export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatByContextIDAPI, getContextsByUserIDAPI };
+const checkForSharing = async ({chatId, share}) => {
+    try {
+        const data = {share: share}
+        const res = await fetch(`/api/chat/${chatId}/share`)
+        const response = await res.json()
+
+        return response
+    } catch(e) {
+        return undefined
+    }
+}
+
+export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatByContextIDAPI, getContextsByUserIDAPI, checkForSharing };
