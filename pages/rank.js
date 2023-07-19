@@ -134,7 +134,7 @@ export default function Home() {
                             </div>
                         )}
                         {(isAuth && myrank && myrank?.rank >= 10) && (
-                            <table className="table fixed bottom-0">
+                            <table className="table fixed bottom-0 max-w-md">
                                 <tbody>
                                     {/* My Rank (fixed) */}
                                     <Rank {...myrank} />
