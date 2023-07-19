@@ -478,9 +478,10 @@ export default function Home() {
         const lastChat = chats[chats.length - 1];
         if (lastChat.talker == USER) {
             setLoading(true);
-            const target_prompt = chats[chats.length - 1].prompt;
+            const lastItem = chats[chats.length - 1]
+            const target_prompt = lastItem.prompt;
 
-            PostGenerate(target_prompt[0].resp, target_prompt.regenerate);
+            PostGenerate(target_prompt[0].resp, lastItem.regenerate);
         }
 
         if (lastChat.talker == COMPUTER) {
