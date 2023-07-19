@@ -190,6 +190,9 @@ export default function Home() {
                         setABBtnCount(lastChat.prompt.length);
                     }
                 }
+
+                setLoading(false);
+                setChatLoading(false);
             } catch (e) {
                 // invalid access to page preventation
 
