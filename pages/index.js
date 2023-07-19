@@ -64,7 +64,7 @@ export default function Home() {
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
 
-    const [contextID, setContextID] = useState("");
+    const [contextID, setContextID] = useState();
     const [messageId, setMessageId] = useState();
 
     // Context ID for setting the chat context
@@ -115,16 +115,15 @@ export default function Home() {
         }
 
         // If this page was shared context page. and so
-        const { share: sharedContextId } = queryString.parse(location.search);
+        const { share: _sharedContextId } = queryString.parse(location.search);
 
-        if (sharedContextId) {
+        if (_sharedContextId) {
             // it may be possible that this chat was written by me. so change this state case by case
             // identify the user authorization with userId and context writer id
             // IF NOT MINE
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
-            setContextID(sharedContextId);
-            console.log(sharedContextId, event, isMine);
+            fetchChat(_sharedContextId, true)
         }
     }, []);
 
@@ -173,6 +172,61 @@ export default function Home() {
         toggleContextDrawer();
     };
 
+    async function fetchChat(chatID, shared) {
+        setLoading(true);
+        setChatLoading(true);
+
+        try {
+            const _chats = await getChatByContextIDAPI(chatID);
+            const { messages } = _chats;
+            console.log("193", messages);
+
+            const _isMine = (_chats.userId == userID);
+
+            console.log(event, isMine, _isMine)
+
+            if (_isMine) {
+                setEvent(MSG_EVENT);
+                setIsMine(true);
+            }
+
+            const parsed_chats = parsingChatItem(messages);
+            setChats(() => parsed_chats);
+
+            const lastChat = parsed_chats[parsed_chats.length - 1];
+            // AB TESTING EVENT Trigger
+            if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
+                let isEnded = false;
+
+                const tChat = parsed_chats[parsed_chats.length - 1];
+                tChat.prompt.map((p) => {
+                    if (p?.selected) {
+                        isEnded = true;
+                    }
+                });
+
+                if (!isEnded) {
+                    setEvent(AB_MODEL_TEST_EVENT);
+                    setABBtnCount(lastChat.prompt.length);
+                }
+            }
+
+            setLoading(false);
+            setChatLoading(false);
+            
+            if(shared) {
+                setContextID(chatID)
+            }
+        } catch (e) {
+            // TODO: invalid access to page preventation
+            console.log("183", e);
+            setLoading(false);
+            setChatLoading(false);
+
+            return router.push("/");
+        }
+    }
+
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
         if (!loading) {
@@ -186,61 +240,9 @@ export default function Home() {
         const turl = `${url}/?share=${contextID}`;
         setShareURL(turl);
 
-        // TODO: request to the server set chat data
-        async function fetchChat() {
-            setLoading(true);
-            setChatLoading(true);
-
-            try {
-                const _chats = await getChatByContextIDAPI(contextID);
-                const { messages } = _chats;
-                console.log("193", messages);
-
-                const _isMine = (_chats.userId == userID);
-
-                console.log(event, isMine, _isMine)
-
-                if (_isMine) {
-                    setEvent(MSG_EVENT);
-                    setIsMine(true);
-                }
-
-                const parsed_chats = parsingChatItem(messages);
-                setChats(() => parsed_chats);
-
-                const lastChat = parsed_chats[parsed_chats.length - 1];
-                // AB TESTING EVENT Trigger
-                if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
-                    let isEnded = false;
-
-                    const tChat = parsed_chats[parsed_chats.length - 1];
-                    tChat.prompt.map((p) => {
-                        if (p?.selected) {
-                            isEnded = true;
-                        }
-                    });
-
-                    if (!isEnded) {
-                        setEvent(AB_MODEL_TEST_EVENT);
-                        setABBtnCount(lastChat.prompt.length);
-                    }
-                }
-
-                setLoading(false);
-                setChatLoading(false);
-            } catch (e) {
-                // TODO: invalid access to page preventation
-                console.log("183", e);
-                setLoading(false);
-                setChatLoading(false);
-
-                return router.push("/");
-            }
-        }
-
         //TODO: This is temporary preventation.
-        if (!loading) {
-            fetchChat();
+        if (!loading && event != SHARED_CONTENT_EVENT) {
+            fetchChat(contextID, false);
         }
     }, [contextID]);
 
@@ -265,7 +267,7 @@ export default function Home() {
     };
 
     // =========================== GENERATE CHAT EVENT =================================
-    const onSubmit = (data, regenerate = false) => {
+    const onSubmit = (data) => {
         const prompt = data.prompt;
 
         const removedSpaceValue = prompt.replace(/(\r\n|\n|\r)/gm, "");
@@ -283,7 +285,7 @@ export default function Home() {
             prompt: [chatPrompt],
             event: MSG_EVENT,
             onlive: true,
-            regenerate: regenerate,
+            regenerate: data.regenerate || false,
         };
 
         return setChats([...chats, chat]);
@@ -293,7 +295,7 @@ export default function Home() {
     const SubmitData = () => {
         const prompt = watch("prompt");
 
-        const data = { prompt: prompt };
+        const data = { prompt: prompt, regenerate: false };
         return handleSubmit(onSubmit(data));
     };
 
@@ -337,6 +339,7 @@ export default function Home() {
         let data = {};
         let url = "";
         if (regenerate) {
+            console.log("REGENERATE")
             url = `/api/chat/${contextID}/regenerate`;
         } else if (isFirstChat) {
             data = { initialPrompt: prompt };
@@ -672,7 +675,6 @@ export default function Home() {
                                                     <div>
                                                         <ContextIcon width='20' height='20' />
                                                     </div>
-                                                    {/* TODO: set appropriate item */}
                                                     <span className='text-md font-medium'>{title == "" ? "새로운 대화" : title}</span>
                                                     <span className='text-sm font-thin'>{formatUTCTime(creationTimestamp)}</span>
                                                 </li>
@@ -702,10 +704,10 @@ export default function Home() {
                     <form method='dialog' className='modal-box'>
                         <div className='w-full flex justify-center'>
                             <BottomSelectorUI title='다시 로그인해주세요.'>
-                                <button className='w-[50%] btn btn-outline join-item' onClick={() => reLoginEventHandler()}>
+                                <button className='w-[50%] btn btn-outline bg-base-100 join-item' onClick={() => reLoginEventHandler()}>
                                     예
                                 </button>
-                                <button className='w-[50%] btn btn-outline join-item'>아니요</button>
+                                <button className='w-[50%] btn btn-outline bg-base-100 join-item'>아니요</button>
                             </BottomSelectorUI>
                         </div>
                     </form>
@@ -799,11 +801,11 @@ export default function Home() {
                                         className={`w-[50%] ${privacyError && "tooltip tooltip-open tooltip-top"}`}
                                         data-tip='개인정보처리방침을 동의해주세요.'
                                     >
-                                        <button className='w-full btn btn-outline join-item' onClick={() => loginEventHandler()}>
+                                        <button className='w-full btn btn-outline bg-base-100 join-item' onClick={() => loginEventHandler()}>
                                             예
                                         </button>
                                     </div>
-                                    <button onClick={() => alert("'예'를 누르고 자모와 더 대화해봐요.")} className='w-[50%] btn btn-outline join-item'>
+                                    <button onClick={() => alert("'예'를 누르고 자모와 더 대화해봐요.")} className='w-[50%] btn btn-outline bg-base-100 join-item'>
                                         아니요
                                     </button>
                                 </BottomSelectorUI>
@@ -844,7 +846,7 @@ export default function Home() {
                                 {Array(ABBtnCount)
                                     .fill(1)
                                     .map((_, i) => (
-                                        <button key={i} onClick={() => selectABTestItem(i)} className='flex-1 btn btn-outline join-item'>
+                                        <button key={i} onClick={() => selectABTestItem(i)} className='flex-1 btn btn-outline bg-base-100 join-item'>
                                             {i + 1}번
                                         </button>
                                     ))}
