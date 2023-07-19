@@ -65,11 +65,7 @@ export default function Home() {
             getMyRank();
         }
         const timeInterval = setInterval(fetchStuffs, 10000);
-        try {
-            fetchStuffs();
-        } catch(err) {
-            console.log(err);
-        }
+        fetchStuffs();
         return () => clearInterval(timeInterval);
     }, []);
 
