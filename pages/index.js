@@ -377,7 +377,9 @@ export default function Home() {
             if (Object.keys(item).length > 1) {
                 setEvent(AB_MODEL_TEST_EVENT);
                 setABBtnCount(Object.keys(item).length);
-            } 
+            } else if (auth) {
+                randomRatingEventTrigger();
+            }
         }
 
         const stream = fetch(url, {
@@ -404,9 +406,6 @@ export default function Home() {
                         response = await streamReader.read();
                         if (response.done) {
                             ABTestTrigger()
-                            if (auth) {
-                                randomRatingEventTrigger();
-                            }
                             setLoading(false);
                             return;
                         }
