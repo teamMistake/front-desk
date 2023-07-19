@@ -169,6 +169,22 @@ export default function Home() {
 
                 const parsed_chats = parsingChatItem(messages);
                 setChats(() => parsed_chats);
+                
+                const lastChat = parsed_chats[parsed_chats.length - 1]
+                // AB TESTING EVENT Trigger
+                if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
+                    let isEnded = false;
+
+                    const tChat = chats[chats.length - 1];
+                    tChat.prompt.map((p) => {
+                        isEnded = p?.selected && true;
+                    });
+
+                    if (!isEnded) {
+                        setEvent(AB_MODEL_TEST_EVENT);
+                        setABBtnCount(lastChat.prompt.length);
+                    }
+                }
 
                 setLoading(false);
                 setChatLoading(false);
@@ -420,21 +436,6 @@ export default function Home() {
 
             PostGenerate(target_prompt[0].resp, target_prompt.regenerate);
         }
-
-        // // AB TESTING EVENT Trigger
-        // if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
-        //     let isEnded = false;
-
-        //     const tChat = chats[chats.length - 1];
-        //     tChat.prompt.map((p) => {
-        //         isEnded = p?.selected && true;
-        //     });
-
-        //     if (!isEnded) {
-        //         setEvent(AB_MODEL_TEST_EVENT);
-        //         setABBtnCount(lastChat.prompt.length);
-        //     }
-        // }
 
         if (lastChat.talker == COMPUTER) {
             setMessageId(lastChat.messageId);
