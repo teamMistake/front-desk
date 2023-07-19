@@ -41,7 +41,7 @@ export default function Home() {
             setRanks(res);
             setLoaded(true);
         }).catch((e) => {
-            setRanks([]);
+            setRanks([undefined]);
             setError(true);
         });
     };
@@ -53,7 +53,7 @@ export default function Home() {
         }).then((res) => res.json()).then((res) => {
             setMyRank(res);
         }).catch((e) => {
-            setMyRank([]);
+            setMyRank([undefined]);
             setError(true);
         });
     };
@@ -115,7 +115,7 @@ export default function Home() {
                             </thead>
                             <tbody>
                                 {/* Users Rank */}
-                                {(loaded && ranks !== undefined) && (ranks.map((data, i) => {
+                                {(loaded && ranks) && (ranks.map((data, i) => {
                                     {
                                         return <Rank key={i} {...data} />
                                     }
