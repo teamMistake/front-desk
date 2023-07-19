@@ -263,7 +263,7 @@ export default function Home() {
     };
 
     // =========================== GENERATE CHAT EVENT =================================
-    const onSubmit = (data, regenerate = false) => {
+    const onSubmit = (data) => {
         const prompt = data.prompt;
 
         const removedSpaceValue = prompt.replace(/(\r\n|\n|\r)/gm, "");
@@ -281,7 +281,7 @@ export default function Home() {
             prompt: [chatPrompt],
             event: MSG_EVENT,
             onlive: true,
-            regenerate: regenerate,
+            regenerate: data.regenerate || false,
         };
 
         return setChats([...chats, chat]);
@@ -291,7 +291,7 @@ export default function Home() {
     const SubmitData = () => {
         const prompt = watch("prompt");
 
-        const data = { prompt: prompt };
+        const data = { prompt: prompt, regenerate: false };
         return handleSubmit(onSubmit(data));
     };
 
@@ -335,6 +335,7 @@ export default function Home() {
         let data = {};
         let url = "";
         if (regenerate) {
+            console.log("REGENERATE")
             url = `/api/chat/${contextID}/regenerate`;
         } else if (isFirstChat) {
             data = { initialPrompt: prompt };
