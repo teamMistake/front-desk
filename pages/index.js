@@ -145,7 +145,7 @@ export default function Home() {
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
         clearChat();
-        if (contextID == "" || !contextID) return;
+        if (contextID == "" || !contextID ) return;
 
         // set share url for future sharing event
         const urlPieces = [location.protocol, "//", location.host, location.pathname];
@@ -169,6 +169,25 @@ export default function Home() {
 
                 const parsed_chats = parsingChatItem(messages);
                 setChats(() => parsed_chats);
+                
+                const lastChat = parsed_chats[parsed_chats.length - 1]
+                // AB TESTING EVENT Trigger
+                if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
+                    let isEnded = false;
+
+                    const tChat = parsed_chats[parsed_chats.length - 1];
+                    console.log(prompt)
+                    tChat.prompt.map((p) => {
+                        if (p?.selected) {
+                            isEnded = true
+                        }
+                    });
+
+                    if (!isEnded) {
+                        setEvent(AB_MODEL_TEST_EVENT);
+                        setABBtnCount(lastChat.prompt.length);
+                    }
+                }
 
                 setLoading(false);
                 setChatLoading(false);
@@ -178,7 +197,10 @@ export default function Home() {
             }
         }
 
-        fetchChat();
+        //TODO: This is temporary preventation.
+        if (!loading){
+            fetchChat();
+        }   
     }, [contextID]);
 
     useEffect(() => {
@@ -194,8 +216,8 @@ export default function Home() {
                 const sorted_context = _contexts.sort(function (a, b) {
                     const a_timestamp = new Date(a.creationTimestamp).getTime()
                     const b_timestamp = new Date(b.creationTimeStamp).getTime()
-                    return  b_timestamp - a_timestamp
-                })
+                    return  a_timestamp - b_timestamp
+                }).reverse()
 
                 setContexts(sorted_context);
 
@@ -420,21 +442,6 @@ export default function Home() {
 
             PostGenerate(target_prompt[0].resp, target_prompt.regenerate);
         }
-
-        // // AB TESTING EVENT Trigger
-        // if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
-        //     let isEnded = false;
-
-        //     const tChat = chats[chats.length - 1];
-        //     tChat.prompt.map((p) => {
-        //         isEnded = p?.selected && true;
-        //     });
-
-        //     if (!isEnded) {
-        //         setEvent(AB_MODEL_TEST_EVENT);
-        //         setABBtnCount(lastChat.prompt.length);
-        //     }
-        // }
 
         if (lastChat.talker == COMPUTER) {
             setMessageId(lastChat.messageId);
@@ -757,7 +764,7 @@ export default function Home() {
                     </main>
 
                     {/* Fixed Content UI */}
-                    <div className='fixed box-content w-full bottom-0 flex items-center flex-col justify-center'>
+                    <div className='fixed box-content w-full bottom-0 flex items-center flex-col justify-center p-2'>
                         {event == LOGIN_EVENT && (
                             <>
                                 <BottomSelectorUI title='로그인 하실래요?'>
@@ -877,7 +884,7 @@ export default function Home() {
 
                         {event != LOGIN_EVENT && (
                             <div className='pt-[6px] pb-[12px]'>
-                                <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마고 R&E TeamMistake입니다.</span>
+                                <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마고 학생입니다.</span>
                             </div>
                         )}
                     </div>

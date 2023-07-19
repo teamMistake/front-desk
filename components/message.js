@@ -50,6 +50,13 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
         return () => clearTimeout(timeout);
     }, [cursor, updates]);
 
+    const onCopy = () => {
+        const target_payload = payload.map((p) => p.resp).join("\n")
+        
+        copy(target_payload);
+        setCopied(true);
+    }
+
     useEffect(() => {
         if (!copied) return;
 
@@ -109,10 +116,7 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
                     <>
                         {!copied ? (
                             <IconButton
-                                onClick={() => {
-                                    copy(payload);
-                                    setCopied(true);
-                                }}
+                                onClick={() => onCopy()}
                             >
                                 <CopyIcon color='currentColor' width='15' height='20' />
                             </IconButton>
