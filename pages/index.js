@@ -335,7 +335,7 @@ export default function Home() {
             return;
         }
         // const data = { prompt: target_prompt, regenerate: true };
-        return PostGenerate(target_prompt, regenerate);
+        return PostGenerate(target_prompt, true);
     };
 
     const PostGenerate = (prompt, regenerate = false) => {
