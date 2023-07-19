@@ -26,7 +26,7 @@ export default function Home() {
             + (rank == 1 ? "text-2xl " : "")
             + (rank == 2 ? "text-xl " : "")
             + (rank > 2 ? "text-base " : "")
-            + (username == myrank?.username ? "text-base-100 bg-base-content fixed bottom-0 border-none " : "text-base-content ")}>
+            + (username == myrank?.username ? "text-base-100 bg-base-content border-none " : "text-base-content ")}>
                 <th>{rank + 1}</th>
                 <th>{username}</th>
                 <th>{score}</th>
@@ -125,26 +125,28 @@ export default function Home() {
                                         return <Rank key={i} {...data} />
                                     }
                                 }))}
-
-                                {/* My Rank (fixed) */}
-                                {(isAuth && myrank && myrank?.rank >= 10) && (
-                                    <Rank className="w-full fixed bottom-0" {...myrank} />
-                                )}
                             </tbody>
                         </table>
-
-                        {(!loaded || !ranks) && (
-                        <div className="flex my-20 w-full justify-center bottom-0">
-                            <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
-                        </div>
-                        )}
 
                         {(!isAuth || !myrank) && (
                             <div className="fixed bottom-0 p-5 flex w-full justify-center">
                                 <span className="text-xl font-bold highlight dark:bg-none select-none">당신의 순위를 불러올 수 없습니다...</span>
                             </div>
                         )}
+                        {(isAuth && myrank && myrank?.rank >= 10) && (
+                            <table className="table fixed bottom-0">
+                                <tbody>
+                                    {/* My Rank (fixed) */}
+                                    <Rank {...myrank} />
+                                </tbody>
+                            </table>
+                        )}
                     </div>
+                    {(!loaded || !ranks) && (
+                        <div className="flex my-20 w-full justify-center bottom-0">
+                            <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
+                        </div>
+                    )}
                 </div>
             </main>
         </>
