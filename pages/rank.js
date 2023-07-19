@@ -101,7 +101,7 @@ export default function Home() {
 
             <main className="bg-base-100 flex flex-row h-full w-screen overflow-hidden">
                 <div className="relative overflow-hidden h-full flex flex-col w-full drawer">
-                    <p className="font-bold text-3xl text-accent justify-center my-10 flex select-none">Rank</p>
+                    <p className="font-bold text-3xl text-accent dark:text-white justify-center my-10 flex select-none">Rank</p>
                     <div className="flex justify-center">
                         <table className="table max-w-md">
                             <thead>
