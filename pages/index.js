@@ -194,7 +194,7 @@ export default function Home() {
                 const sorted_context = _contexts.sort(function (a, b) {
                     const a_timestamp = new Date(a.creationTimestamp).getTime()
                     const b_timestamp = new Date(b.creationTimeStamp).getTime()
-                    return a_timestamp - b_timestamp
+                    return  b_timestamp - a_timestamp
                 })
 
                 setContexts(sorted_context);
@@ -583,7 +583,7 @@ export default function Home() {
         const hour = d.toTimeString().split(' ')[0].split(":")[0];
         const mm = date[1].slice(1, date[1].length)
         const dd = date[2].slice(1, date[2].length)
-        return `${mm}/${dd}/${hour}`
+        return `${mm}/${dd}/${hour}h`
     }
 
     return (
