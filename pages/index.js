@@ -210,8 +210,8 @@ export default function Home() {
                 const sorted_context = _contexts.sort(function (a, b) {
                     const a_timestamp = new Date(a.creationTimestamp).getTime()
                     const b_timestamp = new Date(b.creationTimeStamp).getTime()
-                    return  b_timestamp - a_timestamp
-                })
+                    return  a_timestamp - b_timestamp
+                }).reverse()
 
                 setContexts(sorted_context);
 
