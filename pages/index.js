@@ -258,7 +258,7 @@ export default function Home() {
 
     const changeContext = (cid) => {
         setContextID(cid);
-        setInit(true)
+        setInit(true);
         toggleContextDrawer();
         setIsMine(true);
         setEvent(MSG_EVENT);
@@ -658,12 +658,10 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    {!auth && (
-                        <GhostButton onClick={() => router.push("/about")}>
-                            <AboutIcon width='30' height='30' />
-                            <span className='text-xs'>About</span>
-                        </GhostButton>
-                    )}
+                    <GhostButton onClick={() => router.push("/about")}>
+                        <AboutIcon width='30' height='30' />
+                        <span className='text-xs'>About</span>
+                    </GhostButton>
                     <GhostButton onClick={() => router.push("/rank")}>
                         <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
