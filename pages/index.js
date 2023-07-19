@@ -48,6 +48,8 @@ import RankIcon from "../components/rankicon";
 import { parsingChatItem } from "../utils/parsing";
 import LoginIcon from "../components/loginicon";
 import AboutIcon from "../components/abouticon";
+import { useDevice } from "../hook/useDevice";
+import CopyIcon from "../components/copyicon";
 
 export default function Home() {
     const router = useRouter();
@@ -64,7 +66,7 @@ export default function Home() {
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
 
-    const [init, setInit] = useState(false)
+    const [init, setInit] = useState(false);
     const [contextID, setContextID] = useState();
     const [messageId, setMessageId] = useState();
 
@@ -96,6 +98,14 @@ export default function Home() {
     const [thankyou, setThankYou] = useState(false);
     const [thankReason, setThankReason] = useState("");
 
+    const [deviceWidth, isMobile] = useDevice();
+    const [copied, setCopied] = useState(false);
+
+    function copy(text) {
+        setCopied(true);
+        return window.navigator.clipboard.writeText(text);
+    }
+
     const {
         register,
         handleSubmit,
@@ -125,10 +135,10 @@ export default function Home() {
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
             fetchChat(_sharedContextId);
-            setContextID(_sharedContextId)
+            setContextID(_sharedContextId);
         } else {
             setEvent(MSG_EVENT);
-            setInit(true)
+            setInit(true);
         }
     }, []);
 
@@ -229,7 +239,7 @@ export default function Home() {
 
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
-        if (!init) return
+        if (!init) return;
 
         if (!loading) {
             clearChat();
@@ -600,6 +610,7 @@ export default function Home() {
         return setSeeContexts(() => !seeContexts);
     };
     const toggleShareModal = () => {
+        setCopied(false);
         checkForSharing({ chatId: contextID, share: true });
         return window.share_modal.showModal();
     };
@@ -728,10 +739,28 @@ export default function Home() {
                                     <span className='text-2xl font-bold highlight dark:bg-none'>여러분의 대화 내용을 공유하고 싶나요?</span>
                                 </div>
                                 <div className='mt-2 join w-full flex justify-center'>
-                                    <button className='w-[50%] btn btn-outline join-item' onClick={() => shareAPI()}>
-                                        예
-                                    </button>
-                                    <button className='w-[50%] btn btn-outline join-item'>아니요</button>
+                                    {isMobile ? (
+                                        <>
+                                            <button className='w-[50%] btn btn-outline join-item' onClick={() => shareAPI()}>
+                                                예
+                                            </button>
+                                            <button className='w-[50%] btn btn-outline join-item'>아니요</button>
+                                        </>
+                                    ) : (
+                                        <div className='w-full flex flex-col items-center cursor-pointer'>
+                                            <div
+                                                className={`relative w-full p-3 mb-3 ${copied ? "bg-neutral text-white" : "bg-base-200 text-content"}`}
+                                                onClick={() => copy(shareURL)}
+                                            >
+                                                {/* TODO: Share BASE URL */}
+                                                <span className='font-bold'>{copied ? "Copied" : shareURL || "https://test.chatmoja.seda.club/"}</span>
+                                                <button className='absolute right-3'>
+                                                    <CopyIcon color='currentColor' width='15' height='20' />
+                                                </button>
+                                            </div>
+                                            <button className='w-[50%] max-w-[120px] btn btn-outline'>닫기</button>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className='divider'>SNS</div>
                                 <div className='flex flex-row gap-2'>
