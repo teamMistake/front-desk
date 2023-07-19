@@ -112,6 +112,32 @@ export default function Home() {
             setEvent(LOGIN_EVENT);
         }
 
+        async function fetchContexts() {
+            setContextLoading(true);
+
+            // TODO: GET contexts
+            const _contexts = await getContextsByUserIDAPI();
+
+            if (_contexts) {
+                console.log("Context!!!!!!", _contexts);
+
+                const sorted_context = _contexts.sort(function (a, b) {
+                    const a_timestamp = new Date(a.creationTimestamp).getTime()
+                    const b_timestamp = new Date(b.creationTimeStamp).getTime()
+                    return  a_timestamp - b_timestamp
+                }).reverse()
+
+                setContexts(sorted_context);
+
+                setContextLoading(false);
+            }
+        }
+
+        if (!contexts){
+            // fetch contexts at loading
+            fetchContexts()
+        }
+
         // If this page was shared context page. and so
         const { share: sharedContextId } = queryString.parse(location.search);
 
@@ -211,32 +237,32 @@ export default function Home() {
         }   
     }, [contextID]);
 
-    useEffect(() => {
-        async function fetchContexts() {
-            setContextLoading(true);
+    // useEffect(() => {
+    //     async function fetchContexts() {
+    //         setContextLoading(true);
 
-            // TODO: GET contexts
-            const _contexts = await getContextsByUserIDAPI();
+    //         // TODO: GET contexts
+    //         const _contexts = await getContextsByUserIDAPI();
 
-            if (_contexts) {
-                console.log("Context!!!!!!", _contexts);
+    //         if (_contexts) {
+    //             console.log("Context!!!!!!", _contexts);
 
-                const sorted_context = _contexts.sort(function (a, b) {
-                    const a_timestamp = new Date(a.creationTimestamp).getTime()
-                    const b_timestamp = new Date(b.creationTimeStamp).getTime()
-                    return  a_timestamp - b_timestamp
-                }).reverse()
+    //             const sorted_context = _contexts.sort(function (a, b) {
+    //                 const a_timestamp = new Date(a.creationTimestamp).getTime()
+    //                 const b_timestamp = new Date(b.creationTimeStamp).getTime()
+    //                 return  a_timestamp - b_timestamp
+    //             }).reverse()
 
-                setContexts(sorted_context);
+    //             setContexts(sorted_context);
 
-                setContextLoading(false);
-            }
-        }
+    //             setContextLoading(false);
+    //         }
+    //     }
 
-        if (seeContexts) {
-            fetchContexts();
-        }
-    }, [seeContexts]);
+    //     if (seeContexts) {
+    //         fetchContexts();
+    //     }
+    // }, [seeContexts]);
 
     const changeContext = (cid) => {
         setContextID(cid);
