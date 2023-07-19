@@ -41,7 +41,7 @@ export default function Home() {
             setRanks(res);
             setLoaded(true);
         }).catch((e) => {
-            setRanks([undefined]);
+            setRanks(undefined);
             setError(true);
         });
     };
@@ -53,7 +53,7 @@ export default function Home() {
         }).then((res) => res.json()).then((res) => {
             setMyRank(res);
         }).catch((e) => {
-            setMyRank([undefined]);
+            setMyRank(undefined);
             setError(true);
         });
     };
@@ -65,7 +65,11 @@ export default function Home() {
             getMyRank();
         }
         const timeInterval = setInterval(fetchStuffs, 10000);
-        fetchStuffs();
+        try {
+            fetchStuffs();
+        } catch(err) {
+            console.log(err);
+        }
         return () => clearInterval(timeInterval);
     }, []);
 
