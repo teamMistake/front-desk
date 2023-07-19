@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { GhostButton } from "../components/button";
 import { useRouter } from "next/router";
 import { useUser } from "../hook/useUser";
+import { LoadingSpinner }  from "../components/loading";
 import Opengraph from "../components/opengraph";
 import ContextIcon from "../components/contexticon";
 import AboutIcon from "../components/abouticon";
@@ -107,9 +108,9 @@ export default function Home() {
             </div>
 
             <main className="bg-base-100 flex flex-row h-full w-screen overflow-hidden">
-                <div className="relative overflow-hidden h-full flex flex-col w-full justify-center drawer">
+                <div className="relative overflow-hidden h-full flex flex-col w-full drawer">
                     <p className="font-bold text-3xl text-accent dark:text-white justify-center my-10 flex select-none">Rank</p>
-                    <div className="table-container flex overflow-y-auto justify-center table-container">
+                    <div className="table-container flex overflow-y-auto justify-center">
                         <table className="table max-w-md">
                             <thead>
                                 <tr className="text-base text-content dark:bg-none select-none">
@@ -130,7 +131,8 @@ export default function Home() {
 
                         {(!isAuth || !myrank) && (
                             <div className="fixed bottom-0 p-5 flex w-full justify-center">
-                                <span className="text-xl font-bold highlight dark:bg-none select-none">당신의 순위를 불러올 수 없습니다...</span>
+                                <LoadingSpinner />
+                                {/* <span className="text-xl font-bold highlight dark:bg-none select-none">당신의 순위를 불러올 수 없습니다...</span> */}
                             </div>
                         )}
                         {(isAuth && myrank && myrank?.rank >= 10) && (
@@ -146,7 +148,8 @@ export default function Home() {
                     </div>
                     {(!loaded || !ranks) && (
                         <div className="flex my-20 w-full justify-center bottom-0">
-                            <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span>
+                            <LoadingSpinner />
+                            {/* <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span> */}
                         </div>
                     )}
                 </div>
