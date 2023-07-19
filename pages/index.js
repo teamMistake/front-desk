@@ -194,7 +194,7 @@ export default function Home() {
                 const sorted_context = _contexts.sort(function (a, b) {
                     const a_timestamp = new Date(a.creationTimestamp).getTime()
                     const b_timestamp = new Date(b.creationTimeStamp).getTime()
-                    return b_timestamp - a_timestamp
+                    return a_timestamp - b_timestamp
                 })
 
                 setContexts(sorted_context);
@@ -577,10 +577,13 @@ export default function Home() {
 
     const formatUTCTime = (time) => {
         const d = new Date(time)
-        const date = d.toISOString().split('T')[0].split("-");
-        const hour = d.toTimeString().split(' ')[0].split(":")[0];
+        // const date = d.toISOString().split('T')[0].split("-");
 
-        return `${date[1]}/${date[2]}/${hour}`
+        const date = d.toLocaleDateString("ko-KR").split(".")
+        const hour = d.toTimeString().split(' ')[0].split(":")[0];
+        const mm = date[1].slice(1, date[1].length)
+        const dd = date[2].slice(1, date[2].length)
+        return `${mm}/${dd}/${hour}`
     }
 
     return (
