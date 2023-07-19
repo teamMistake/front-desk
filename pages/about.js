@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { GhostButton } from "../components/button";
 import Opengraph from "../components/opengraph";
-import ContextIcon from "../components/contexticon";
 
 export default function Home() {
     const router = useRouter();
@@ -17,7 +16,7 @@ export default function Home() {
             {/* Navigation bar */}
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    <GhostButton onClick={() => router.push("/about")}>MOJA</GhostButton>
+                    <GhostButton onClick={() => router.push("")} >MOJA</GhostButton>
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
@@ -28,10 +27,9 @@ export default function Home() {
             </div>
             <main className="bg-greyscale-1 flex flex-row h-screen w-screen">
                 <div className="relative overflow-hidden h-full flex flex-col w-full">
-                    <div>
-                        <span className="font-bold text-3xl text-accent justify-center my-10 flex select-none">Our Story</span>
-                        <span>
-                            {/* JAMO STORY */}
+                    <span className="font-bold text-3xl text-accent justify-center my-10 flex select-none">Our Story</span>
+                    <div className="flex justify-center m-10">
+                        <span className="text-xs max-w-xs">
                             {`
                             MOJA(모자)는 언어모델 "자모"를 기반으로 한 인공지능 채팅 서비스입니다.
                             자모는 GPT-3 같은 대규모 언어모델과 비등한 성능을 가지면서도, 낮은 성능의 컴퓨터에서도 구동이 가능하도록 하는 것을 목표로 하는 모델입니다.
