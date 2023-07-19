@@ -41,7 +41,7 @@ export default function Home() {
             setRanks(res);
             setLoaded(true);
         }).catch((e) => {
-            setRanks(undefined);
+            setRanks([]);
             setError(true);
         });
     };
@@ -53,7 +53,7 @@ export default function Home() {
         }).then((res) => res.json()).then((res) => {
             setMyRank(res);
         }).catch((e) => {
-            setMyRank(undefined);
+            setMyRank([]);
             setError(true);
         });
     };
