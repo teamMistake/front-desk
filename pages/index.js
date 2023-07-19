@@ -77,6 +77,7 @@ export default function Home() {
     const [ABBtnCount, setABBtnCount] = useState(3);
 
     const [shareURL, setShareURL] = useState("");
+    const [sharedUser, setSharedUser] = useState()
 
     // Loading State for Disable the chatting while getting the response.
     const [loading, setLoading] = useState(false);
@@ -187,6 +188,16 @@ export default function Home() {
         toggleContextDrawer();
     };
 
+    useEffect(() => {
+        if (userID && sharedUser) {
+            const _isMine = sharedUser == userID;
+            if (_isMine) {
+                setEvent(MSG_EVENT);
+                setIsMine(true);
+            }
+        }
+    }, [userID, sharedUser])
+
     async function fetchChat(chatID) {
         setLoading(true);
         setChatLoading(true);
@@ -194,14 +205,11 @@ export default function Home() {
         try {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages } = _chats;
+            console.log(_chats)
 
-            const _isMine = _chats.userID == userID;
-
-            if (_isMine) {
-                setEvent(MSG_EVENT);
-                setIsMine(true);
-            }
-
+            setSharedUser(_chats.userId)
+            console.log(_chats.userId, userID)
+            
             const parsed_chats = parsingChatItem(messages);
             setChats(() => parsed_chats);
 
