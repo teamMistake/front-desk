@@ -157,9 +157,12 @@ export default function Home() {
 
     const clearChat = () => {
         setChats([]);
-        setEvent(MSG_EVENT);
-        setIsMine(true);
-        router.push("/");
+
+        if (event != SHARED_CONTENT_EVENT) {
+            setEvent(MSG_EVENT);
+            setIsMine(true);
+            return router.push("/");
+        }
     };
 
     const clearAll = () => {
@@ -195,7 +198,7 @@ export default function Home() {
                 const { messages } = _chats;
                 console.log("193", messages);
 
-                const _isMine = (_chats.userId = userID);
+                const _isMine = (_chats.userId == userID);
 
                 if (_isMine) {
                     setEvent(MSG_EVENT);
@@ -240,7 +243,6 @@ export default function Home() {
 
         //TODO: This is temporary preventation.
         if (!loading) {
-            console.log("?????");
             fetchChat();
         }
     }, [contextID]);
