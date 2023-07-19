@@ -2,82 +2,87 @@ const getUserInfoAPI = async () => {
     try {
         const res = await fetch("/api/oauth2/userinfo", {
             method: "GET",
-        })
-        const data = await res.json()
-        return data
-    } catch (e) {   
-        return undefined
+        });
+        const data = await res.json();
+        return data;
+    } catch (e) {
+        return undefined;
     }
 };
 
 const rateAnswerAPI = async ({ chatId, messageId, reqId, stars }) => {
     try {
-        const data = {"stars": stars}
+        const data = { stars: stars };
         const res = await fetch(`/api/chat/${chatId}/messages/${messageId}/${reqId}/rating`, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify(data)
-        })    
-        const result = await res.json()
-        return result
+            body: JSON.stringify(data),
+        });
+        const result = await res.json();
+        return result;
     } catch (e) {
-        console.log("23", e)
-        return undefined
+        return undefined;
     }
 };
 
-const selectABTestItemAPI = async ({ reqId,chatId, messageId }) => {
+const selectABTestItemAPI = async ({ reqId, chatId, messageId }) => {
     try {
-        const data = {chosen: reqId}
+        const data = { chosen: reqId };
         const res = await fetch(`/api/chat/${chatId}/messages/${messageId}/chosen`, {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify(data)
-        })
+            body: JSON.stringify(data),
+        });
 
-        const result = await res.json()
-        return result
+        const result = await res.json();
+        return result;
     } catch (e) {
-        return undefined
+        return undefined;
     }
 };
 
 const getChatByContextIDAPI = async (contextID) => {
     try {
-        const res = await fetch(`/api/chat/${contextID}`)   
-        const response = await res.json()
-    
-        return response
+        const res = await fetch(`/api/chat/${contextID}`);
+        const response = await res.json();
+
+        return response;
     } catch (e) {
-        return undefined
+        return undefined;
     }
 };
 
 const getContextsByUserIDAPI = async () => {
-    try{
-        const res = await fetch("/api/chat/chats", {"method": "GET"})
-        const response = await res.json()
-    
-        return response
-    } catch(e) {
-        return []
-    }
-}
-
-const checkForSharing = async ({chatId, share}) => {
     try {
-        const data = {share: share}
-        const res = await fetch(`/api/chat/${chatId}/share`)
-        const response = await res.json()
+        const res = await fetch("/api/chat/chats", { method: "GET" });
+        const response = await res.json();
 
-        return response
-    } catch(e) {
-        return undefined
+        return response;
+    } catch (e) {
+        return [];
     }
-}
+};
+
+const checkForSharing = async ({ chatId, share }) => {
+    try {
+        const data = { share: share };
+        const res = await fetch(`/api/chat/${chatId}/share`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        const response = await res.json();
+
+        return response;
+    } catch (e) {
+        return undefined;
+    }
+};
 
 export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatByContextIDAPI, getContextsByUserIDAPI, checkForSharing };

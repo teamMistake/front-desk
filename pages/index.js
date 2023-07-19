@@ -116,13 +116,13 @@ export default function Home() {
         const { share: sharedContextId } = queryString.parse(location.search);
 
         if (sharedContextId) {
-            console.log(sharedContextId)
-            setContextID(sharedContextId);
             // it may be possible that this chat was written by me. so change this state case by case
             // identify the user authorization with userId and context writer id
             // IF NOT MINE
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
+            setContextID(sharedContextId);
+            console.log(sharedContextId, event, isMine);
         }
     }, []);
 
@@ -135,13 +135,13 @@ export default function Home() {
                 const _contexts = await getContextsByUserIDAPI();
 
                 if (_contexts) {
-                    console.log("Context!!!!!!", _contexts);
-
-                    const sorted_context = _contexts.sort(function (a, b) {
-                        const a_timestamp = new Date(a.creationTimestamp).getTime()
-                        const b_timestamp = new Date(b.creationTimeStamp).getTime()
-                        return  a_timestamp - b_timestamp
-                    }).reverse()
+                    const sorted_context = _contexts
+                        .sort(function (a, b) {
+                            const a_timestamp = new Date(a.creationTimestamp).getTime();
+                            const b_timestamp = new Date(b.creationTimeStamp).getTime();
+                            return a_timestamp - b_timestamp;
+                        })
+                        .reverse();
 
                     setContexts(sorted_context);
 
@@ -149,15 +149,16 @@ export default function Home() {
                 }
             }
 
-            fetchContexts()
+            fetchContexts();
         }
-    }, [auth])
+    }, [auth]);
 
     const clearChat = () => {
         setChats([]);
+
         setEvent(MSG_EVENT);
         setIsMine(true);
-        router.push("/");
+        return router.push("/");
     };
 
     const clearAll = () => {
@@ -172,10 +173,10 @@ export default function Home() {
 
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
-        if(!loading){
+        if (!loading) {
             clearChat();
         }
-        if (contextID == "" || !contextID ) return;
+        if (contextID == "" || !contextID) return;
 
         // set share url for future sharing event
         const urlPieces = [location.protocol, "//", location.host, location.pathname];
@@ -191,10 +192,12 @@ export default function Home() {
             try {
                 const _chats = await getChatByContextIDAPI(contextID);
                 const { messages } = _chats;
-                console.log("193", messages)
+                console.log("193", messages);
 
-                const _isMine = _chats.userId = userID
-                
+                const _isMine = (_chats.userId == userID);
+
+                console.log(event, isMine, _isMine)
+
                 if (_isMine) {
                     setEvent(MSG_EVENT);
                     setIsMine(true);
@@ -202,17 +205,16 @@ export default function Home() {
 
                 const parsed_chats = parsingChatItem(messages);
                 setChats(() => parsed_chats);
-                
-                const lastChat = parsed_chats[parsed_chats.length - 1]
+
+                const lastChat = parsed_chats[parsed_chats.length - 1];
                 // AB TESTING EVENT Trigger
                 if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
                     let isEnded = false;
 
                     const tChat = parsed_chats[parsed_chats.length - 1];
-                    console.log(prompt)
                     tChat.prompt.map((p) => {
                         if (p?.selected) {
-                            isEnded = true
+                            isEnded = true;
                         }
                     });
 
@@ -225,10 +227,8 @@ export default function Home() {
                 setLoading(false);
                 setChatLoading(false);
             } catch (e) {
-                // invalid access to page preventation
-
+                // TODO: invalid access to page preventation
                 console.log("183", e);
-
                 setLoading(false);
                 setChatLoading(false);
 
@@ -237,38 +237,10 @@ export default function Home() {
         }
 
         //TODO: This is temporary preventation.
-        if (!loading){
-            console.log("?????")
+        if (!loading) {
             fetchChat();
-        }   
+        }
     }, [contextID]);
-
-    // useEffect(() => {
-    //     async function fetchContexts() {
-    //         setContextLoading(true);
-
-    //         // TODO: GET contexts
-    //         const _contexts = await getContextsByUserIDAPI();
-
-    //         if (_contexts) {
-    //             console.log("Context!!!!!!", _contexts);
-
-    //             const sorted_context = _contexts.sort(function (a, b) {
-    //                 const a_timestamp = new Date(a.creationTimestamp).getTime()
-    //                 const b_timestamp = new Date(b.creationTimeStamp).getTime()
-    //                 return  a_timestamp - b_timestamp
-    //             }).reverse()
-
-    //             setContexts(sorted_context);
-
-    //             setContextLoading(false);
-    //         }
-    //     }
-
-    //     if (seeContexts) {
-    //         fetchContexts();
-    //     }
-    // }, [seeContexts]);
 
     const changeContext = (cid) => {
         setContextID(cid);
@@ -291,7 +263,7 @@ export default function Home() {
     };
 
     // =========================== GENERATE CHAT EVENT =================================
-    const onSubmit = (data, regenerate=false) => {
+    const onSubmit = (data, regenerate = false) => {
         const prompt = data.prompt;
 
         const removedSpaceValue = prompt.replace(/(\r\n|\n|\r)/gm, "");
@@ -309,7 +281,7 @@ export default function Home() {
             prompt: [chatPrompt],
             event: MSG_EVENT,
             onlive: true,
-            regenerate: regenerate
+            regenerate: regenerate,
         };
 
         return setChats([...chats, chat]);
@@ -352,7 +324,7 @@ export default function Home() {
         return handleSubmit(onSubmit(data));
     };
 
-    const PostGenerate = (prompt, regenerate=false) => {
+    const PostGenerate = (prompt, regenerate = false) => {
         // Timeout Detector
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 10s
@@ -363,7 +335,7 @@ export default function Home() {
         let data = {};
         let url = "";
         if (regenerate) {
-            url = `/api/chat/${contextID}/regenerate`
+            url = `/api/chat/${contextID}/regenerate`;
         } else if (isFirstChat) {
             data = { initialPrompt: prompt };
             url = "/api/chat/create";
@@ -391,13 +363,11 @@ export default function Home() {
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
-                            if (auth) {
-                                if (Object.keys(item).length > 1) {
-                                    setEvent(AB_MODEL_TEST_EVENT);
-                                    setABBtnCount(Object.keys(item).length);
-                                } else if (auth) {
-                                    randomRatingEventTrigger();
-                                }
+                            if (Object.keys(item).length > 1) {
+                                setEvent(AB_MODEL_TEST_EVENT);
+                                setABBtnCount(Object.keys(item).length);
+                            } else if (auth) {
+                                randomRatingEventTrigger();
                             }
                             setLoading(false);
                             return;
@@ -478,9 +448,10 @@ export default function Home() {
         const lastChat = chats[chats.length - 1];
         if (lastChat.talker == USER) {
             setLoading(true);
-            const target_prompt = chats[chats.length - 1].prompt;
+            const lastItem = chats[chats.length - 1]
+            const target_prompt = lastItem.prompt;
 
-            PostGenerate(target_prompt[0].resp, target_prompt.regenerate);
+            PostGenerate(target_prompt[0].resp, lastItem.regenerate);
         }
 
         if (lastChat.talker == COMPUTER) {
@@ -533,6 +504,12 @@ export default function Home() {
         router.push("/login");
     };
 
+    const BasicLoginEventHandler = () => {
+        if (!loading){
+            setEvent(LOGIN_EVENT)
+        }
+    }
+
     // =========================== PRIVACY EVENT =================================
     useEffect(() => {
         if (privacyChecked) setPrivacyError(false);
@@ -540,7 +517,7 @@ export default function Home() {
 
     // =========================== RATING EVENT =================================
     const randomRatingEventTrigger = () => {
-        const trigger = Math.floor(Math.random() * 10) == 3;
+        const trigger = Math.floor(Math.random() * 5) == 3;
         if (!trigger) return;
 
         // If random rating event triggered
@@ -616,7 +593,7 @@ export default function Home() {
         return setSeeContexts(() => !seeContexts);
     };
     const toggleShareModal = () => {
-        checkForSharing({chatId: contextID, share: true})
+        checkForSharing({ chatId: contextID, share: true });
         return window.share_modal.showModal();
     };
     const toggleLoginModal = () => {
@@ -624,15 +601,15 @@ export default function Home() {
     };
 
     const formatUTCTime = (time) => {
-        const d = new Date(time)
+        const d = new Date(time);
         // const date = d.toISOString().split('T')[0].split("-");
 
-        const date = d.toLocaleDateString("ko-KR").split(".")
-        const hour = d.toTimeString().split(' ')[0].split(":")[0];
-        const mm = date[1].slice(1, date[1].length)
-        const dd = date[2].slice(1, date[2].length)
-        return `${mm}/${dd}/${hour}h`
-    }
+        const date = d.toLocaleDateString("ko-KR").split(".");
+        const hour = d.toTimeString().split(" ")[0].split(":")[0];
+        const mm = date[1].slice(1, date[1].length);
+        const dd = date[2].slice(1, date[2].length);
+        return `${mm}/${dd}/${hour}h`;
+    };
 
     return (
         <>
@@ -644,6 +621,11 @@ export default function Home() {
             />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
+                {!auth && (
+                        <GhostButton onClick={() => BasicLoginEventHandler()}>
+                        <span className='text-md'>Login</span>
+                        </GhostButton>
+                    )}
                     {!auth && <GhostButton onClick={() => router.push("/about")}>MOJA</GhostButton>}
                     {auth && (
                         <label className='btn btn-ghost' onClick={() => toggleContextDrawer()}>
@@ -660,6 +642,8 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
+                    {!auth && <GhostButton onClick={() => router.push("/story")}><span className="text-xs">
+                    ABOUT</span></GhostButton>}
                     <GhostButton onClick={() => router.push("/rank")}>
                         <RankIcon width='32' height='32' />
                         <span className='text-xs'>Rank</span>
