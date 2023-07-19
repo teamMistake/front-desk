@@ -38,7 +38,6 @@ export default function Home() {
         const res = fetch("/api/leaderboard", {
             method: "GET"
         }).then((res) => res.json()).then((res) => {
-            console.log(res);
             setRanks(res);
             setLoaded(true);
         }).catch((e) => {
@@ -52,7 +51,6 @@ export default function Home() {
         const res = fetch("/api/leaderboard/me", {
             method: "GET"
         }).then((res) => res.json()).then((res) => {
-            console.log(res);
             setMyRank(res);
         }).catch((e) => {
             setMyRank(undefined);
@@ -65,6 +63,7 @@ export default function Home() {
         const fetchStuffs = () => {
             getRank();
             getMyRank();
+            console.log(ranks, myrank);
         }
         const timeInterval = setInterval(fetchStuffs, 10000);
         fetchStuffs();
