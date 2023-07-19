@@ -46,6 +46,8 @@ import { KakaoBtn } from "../components/kakaobutton";
 import ContextIcon from "../components/contexticon";
 import RankIcon from "../components/rankicon";
 import { parsingChatItem } from "../utils/parsing";
+import LoginIcon from "../components/loginicon";
+import AboutIcon from "../components/abouticon";
 
 export default function Home() {
     const router = useRouter();
@@ -625,7 +627,8 @@ export default function Home() {
                 <div className='navbar-start'>
                 {!auth && (
                         <GhostButton onClick={() => BasicLoginEventHandler()}>
-                        <span className='text-md'>Login</span>
+                            <LoginIcon width="29" height="29" />
+                            <span className='text-xs'>Login</span>
                         </GhostButton>
                     )}
                     {auth && (
@@ -643,10 +646,10 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    {!auth && <GhostButton onClick={() => router.push("/about")}><span className="text-xs">
-                    ABOUT</span></GhostButton>}
+                    {!auth && <GhostButton onClick={() => router.push("/about")}><AboutIcon width="30" height="30" /><span className="text-xs">
+                    About</span></GhostButton>}
                     <GhostButton onClick={() => router.push("/rank")}>
-                        <RankIcon width='32' height='32' />
+                        <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
                     </GhostButton>
                 </div>

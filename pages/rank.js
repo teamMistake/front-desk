@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useUser } from "../hook/useUser";
 import Opengraph from "../components/opengraph";
 import ContextIcon from "../components/contexticon";
+import AboutIcon from "../components/abouticon";
 
 export default function Home() {
     const [ranks, setRanks] = useState([]);
@@ -90,10 +91,14 @@ export default function Home() {
             {/* Navigation bar */}
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    <GhostButton onClick={() => router.push("/about")}>MOJA</GhostButton>
+                    <GhostButton onClick={() => router.push("")}>MOJA</GhostButton>
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
+                    <GhostButton onClick={() => router.push("/about")}>
+                        <AboutIcon width="30" height="30" />
+                        <span className="text-xs">About</span>
+                    </GhostButton>
                     <GhostButton onClick={() => router.push("/")}>
                         <ContextIcon width="30" height="30" />
                         <span className="text-xs">Chat</span>
