@@ -723,7 +723,7 @@ export default function Home() {
                         <div className='p-3'>
                             <button
                                 onClick={() => startNewChat()}
-                                className='btn btn-wide btn-outline border-gray-500 font-medium rounded-lg text-sm px-4 py-2.5 shadow-lg'
+                                className='btn btn-wide btn-outline bg-base-100 border-gray-500 font-medium rounded-lg text-sm px-4 py-2.5 shadow-lg'
                             >
                                 새로운 대화 시작하기
                             </button>
@@ -756,10 +756,10 @@ export default function Home() {
                                 <div className='mt-2 join w-full flex justify-center'>
                                     {isMobile ? (
                                         <>
-                                            <button className='w-[50%] btn btn-outline join-item' onClick={() => shareAPI()}>
+                                            <button className='w-[50%] btn btn-outline bg-base-100 join-item' onClick={() => shareAPI()}>
                                                 예
                                             </button>
-                                            <button className='w-[50%] btn btn-outline join-item'>아니요</button>
+                                            <button className='w-[50%] btn btn-outline bg-base-100 join-item'>아니요</button>
                                         </>
                                     ) : (
                                         <div className='w-full flex flex-col items-center cursor-pointer'>
@@ -773,7 +773,7 @@ export default function Home() {
                                                     <CopyIcon color='currentColor' width='15' height='20' />
                                                 </button>
                                             </div>
-                                            <button className='w-[50%] max-w-[120px] btn btn-outline'>닫기</button>
+                                            <button className='w-[50%] max-w-[120px] btn btn-outline bg-base-100'>닫기</button>
                                         </div>
                                     )}
                                 </div>
@@ -888,7 +888,7 @@ export default function Home() {
 
                         {event == SHARED_CONTENT_EVENT && (
                             <BottomSelectorUI title={`자모와 직접 대화를 시작해봐요! Let's just chat with JAMO`}>
-                                <button className='btn btn-outline flex-1 max-w-[400px]' onClick={() => clearAll()}>
+                                <button className='btn btn-outline bg-base-100 flex-1 max-w-[400px]' onClick={() => clearAll()}>
                                     시작하기
                                 </button>
                             </BottomSelectorUI>
