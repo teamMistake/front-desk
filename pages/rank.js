@@ -25,7 +25,7 @@ export default function Home() {
             + (rank == 1 ? "text-2xl " : "")
             + (rank == 2 ? "text-xl " : "")
             + (rank > 2 ? "text-base " : "")
-            + (username == myrank?.username ? "text-base-100 dark bg-base-content border-none " : "text-base-content ")}>
+            + (username == myrank?.username ? "text-base-100 bg-base-content border-none " : "text-base-content ")}>
                 <th>{rank + 1}</th>
                 <th>{username}</th>
                 <th>{score}</th>
