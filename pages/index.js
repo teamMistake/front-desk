@@ -177,9 +177,8 @@ export default function Home() {
         try {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages } = _chats;
-            console.log("193", messages);
 
-            const _isMine = (_chats.userId == userID);
+            const _isMine = _chats.userId == userID;
 
             console.log(event, isMine, _isMine)
 
@@ -211,7 +210,7 @@ export default function Home() {
 
             setLoading(false);
             setChatLoading(false);
-            
+
             if(shared) {
                 setContextID(chatID)
             }
@@ -227,7 +226,7 @@ export default function Home() {
 
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
-        if (!loading) {
+        if (!loading && event != SHARED_CONTENT_EVENT) {
             clearChat();
         }
         if (contextID == "" || !contextID) return;
