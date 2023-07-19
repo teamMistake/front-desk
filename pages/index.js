@@ -80,7 +80,7 @@ export default function Home() {
     const [update, setUpdate] = useState(0);
     // Set error while responding.
     const [error, setError] = useState(false);
-    const [event, setEvent] = useState(MSG_EVENT);
+    const [event, setEvent] = useState();
 
     // If your visit is first or not
     const [firstVisit, setFirstVisit] = useLocalStorage("firstVisit");
@@ -124,6 +124,8 @@ export default function Home() {
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
             fetchChat(_sharedContextId, true)
+        } else {
+            setEvent(MSG_EVENT)
         }
     }, []);
 
