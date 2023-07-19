@@ -583,7 +583,7 @@ export default function Home() {
         const hour = d.toTimeString().split(' ')[0].split(":")[0];
         const mm = date[1].slice(1, date[1].length)
         const dd = date[2].slice(1, date[2].length)
-        return `${mm}/${dd}/${hour}`
+        return `${mm}/${dd}/${hour}h`
     }
 
     return (
