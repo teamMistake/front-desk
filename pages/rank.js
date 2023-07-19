@@ -128,9 +128,7 @@ export default function Home() {
 
                                 {/* My Rank (fixed) */}
                                 {(isAuth && myrank && myrank?.rank >= 10) && (
-                                    <div className="fixed bottom-0">
-                                        <Rank {...myrank} />
-                                    </div>
+                                        <Rank className="w-full fixed bottom-0" {...myrank} />
                                 )}
                             </tbody>
                         </table>
