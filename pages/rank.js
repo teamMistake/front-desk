@@ -90,7 +90,7 @@ export default function Home() {
             {/* Navigation bar */}
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    <GhostButton onClick={() => router.push("story")}>MOJA</GhostButton>
+                    <GhostButton onClick={() => router.push("/about")}>MOJA</GhostButton>
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
