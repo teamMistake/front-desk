@@ -80,7 +80,7 @@ export default function Home() {
     const [update, setUpdate] = useState(0);
     // Set error while responding.
     const [error, setError] = useState(false);
-    const [event, setEvent] = useState(MSG_EVENT);
+    const [event, setEvent] = useState();
 
     // If your visit is first or not
     const [firstVisit, setFirstVisit] = useLocalStorage("firstVisit");
@@ -124,6 +124,8 @@ export default function Home() {
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
             fetchChat(_sharedContextId, true)
+        } else {
+            setEvent(MSG_EVENT)
         }
     }, []);
 
@@ -179,9 +181,8 @@ export default function Home() {
         try {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages } = _chats;
-            console.log("193", messages);
 
-            const _isMine = (_chats.userId == userID);
+            const _isMine = _chats.userId == userID;
 
             console.log(event, isMine, _isMine)
 
@@ -213,7 +214,7 @@ export default function Home() {
 
             setLoading(false);
             setChatLoading(false);
-            
+
             if(shared) {
                 setContextID(chatID)
             }
@@ -229,7 +230,7 @@ export default function Home() {
 
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
-        if (!loading) {
+        if (!loading && event != SHARED_CONTENT_EVENT) {
             clearChat();
         }
         if (contextID == "" || !contextID) return;
