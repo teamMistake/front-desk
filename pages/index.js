@@ -162,7 +162,9 @@ export default function Home() {
                 const _chats = await getChatByContextIDAPI(contextID);
                 const { messages } = _chats;
 
-                if ((_chats.userId = userID)) {
+                const _isMine = _chats.userId = userID
+                
+                if (_isMine) {
                     setEvent(MSG_EVENT);
                     setIsMine(true);
                 }
@@ -172,7 +174,7 @@ export default function Home() {
                 
                 const lastChat = parsed_chats[parsed_chats.length - 1]
                 // AB TESTING EVENT Trigger
-                if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
+                if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
                     let isEnded = false;
 
                     const tChat = parsed_chats[parsed_chats.length - 1];
