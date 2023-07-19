@@ -197,9 +197,6 @@ export default function Home() {
 
             const _isMine = _chats.userID == userID;
 
-            console.log(_chats, userID)
-            console.log(event, isMine, _isMine);
-
             if (_isMine) {
                 setEvent(MSG_EVENT);
                 setIsMine(true);
@@ -261,6 +258,7 @@ export default function Home() {
 
     const changeContext = (cid) => {
         setContextID(cid);
+        setInit(true)
         toggleContextDrawer();
         setIsMine(true);
         setEvent(MSG_EVENT);
@@ -352,7 +350,6 @@ export default function Home() {
         let data = {};
         let url = "";
         if (regenerate) {
-            console.log("REGENERATE");
             url = `/api/chat/${contextID}/regenerate`;
         } else if (isFirstChat) {
             data = { initialPrompt: prompt };
