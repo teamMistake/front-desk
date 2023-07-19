@@ -23,7 +23,6 @@ const rateAnswerAPI = async ({ chatId, messageId, reqId, stars }) => {
         const result = await res.json();
         return result;
     } catch (e) {
-        console.log("23", e);
         return undefined;
     }
 };

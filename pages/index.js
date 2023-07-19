@@ -116,13 +116,13 @@ export default function Home() {
         const { share: sharedContextId } = queryString.parse(location.search);
 
         if (sharedContextId) {
-            console.log(sharedContextId);
-            setContextID(sharedContextId);
             // it may be possible that this chat was written by me. so change this state case by case
             // identify the user authorization with userId and context writer id
             // IF NOT MINE
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
+            setContextID(sharedContextId);
+            console.log(sharedContextId, event, isMine);
         }
     }, []);
 
@@ -135,8 +135,6 @@ export default function Home() {
                 const _contexts = await getContextsByUserIDAPI();
 
                 if (_contexts) {
-                    console.log("Context!!!!!!", _contexts);
-
                     const sorted_context = _contexts
                         .sort(function (a, b) {
                             const a_timestamp = new Date(a.creationTimestamp).getTime();
@@ -158,11 +156,9 @@ export default function Home() {
     const clearChat = () => {
         setChats([]);
 
-        if (event != SHARED_CONTENT_EVENT) {
-            setEvent(MSG_EVENT);
-            setIsMine(true);
-            return router.push("/");
-        }
+        setEvent(MSG_EVENT);
+        setIsMine(true);
+        return router.push("/");
     };
 
     const clearAll = () => {
@@ -200,6 +196,8 @@ export default function Home() {
 
                 const _isMine = (_chats.userId == userID);
 
+                console.log(event, isMine, _isMine)
+
                 if (_isMine) {
                     setEvent(MSG_EVENT);
                     setIsMine(true);
@@ -214,7 +212,6 @@ export default function Home() {
                     let isEnded = false;
 
                     const tChat = parsed_chats[parsed_chats.length - 1];
-                    console.log(prompt);
                     tChat.prompt.map((p) => {
                         if (p?.selected) {
                             isEnded = true;
@@ -230,10 +227,8 @@ export default function Home() {
                 setLoading(false);
                 setChatLoading(false);
             } catch (e) {
-                // invalid access to page preventation
-
+                // TODO: invalid access to page preventation
                 console.log("183", e);
-
                 setLoading(false);
                 setChatLoading(false);
 
@@ -246,33 +241,6 @@ export default function Home() {
             fetchChat();
         }
     }, [contextID]);
-
-    // useEffect(() => {
-    //     async function fetchContexts() {
-    //         setContextLoading(true);
-
-    //         // TODO: GET contexts
-    //         const _contexts = await getContextsByUserIDAPI();
-
-    //         if (_contexts) {
-    //             console.log("Context!!!!!!", _contexts);
-
-    //             const sorted_context = _contexts.sort(function (a, b) {
-    //                 const a_timestamp = new Date(a.creationTimestamp).getTime()
-    //                 const b_timestamp = new Date(b.creationTimeStamp).getTime()
-    //                 return  a_timestamp - b_timestamp
-    //             }).reverse()
-
-    //             setContexts(sorted_context);
-
-    //             setContextLoading(false);
-    //         }
-    //     }
-
-    //     if (seeContexts) {
-    //         fetchContexts();
-    //     }
-    // }, [seeContexts]);
 
     const changeContext = (cid) => {
         setContextID(cid);
@@ -549,7 +517,7 @@ export default function Home() {
 
     // =========================== RATING EVENT =================================
     const randomRatingEventTrigger = () => {
-        const trigger = Math.floor(Math.random() * 10) == 3;
+        const trigger = Math.floor(Math.random() * 5) == 3;
         if (!trigger) return;
 
         // If random rating event triggered

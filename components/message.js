@@ -17,8 +17,6 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
 
     useEffect(() => {
         if (prompt) {
-            console.log(prompt, typeof(prompt))
-
             if (prompt.length > 0) {
                 setType(() => prompt.length == 1 ? SINGLE_MESSAGE : MULTIPLE_MESSAGES);
                 setPayload(prompt);
