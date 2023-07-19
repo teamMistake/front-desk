@@ -145,7 +145,7 @@ export default function Home() {
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
         clearChat();
-        if (contextID == "" || !contextID) return;
+        if (contextID == "" || !contextID ) return;
 
         // set share url for future sharing event
         const urlPieces = [location.protocol, "//", location.host, location.pathname];
@@ -175,7 +175,7 @@ export default function Home() {
                 if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1) {
                     let isEnded = false;
 
-                    const tChat = chats[chats.length - 1];
+                    const tChat = parsed_chats[parsed_chats.length - 1];
                     tChat.prompt.map((p) => {
                         isEnded = p?.selected && true;
                     });
@@ -194,7 +194,10 @@ export default function Home() {
             }
         }
 
-        fetchChat();
+        //TODO: This is temporary preventation.
+        if (!loading){
+            fetchChat();
+        }   
     }, [contextID]);
 
     useEffect(() => {
