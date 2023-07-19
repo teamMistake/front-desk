@@ -112,32 +112,6 @@ export default function Home() {
             setEvent(LOGIN_EVENT);
         }
 
-        async function fetchContexts() {
-            setContextLoading(true);
-
-            // TODO: GET contexts
-            const _contexts = await getContextsByUserIDAPI();
-
-            if (_contexts) {
-                console.log("Context!!!!!!", _contexts);
-
-                const sorted_context = _contexts.sort(function (a, b) {
-                    const a_timestamp = new Date(a.creationTimestamp).getTime()
-                    const b_timestamp = new Date(b.creationTimeStamp).getTime()
-                    return  a_timestamp - b_timestamp
-                }).reverse()
-
-                setContexts(sorted_context);
-
-                setContextLoading(false);
-            }
-        }
-
-        // if (!contexts){
-        // fetch contexts at loading
-        fetchContexts()
-        // }
-
         // If this page was shared context page. and so
         const { share: sharedContextId } = queryString.parse(location.search);
 
@@ -150,6 +124,33 @@ export default function Home() {
             setIsMine(false);
         }
     }, []);
+
+    useEffect(() => {
+        if (auth) {
+            async function fetchContexts() {
+                setContextLoading(true);
+
+                // TODO: GET contexts
+                const _contexts = await getContextsByUserIDAPI();
+
+                if (_contexts) {
+                    console.log("Context!!!!!!", _contexts);
+
+                    const sorted_context = _contexts.sort(function (a, b) {
+                        const a_timestamp = new Date(a.creationTimestamp).getTime()
+                        const b_timestamp = new Date(b.creationTimeStamp).getTime()
+                        return  a_timestamp - b_timestamp
+                    }).reverse()
+
+                    setContexts(sorted_context);
+
+                    setContextLoading(false);
+                }
+            }
+
+            fetchContexts()
+        }
+    }, [auth])
 
     const clearChat = () => {
         setChats([]);
@@ -170,7 +171,9 @@ export default function Home() {
 
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
-        clearChat();
+        if(!loading){
+            clearChat();
+        }
         if (contextID == "" || !contextID ) return;
 
         // set share url for future sharing event
@@ -187,6 +190,7 @@ export default function Home() {
             try {
                 const _chats = await getChatByContextIDAPI(contextID);
                 const { messages } = _chats;
+                console.log("193", messages)
 
                 const _isMine = _chats.userId = userID
                 
@@ -799,7 +803,7 @@ export default function Home() {
                     </main>
 
                     {/* Fixed Content UI */}
-                    <div className='fixed box-content w-full bottom-0 flex items-center flex-col justify-center p-2'>
+                    <div className='fixed w-full bottom-0 flex items-center flex-col justify-center'>
                         {event == LOGIN_EVENT && (
                             <>
                                 <BottomSelectorUI title='로그인 하실래요?'>
