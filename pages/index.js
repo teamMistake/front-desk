@@ -64,6 +64,7 @@ export default function Home() {
     const chatContainerRef = useRef(null);
     const textAreaRef = useRef(null);
 
+    const [init, setInit] = useState(false)
     const [contextID, setContextID] = useState();
     const [messageId, setMessageId] = useState();
 
@@ -123,14 +124,16 @@ export default function Home() {
             // IF NOT MINE
             setEvent(SHARED_CONTENT_EVENT);
             setIsMine(false);
-            fetchChat(_sharedContextId, true)
+            fetchChat(_sharedContextId);
+            setContextID(_sharedContextId)
         } else {
-            setEvent(MSG_EVENT)
+            setEvent(MSG_EVENT);
+            setInit(true)
         }
     }, []);
 
     useEffect(() => {
-        if (auth) {
+        if (auth || chats?.length == 1) {
             async function fetchContexts() {
                 setContextLoading(true);
 
@@ -154,7 +157,7 @@ export default function Home() {
 
             fetchContexts();
         }
-    }, [auth]);
+    }, [auth, chats]);
 
     const clearChat = () => {
         setChats([]);
@@ -174,7 +177,7 @@ export default function Home() {
         toggleContextDrawer();
     };
 
-    async function fetchChat(chatID, shared) {
+    async function fetchChat(chatID) {
         setLoading(true);
         setChatLoading(true);
 
@@ -184,7 +187,7 @@ export default function Home() {
 
             const _isMine = _chats.userId == userID;
 
-            console.log(event, isMine, _isMine)
+            console.log(event, isMine, _isMine);
 
             if (_isMine) {
                 setEvent(MSG_EVENT);
@@ -214,10 +217,6 @@ export default function Home() {
 
             setLoading(false);
             setChatLoading(false);
-
-            if(shared) {
-                setContextID(chatID)
-            }
         } catch (e) {
             // TODO: invalid access to page preventation
             console.log("183", e);
@@ -230,7 +229,9 @@ export default function Home() {
 
     // =========================== DEAL CONTEXT =================================
     useEffect(() => {
-        if (!loading && event != SHARED_CONTENT_EVENT) {
+        if (!init) return
+
+        if (!loading) {
             clearChat();
         }
         if (contextID == "" || !contextID) return;
@@ -245,7 +246,7 @@ export default function Home() {
         if (!loading && event != SHARED_CONTENT_EVENT) {
             fetchChat(contextID, false);
         }
-    }, [contextID]);
+    }, [contextID, init]);
 
     const changeContext = (cid) => {
         setContextID(cid);
@@ -340,7 +341,7 @@ export default function Home() {
         let data = {};
         let url = "";
         if (regenerate) {
-            console.log("REGENERATE")
+            console.log("REGENERATE");
             url = `/api/chat/${contextID}/regenerate`;
         } else if (isFirstChat) {
             data = { initialPrompt: prompt };
@@ -454,7 +455,7 @@ export default function Home() {
         const lastChat = chats[chats.length - 1];
         if (lastChat.talker == USER) {
             setLoading(true);
-            const lastItem = chats[chats.length - 1]
+            const lastItem = chats[chats.length - 1];
             const target_prompt = lastItem.prompt;
 
             PostGenerate(target_prompt[0].resp, lastItem.regenerate);
@@ -511,10 +512,10 @@ export default function Home() {
     };
 
     const BasicLoginEventHandler = () => {
-        if (!loading){
-            setEvent(LOGIN_EVENT)
+        if (!loading) {
+            setEvent(LOGIN_EVENT);
         }
-    }
+    };
 
     // =========================== PRIVACY EVENT =================================
     useEffect(() => {
@@ -627,9 +628,9 @@ export default function Home() {
             />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                {!auth && (
+                    {!auth && (
                         <GhostButton onClick={() => BasicLoginEventHandler()}>
-                            <LoginIcon width="29" height="29" />
+                            <LoginIcon width='29' height='29' />
                             <span className='text-xs'>Login</span>
                         </GhostButton>
                     )}
@@ -648,8 +649,12 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    {!auth && <GhostButton onClick={() => router.push("/about")}><AboutIcon width="30" height="30" /><span className="text-xs">
-                    About</span></GhostButton>}
+                    {!auth && (
+                        <GhostButton onClick={() => router.push("/about")}>
+                            <AboutIcon width='30' height='30' />
+                            <span className='text-xs'>About</span>
+                        </GhostButton>
+                    )}
                     <GhostButton onClick={() => router.push("/rank")}>
                         <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
@@ -806,7 +811,10 @@ export default function Home() {
                                             예
                                         </button>
                                     </div>
-                                    <button onClick={() => alert("'예'를 누르고 자모와 더 대화해봐요.")} className='w-[50%] btn btn-outline bg-base-100 join-item'>
+                                    <button
+                                        onClick={() => alert("'예'를 누르고 자모와 더 대화해봐요.")}
+                                        className='w-[50%] btn btn-outline bg-base-100 join-item'
+                                    >
                                         아니요
                                     </button>
                                 </BottomSelectorUI>
