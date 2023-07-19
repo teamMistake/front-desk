@@ -191,7 +191,7 @@ export default function Home() {
     const checkForAB = (parsed_chats) => {
         const lastChat = parsed_chats[parsed_chats.length - 1];
         // AB TESTING EVENT Trigger
-        if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
+        if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && isMine) {
             let isEnded = false;
 
             const tChat = parsed_chats[parsed_chats.length - 1];
