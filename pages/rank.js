@@ -62,14 +62,10 @@ export default function Home() {
     useEffect(() => {
         const fetchStuffs = () => {
             getRank();
-            // getMyRank();
+            getMyRank();
         }
         const timeInterval = setInterval(fetchStuffs, 10000);
-        try {
-            fetchStuffs();
-        } catch(err) {
-            console.log(err);
-        }
+        fetchStuffs();
         return () => clearInterval(timeInterval);
     }, []);
 
