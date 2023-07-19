@@ -347,7 +347,7 @@ export default function Home() {
         let _chats = chats;
         const lastChatItem = _chats[_chats.length - 1]
         if (regenerate) {
-            _chats = _chats.slice(0, _chats.length-2)
+            _chats = _chats.slice(0, _chats.length-1)
         }
 
         let data = {};
