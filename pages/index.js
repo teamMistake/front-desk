@@ -188,6 +188,26 @@ export default function Home() {
         toggleContextDrawer();
     };
 
+    const checkForAB = (parsed_chats) => {
+        const lastChat = parsed_chats[parsed_chats.length - 1];
+        // AB TESTING EVENT Trigger
+        if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
+            let isEnded = false;
+
+            const tChat = parsed_chats[parsed_chats.length - 1];
+            tChat.prompt.map((p) => {
+                if (p?.selected) {
+                    isEnded = true;
+                }
+            });
+
+            if (!isEnded) {
+                setEvent(AB_MODEL_TEST_EVENT);
+                setABBtnCount(lastChat.prompt.length);
+            }
+        }
+    }
+
     useEffect(() => {
         if (userID && sharedUser) {
             const _isMine = sharedUser == userID;
@@ -197,23 +217,7 @@ export default function Home() {
             }
 
             const parsed_chats = chats
-            const lastChat = parsed_chats[parsed_chats.length - 1];
-            // AB TESTING EVENT Trigger
-            if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && _isMine) {
-                let isEnded = false;
-
-                const tChat = parsed_chats[parsed_chats.length - 1];
-                tChat.prompt.map((p) => {
-                    if (p?.selected) {
-                        isEnded = true;
-                    }
-                });
-
-                if (!isEnded) {
-                    setEvent(AB_MODEL_TEST_EVENT);
-                    setABBtnCount(lastChat.prompt.length);
-                }
-            }
+            checkForAB(parsed_chats)
         }
     }, [userID, sharedUser])
 
@@ -231,6 +235,8 @@ export default function Home() {
             
             const parsed_chats = parsingChatItem(messages);
             setChats(() => parsed_chats);
+
+            checkForAB(parsed_chats)
 
             setLoading(false);
             setChatLoading(false);
@@ -380,6 +386,7 @@ export default function Home() {
             } else if (auth) {
                 randomRatingEventTrigger();
             }
+            setLoading(false);
         }
 
         const stream = fetch(url, {
@@ -406,7 +413,6 @@ export default function Home() {
                         response = await streamReader.read();
                         if (response.done) {
                             ABTestTrigger()
-                            setLoading(false);
                             return;
                         }
 
