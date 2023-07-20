@@ -337,6 +337,7 @@ export default function Home() {
 
         const _chats = chats;
         let target_prompt;
+        let regenerate;
         for (let i = 1; i <= _chats.length; i++) {
             const target = _chats[_chats.length - i];
             if (target.talker == USER) {
@@ -950,7 +951,7 @@ export default function Home() {
                             </BottomSelectorUI>
                         )}
 
-                        {isMine && !loading && chats.length != 0 && (
+                        {isMine && !loading && chats.length != 0 && auth && (
                             <div className={`my-2 ${event != MSG_EVENT && "hidden"}`}>
                                 <AnimateRegenerateButton onClick={Regenerate}>
                                     <span>다시 물어보기</span>
