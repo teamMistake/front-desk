@@ -6,7 +6,7 @@ const parsingChatItem = (chat) => {
         const userChat = { talker: USER, prompt: [{ resp: req }], event: MSG_EVENT, onlive: false, messageId: messageId };
 
         // let targetResp = resp.filter((r) => r.text != "" || !r.text)
-        let parsedResp = targetResp.map(({ reqId, text, selected }) => {
+        let parsedResp = resp.map(({ reqId, text, selected }) => {
             return { resp: text != "" ? text : NON_OUTPUT_ERROR, selected: selected, reqId: reqId };
         });
     
