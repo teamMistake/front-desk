@@ -543,8 +543,6 @@ export default function Home() {
 
         const _chats = chats;
 
-        console.log(_chats, index)
-
         // Update for UI
         _chats[_chats.length - 1].prompt[index].selected = true;
 
@@ -569,7 +567,7 @@ export default function Home() {
     }, [auth]);
 
     const loginEventHandler = () => {
-        if (!privacyChecked) return setPrivacyError(true);
+        if (!privacyChecked && !logined) return setPrivacyError(true);
 
         router.push("/login");
     };
@@ -902,8 +900,9 @@ export default function Home() {
                                         아니요
                                     </button>
                                 </BottomSelectorUI>
-
-                                <div className='flex flex-row mb-2 justify-center items-center'>
+                                
+                                {!logined && (
+                                    <div className='flex flex-row mb-2 justify-center items-center'>
                                     <span className={`text-xs ${privacyError && "text-error"}`}>
                                         로그인을 진행하기 위해서{" "}
                                         <span className='text-md link'>
@@ -923,6 +922,8 @@ export default function Home() {
                                         </label>
                                     </div>
                                 </div>
+                                )}
+                                
                             </>
                         )}
 
