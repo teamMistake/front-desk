@@ -359,6 +359,7 @@ export default function Home() {
         const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 10s
 
         const isFirstChat = chats.length == 1;
+        const original = chats;
         let _chats = chats;
         const lastChatItem = _chats[_chats.length - 1];
         const isSkeleton = !regenerate || _chats[_chats.length-1].talker == USER
@@ -479,9 +480,10 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             console.log(data);
-                            const parsed = parsingChat(item, true);
-                            const fakeChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive:false, messageId: messageId, isTalking: false };
-                            setChats(() => [..._chats, fakeChat])
+                            // const parsed = parsingChat(item, true);
+                            // const fakeChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive:false, messageId: messageId, isTalking: false };
+                            
+                            setChats(() => original)
                             ABTestTrigger()
                             setError(COMPUTING_LIMITATION_ERROR);
                             return;
