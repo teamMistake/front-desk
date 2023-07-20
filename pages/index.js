@@ -9,6 +9,7 @@ import { ErrorMessage } from "../components/error";
 import {
     AB_MODEL_TEST_EVENT,
     COMPUTER,
+    COMPUTING_FATAL_ERROR,
     COMPUTING_LIMITATION_ERROR,
     LOGIN_EVENT,
     LOGIN_TRIGGER_NUM,
@@ -76,7 +77,7 @@ export default function Home() {
     const [ABBtnCount, setABBtnCount] = useState(3);
 
     const [shareURL, setShareURL] = useState("");
-    const [sharedUser, setSharedUser] = useState()
+    const [sharedUser, setSharedUser] = useState();
 
     // Loading State for Disable the chatting while getting the response.
     const [loading, setLoading] = useState(false);
@@ -143,7 +144,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if ((auth && chats?.length==0) || (auth&&chats?.length == 2)) {
+        if ((auth && chats?.length == 0) || (auth && chats?.length == 2)) {
             async function fetchContexts() {
                 setContextLoading(true);
 
@@ -204,7 +205,7 @@ export default function Home() {
                 setABBtnCount(lastChat.prompt.length);
             }
         }
-    }
+    };
 
     useEffect(() => {
         if (userID && sharedUser) {
@@ -214,10 +215,10 @@ export default function Home() {
                 setIsMine(true);
             }
 
-            const parsed_chats = chats
-            checkForAB(parsed_chats)
+            const parsed_chats = chats;
+            checkForAB(parsed_chats);
         }
-    }, [userID, sharedUser])
+    }, [userID, sharedUser]);
 
     async function fetchChat(chatID) {
         setLoading(true);
@@ -227,12 +228,12 @@ export default function Home() {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages } = _chats;
 
-            setSharedUser(_chats.userId)
-            
+            setSharedUser(_chats.userId);
+
             const parsed_chats = parsingChatItem(messages);
             setChats(() => parsed_chats);
 
-            checkForAB(parsed_chats)
+            checkForAB(parsed_chats);
 
             setLoading(false);
             setChatLoading(false);
@@ -332,8 +333,8 @@ export default function Home() {
     // TODO: Turn this into new api
     const Regenerate = () => {
         // const target_prompt = chats[chats.length - 2].prompt;
-        setLoading(true)
-        
+        setLoading(true);
+
         const _chats = chats;
         let target_prompt;
         for (let i = 1; i <= _chats.length; i++) {
@@ -357,9 +358,9 @@ export default function Home() {
 
         const isFirstChat = chats.length == 1;
         let _chats = chats;
-        const lastChatItem = _chats[_chats.length - 1]
+        const lastChatItem = _chats[_chats.length - 1];
         if (regenerate) {
-            _chats = _chats.slice(0, _chats.length-1)
+            _chats = _chats.slice(0, _chats.length - 1);
         }
 
         let data = {};
@@ -375,7 +376,7 @@ export default function Home() {
         }
 
         let item = {};
-        setInit(false)
+        setInit(false);
 
         function ABTestTrigger() {
             if (Object.keys(item).length > 1) {
@@ -384,20 +385,20 @@ export default function Home() {
             } else if (auth) {
                 randomRatingEventTrigger();
             }
-            console.log("391")
+            console.log("391");
             setLoading(false);
         }
 
-        function parsingChat(item) { 
+        function parsingChat(item) {
             return Object.entries(item).map((_data) => {
-                                try {
-                                    let tempReqId = _data[0];
-                                    let tempMsg = _data[1];
-                                    return { resp: tempMsg, selected: false, reqId: tempReqId };
-                                } catch (e) {
-                                    console.log(e);
-                                }
-                            });
+                try {
+                    let tempReqId = _data[0];
+                    let tempMsg = _data[1];
+                    return { resp: tempMsg, selected: false, reqId: tempReqId };
+                } catch (e) {
+                    console.log(e);
+                }
+            });
         }
 
         const stream = fetch(url, {
@@ -415,18 +416,21 @@ export default function Home() {
                 const streamReader = stream.getReader();
                 streamReader.read().then(async (response) => {
                     if (lastChatItem.talker == COMPUTER) {
-                        lastChatItem.prompt.map(({reqId, resp, selected}) => {
-                            item[reqId] = resp
-                        })                           
+                        lastChatItem.prompt.map(({ reqId, resp, selected }) => {
+                            item[reqId] = resp;
+                        });
                     }
 
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
-                            const parsed = parsingChat(item) 
+                            const parsed = parsingChat(item);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: false };
                             setChats(() => [..._chats, comChat]);
-                            ABTestTrigger()
+                            ABTestTrigger();
+                            if (regenerate) {
+                                scrollToBottom()
+                            }
                             return;
                         }
 
@@ -444,17 +448,23 @@ export default function Home() {
                             reqIds.map((id) => {
                                 item[id.req_id] = "";
                             });
-                        } else if (data.type == "lm_response") {
+                        } else if (data.type == "lm_response" || data.type == "lm_error") {
                             const { reqId, messageId, data: d } = data;
-                            item[reqId] = d.resp_full;
-
-                            const parsed = parsingChat(item) 
+                            try {
+                                item[reqId] = d.resp_full;
+                                // if error occured when getting the message just delete that item
+                                if (data.error) {
+                                    console.log(data);
+                                    delete item[reqId];
+                                    setError(COMPUTING_LIMITATION_ERROR);
+                                }
+                            } catch (error) {
+                                console.log(error);
+                                continue;
+                            }
+                            const parsed = parsingChat(item);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
                             setChats(() => [..._chats, comChat]);
-                        } else if (data.type == "lm_error") {
-                            console.log(data);
-                            setError(COMPUTING_LIMITATION_ERROR);
-                            return;
                         } else if (data.type == "error") {
                             console.log(data);
                             setError(COMPUTING_LIMITATION_ERROR);
@@ -464,9 +474,10 @@ export default function Home() {
                 });
             })
             .catch((e) => {
+                // Abort the api call
                 console.log(e);
-                ABTestTrigger()
-                setError(COMPUTING_LIMITATION_ERROR);
+                ABTestTrigger();
+                setError(COMPUTING_FATAL_ERROR);
             });
     };
 
@@ -604,7 +615,7 @@ export default function Home() {
         const timeout = setTimeout(() => {
             setLoading(false);
             setError("");
-        }, 1000);
+        }, 2500);
 
         return () => clearTimeout(timeout);
     }, [error]);
@@ -852,7 +863,7 @@ export default function Home() {
                                         </div>
                                     </div>
                                 )}
-                                <div className='h-[150px]'></div>
+                                <div className={`${event != RANK_RES_EVENT ? "h-[150px]" : "h-[250px]"}`}></div>
                             </div>
                             {/* <div className='w-full h-32 max-h-96'></div> */}
                         </div>

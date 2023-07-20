@@ -6,11 +6,11 @@ import { COMPUTER, LOGIN_EVENT, MULTIPLE_MESSAGES, SINGLE_MESSAGE, USER } from "
 import { IconButton } from "./button";
 import copy from "copy-to-clipboard";
 
-const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
+const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false }) => {
     const [payload, setPayload] = useState();
     const [cursor, setCursor] = useState(1);
     const [updates, setUpdates] = useState(0);
-    const [end, setEnd] = useState(false);
+    // const [end, setEnd] = useState(false);
     const [think, setThink] = useState("");
     const [copied, setCopied] = useState(false);
     const [type, setType] = useState();
@@ -34,9 +34,9 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
     }, [payload]);
 
     useEffect(() => {
-        if (!onlive || type != SINGLE_MESSAGE || talker == USER) return setEnd(true);
+        if (!onlive || type != SINGLE_MESSAGE || talker == USER) return;
 
-        setEnd(cursor == payload[0]?.resp?.length);
+        // setEnd(cursor == payload[0]?.resp?.length);
         const timeout = setTimeout(() => {
             if (cursor < prompt[0].resp.length) {
                 const arr = ["모자가 생각중...", "모자가 생각중..", "모자가 생각중."];
@@ -73,10 +73,10 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
         >
             <div className='flex flex-col min-w-[30px] md:min-w-[60px] relative'>
                 <div className={`overflow indicator`}>
-                    <div className={`select-none ${!end ? "rounded-t-md" : "rounded-md"} overflow-hidden`}>
+                    <div className={`select-none ${!isTalking ? "rounded-t-md" : "rounded-md"} overflow-hidden`}>
                         <Image alt='.' src={talker == COMPUTER ? "/hat.jpg" : "/you.jpg"} width={60} height={50} />
                     </div>
-                    {talker == COMPUTER && !end && (
+                    {talker == COMPUTER && isTalking && (
                         <span className='indicator-item badge badge-base-100 h-[30px] indicator-bottom indicator-center bottom-[-5px]'>
                             <span className='loading loading-dots w-[30px]'></span>
                         </span>
@@ -86,14 +86,14 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId }) => {
 
             <div className='flex flex-1 flex-col whitespace-pre-wrap break-words justify-start w-full gap-2'>
                 <div className='flex flex-col flex-1'>
-                    {talker == COMPUTER && !end && <span className='text-xs text-success'>{think}</span>}
+                    {talker == COMPUTER && isTalking && <span className='text-xs text-success'>{think}</span>}
 
                     {payload && onlive && type == SINGLE_MESSAGE && (
-                        <span className={`text-md  font-semibold ${!end && "blinking-cursor"}`}>{payload[0].resp.slice(0, cursor)}</span>
+                        <span className={`text-md  font-semibold ${!isTalking && "blinking-cursor"}`}>{payload[0].resp.slice(0, cursor)}</span>
                     )}
 
                     {payload && !onlive && type == SINGLE_MESSAGE && (
-                        <span className={`text-md font-semibold ${!end && "blinking-cursor"}`}>{payload[0].resp}</span>
+                        <span className={`text-md font-semibold ${!isTalking && "blinking-cursor"}`}>{payload[0].resp}</span>
                     )}
 
                     {payload && type == MULTIPLE_MESSAGES && (
