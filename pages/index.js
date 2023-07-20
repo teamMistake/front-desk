@@ -512,11 +512,10 @@ export default function Home() {
         }
 
         const lastChat = chats[chats.length - 1];
-        if (lastChat.talker == USER) {
+        if (!loading && lastChat.talker == USER) {
             setLoading(true);
             const lastItem = chats[chats.length - 1];
             const target_prompt = lastItem.prompt;
-
             PostGenerate(target_prompt[0].resp);
         }
 
