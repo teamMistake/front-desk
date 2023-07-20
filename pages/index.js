@@ -479,6 +479,7 @@ export default function Home() {
                             const parsed = parsingChat(item);
                             const fakeChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive:false, messageId: messageId, isTalking: false };
                             setChats(() => [..._chats, fakeChat])
+                            ABTestTrigger()
                             setError(COMPUTING_LIMITATION_ERROR);
                             return;
                         }
