@@ -54,7 +54,6 @@ import CopyIcon from "../components/copyicon";
 export default function Home() {
     const router = useRouter();
 
-    // TODO: Set isMine false for safety
     const [isMine, setIsMine] = useState(true);
     const { isAuth: auth, userID } = useUser();
 
@@ -148,7 +147,6 @@ export default function Home() {
             async function fetchContexts() {
                 setContextLoading(true);
 
-                // TODO: GET contexts
                 const _contexts = await getContextsByUserIDAPI();
 
                 if (_contexts) {
@@ -228,10 +226,8 @@ export default function Home() {
         try {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages } = _chats;
-            console.log(_chats)
 
             setSharedUser(_chats.userId)
-            console.log(_chats.userId, userID)
             
             const parsed_chats = parsingChatItem(messages);
             setChats(() => parsed_chats);
@@ -241,7 +237,6 @@ export default function Home() {
             setLoading(false);
             setChatLoading(false);
         } catch (e) {
-            // TODO: invalid access to page preventation
             console.log("183", e);
             setLoading(false);
             setChatLoading(false);
@@ -337,6 +332,8 @@ export default function Home() {
     // TODO: Turn this into new api
     const Regenerate = () => {
         // const target_prompt = chats[chats.length - 2].prompt;
+        setLoading(true)
+        
         const _chats = chats;
         let target_prompt;
         for (let i = 1; i <= _chats.length; i++) {
