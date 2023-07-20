@@ -40,7 +40,7 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking = fals
         // setEnd(cursor == payload[0]?.resp?.length);
         const timeout = setTimeout(() => {
             if (cursor < prompt[0].resp.length) {
-                setCursor((c) => c + 0);
+                setCursor((c) => c + 1);
             }
             if (isTalking) {
                 const arr = ["모자가 생각중...", "모자가 생각중..", "모자가 생각중."];
