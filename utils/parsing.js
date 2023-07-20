@@ -5,7 +5,8 @@ const parsingChatItem = (chat) => {
     chat.map(({ messageId, req, resp, experiment }) => {
         const userChat = { talker: USER, prompt: [{ resp: req }], event: MSG_EVENT, onlive: false, messageId: messageId };
 
-        let parsedResp = resp.map(({ reqId, text, selected }) => {
+        let targetResp = resp.filter(() => resp.text != "")
+        let parsedResp = targetResp.map(({ reqId, text, selected }) => {
             return { resp: text, selected: selected, reqId: reqId };
         });
         const comChat = { talker: COMPUTER, prompt: parsedResp, event: MSG_EVENT, onlive: false, messageId: messageId };
