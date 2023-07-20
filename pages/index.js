@@ -388,6 +388,18 @@ export default function Home() {
             setLoading(false);
         }
 
+        function parsingChat(item) { 
+            return Object.entries(item).map((_data) => {
+                                try {
+                                    let tempReqId = _data[0];
+                                    let tempMsg = _data[1];
+                                    return { resp: tempMsg, selected: false, reqId: tempReqId };
+                                } catch (e) {
+                                    console.log(e);
+                                }
+                            });
+        }
+
         const stream = fetch(url, {
             body: JSON.stringify(data),
             method: "POST",
@@ -411,7 +423,9 @@ export default function Home() {
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
-                            console.log("416")
+                            const parsed = parsingChat(item) 
+                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: false };
+                            setChats(() => [..._chats, comChat]);
                             ABTestTrigger()
                             return;
                         }
@@ -434,16 +448,8 @@ export default function Home() {
                             const { reqId, messageId, data: d } = data;
                             item[reqId] = d.resp_full;
 
-                            const parsed = Object.entries(item).map((_data) => {
-                                try {
-                                    let tempReqId = _data[0];
-                                    let tempMsg = _data[1];
-                                    return { resp: tempMsg, selected: false, reqId: tempReqId };
-                                } catch (e) {
-                                    console.log(e);
-                                }
-                            });
-                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId };
+                            const parsed = parsingChat(item) 
+                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_error") {
                             console.log(data);
