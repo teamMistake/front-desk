@@ -9,10 +9,14 @@ const parsingChatItem = (chat) => {
         let parsedResp = targetResp.map(({ reqId, text, selected }) => {
             return { resp: text, selected: selected, reqId: reqId };
         });
+    
         const comChat = { talker: COMPUTER, prompt: parsedResp, event: MSG_EVENT, onlive: false, messageId: messageId };
 
         chats.push(userChat);
-        chats.push(comChat);
+
+        if (targetResp.length != 0){
+            chats.push(comChat);
+        }
     });
 
     return chats;

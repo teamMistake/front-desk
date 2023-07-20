@@ -470,6 +470,9 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             console.log(data);
+                            if (!regenerate){
+                                setChats(() => _chats)
+                            }
                             setError(COMPUTING_LIMITATION_ERROR);
                             return;
                         }
