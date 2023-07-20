@@ -92,7 +92,7 @@ export default function Home() {
             {/* Navigation bar */}
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    <GhostButton onClick={() => router.push("")}>MOJA</GhostButton>
+                    <span className="normal-case font-semibold text-xl mx-5 select-none">MOJA</span>
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
@@ -109,7 +109,7 @@ export default function Home() {
 
             <main className="bg-base-100 flex flex-row h-full w-screen overflow-hidden">
                 <div className="relative overflow-hidden h-full flex flex-col w-full drawer">
-                    <p className="font-bold text-3xl text-accent dark:text-white justify-center my-10 flex select-none">Rank</p>
+                    <p className="font-bold text-3xl text-accent-content dark:text-white justify-center my-10 flex select-none">Rank</p>
                     <div className="table-container flex overflow-y-auto justify-center">
                         <table className="table max-w-md">
                             <thead>
