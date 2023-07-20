@@ -69,7 +69,6 @@ export default function Home() {
     const [init, setInit] = useState(false);
     const [contextID, setContextID] = useState();
     const [messageId, setMessageId] = useState();
-    const [lastTalkCount, setLastTalkCount] = useState(0)
 
     // Context ID for setting the chat context
     const [contexts, setContexts] = useState([]);
@@ -145,7 +144,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (auth || chats?.length == 1) {
+        if ((auth && chats?.length==0) || (auth&&chats?.length == 2)) {
             async function fetchContexts() {
                 setContextLoading(true);
 
@@ -191,7 +190,6 @@ export default function Home() {
 
     const checkForAB = (parsed_chats) => {
         const lastChat = parsed_chats[parsed_chats.length - 1];
-        setLastTalkCount(lastChat.prompt.length)
         // AB TESTING EVENT Trigger
         if (lastChat.talker == COMPUTER && lastChat.prompt.length > 1 && isMine) {
             let isEnded = false;
@@ -380,6 +378,7 @@ export default function Home() {
         }
 
         let item = {};
+        setInit(false)
 
         function ABTestTrigger() {
             if (Object.keys(item).length > 1) {
@@ -388,6 +387,7 @@ export default function Home() {
             } else if (auth) {
                 randomRatingEventTrigger();
             }
+            console.log("391")
             setLoading(false);
         }
 
@@ -414,6 +414,7 @@ export default function Home() {
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
+                            console.log("416")
                             ABTestTrigger()
                             return;
                         }
@@ -432,8 +433,6 @@ export default function Home() {
                             reqIds.map((id) => {
                                 item[id.req_id] = "";
                             });
-
-                            setLastTalkCount(item.length)
                         } else if (data.type == "lm_response") {
                             const { reqId, messageId, data: d } = data;
                             item[reqId] = d.resp_full;
@@ -850,7 +849,7 @@ export default function Home() {
                                         </div>
                                     </div>
                                 )}
-                                <div className='h-[120px]'></div>
+                                <div className='h-[150px]'></div>
                             </div>
                             {/* <div className='w-full h-32 max-h-96'></div> */}
                         </div>
@@ -929,7 +928,7 @@ export default function Home() {
                             </BottomSelectorUI>
                         )}
 
-                        {isMine && !loading && chats.length != 0 && lastTalkCount < 6 && (
+                        {isMine && !loading && chats.length != 0 && (
                             <div className={`my-2 ${event != MSG_EVENT && "hidden"}`}>
                                 <AnimateRegenerateButton onClick={Regenerate}>
                                     <span>다시 물어보기</span>
