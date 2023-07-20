@@ -15,6 +15,7 @@ import {
     LOGIN_TRIGGER_NUM,
     MSG_EVENT,
     NON_INPUT_ERROR,
+    NON_OUTPUT_ERROR,
     RANK_RES_EVENT,
     SHARED_CONTENT_EVENT,
     USER,
@@ -402,7 +403,7 @@ export default function Home() {
                 try {
                     let tempReqId = _data[0];
                     let tempMsg = _data[1];
-                    return { resp: tempMsg, selected: false, reqId: tempReqId };
+                    return { resp: tempMsg != "" ? tempMsg : NON_OUTPUT_ERROR, selected: false, reqId: tempReqId };
                 } catch (e) {
                     console.log(e);
                 }
@@ -475,9 +476,9 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             console.log(data);
-                            if (isSkeleton){
-                                setChats(() => _chats)
-                            }
+                            const parsed = parsingChat(item);
+                            const fakeChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive:false, messageId: messageId, isTalking: false };
+                            setChats(() => [..._chats, fakeChat])
                             setError(COMPUTING_LIMITATION_ERROR);
                             return;
                         }
@@ -540,6 +541,8 @@ export default function Home() {
         setLoading(true);
 
         const _chats = chats;
+
+        console.log(_chats, index)
 
         // Update for UI
         _chats[_chats.length - 1].prompt[index].selected = true;
