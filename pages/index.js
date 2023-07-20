@@ -361,6 +361,9 @@ export default function Home() {
         const lastChatItem = _chats[_chats.length - 1];
         if (regenerate) {
             _chats = _chats.slice(0, _chats.length - 1);
+        } else {
+            const skeletonChat = { talker: COMPUTER, isSkeleton: true };
+            setChats(() => [..._chats, skeletonChat])
         }
 
         let data = {};
@@ -481,7 +484,6 @@ export default function Home() {
             });
     };
 
-    // TODO: Chats
     // chat state update event management such as login event, generate event, scroll trigger
     useEffect(() => {
         if (chats.length == 0) return;

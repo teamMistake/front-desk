@@ -6,7 +6,7 @@ import { COMPUTER, LOGIN_EVENT, MULTIPLE_MESSAGES, SINGLE_MESSAGE, USER } from "
 import { IconButton } from "./button";
 import copy from "copy-to-clipboard";
 
-const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false }) => {
+const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking = false, isSkeleton = false }) => {
     const [payload, setPayload] = useState();
     const [cursor, setCursor] = useState(1);
     const [updates, setUpdates] = useState(0);
@@ -16,9 +16,10 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
     const [type, setType] = useState();
 
     useEffect(() => {
+        if (isSkeleton) return;
         if (prompt) {
             if (prompt.length > 0) {
-                setType(() => prompt.length == 1 ? SINGLE_MESSAGE : MULTIPLE_MESSAGES);
+                setType(() => (prompt.length == 1 ? SINGLE_MESSAGE : MULTIPLE_MESSAGES));
                 setPayload(prompt);
             }
         }
@@ -26,7 +27,7 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
 
     useEffect(() => {
         if (talker == USER) {
-            setCursor(prompt[0].resp.length)
+            setCursor(prompt[0].resp.length);
         }
 
         if (!payload || payload.length == 0 || type != SINGLE_MESSAGE) return;
@@ -41,7 +42,7 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
             if (cursor < prompt[0].resp.length) {
                 setCursor((c) => c + 0);
             }
-            if (isTalking){
+            if (isTalking) {
                 const arr = ["모자가 생각중...", "모자가 생각중..", "모자가 생각중."];
                 setThink(arr[Math.floor(Math.random() * 3)]);
             }
@@ -51,11 +52,11 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
     }, [cursor, updates]);
 
     const onCopy = () => {
-        const target_payload = payload.map((p) => p.resp).join("\n")
-        
+        const target_payload = payload.map((p) => p.resp).join("\n");
+
         copy(target_payload);
         setCopied(true);
-    }
+    };
 
     useEffect(() => {
         if (!copied) return;
@@ -78,7 +79,7 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
                     <div className={`select-none ${isTalking ? "rounded-t-md" : "rounded-md"} overflow-hidden`}>
                         <Image alt='.' src={talker == COMPUTER ? "/hat.jpg" : "/you.jpg"} width={60} height={50} />
                     </div>
-                    {talker == COMPUTER && isTalking && (
+                    {talker == COMPUTER && (isTalking || isSkeleton) && (
                         <span className='indicator-item badge badge-base-100 h-[30px] indicator-bottom indicator-center bottom-[-5px]'>
                             <span className='loading loading-dots w-[30px]'></span>
                         </span>
@@ -101,23 +102,34 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
                     {payload && type == MULTIPLE_MESSAGES && (
                         <ul>
                             {payload.map((p, i) => (
-                                <li key={i} className={`flex flex-row gap-2 justify-start p-2 ${p?.selected && " border-2 bg-[#fce041] text-primary dark:bg-white rounded-xl"}`}>
+                                <li
+                                    key={i}
+                                    className={`flex flex-row gap-2 justify-start p-2 ${
+                                        p?.selected && " border-2 bg-[#fce041] text-primary dark:bg-white rounded-xl"
+                                    }`}
+                                >
                                     <span className='select-none w-[20px] text-xl font-bold '>{i + 1}.</span>
                                     <span className={`p-[1.5px] text-md ${p?.selected ? "font-bold " : "font-semibold"}`}>{p.resp}</span>
                                 </li>
                             ))}
                         </ul>
                     )}
+
+                    {isSkeleton && (
+                        <div className='animate-pulse'>
+                            <div className='h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 max-w-[540px] mb-2.5 mx-auto'></div>
+                            <div className='h-2.5 mx-auto bg-gray-300 rounded-full dark:bg-gray-700 mb-2.5 max-w-[540px]'></div>
+                            <div className='h-2.5 mx-auto bg-gray-300 rounded-full dark:bg-gray-700 max-w-[540px]'></div>
+                        </div>
+                    )}
                 </div>
             </div>
 
             <div className='min-w-[30px] md:min-w-[60px]'>
-                {talker == COMPUTER && (
+                {talker == COMPUTER && !isSkeleton && (
                     <>
                         {!copied ? (
-                            <IconButton
-                                onClick={() => onCopy()}
-                            >
+                            <IconButton onClick={() => onCopy()}>
                                 <CopyIcon color='currentColor' width='15' height='20' />
                             </IconButton>
                         ) : (
@@ -135,4 +147,3 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
 };
 
 export { MessageBox };
-    
