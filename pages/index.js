@@ -398,12 +398,15 @@ export default function Home() {
             setLoading(false);
         }
 
-        function parsingChat(item) {
+        function parsingChat(item, non=false) {
             return Object.entries(item).map((_data) => {
                 try {
                     let tempReqId = _data[0];
                     let tempMsg = _data[1];
-                    return { resp: tempMsg != "" ? tempMsg : NON_OUTPUT_ERROR, selected: false, reqId: tempReqId };
+                    if (non) {
+                        tempMsg = tempMsg != "" ? tempMsg : NON_OUTPUT_ERROR
+                    }
+                    return { resp: tempMsg, selected: false, reqId: tempReqId };
                 } catch (e) {
                     console.log(e);
                 }
@@ -433,7 +436,7 @@ export default function Home() {
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
-                            const parsed = parsingChat(item);
+                            const parsed = parsingChat(item, true);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: false };
                             setChats(() => [..._chats, comChat]);
                             ABTestTrigger();
@@ -476,7 +479,7 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             console.log(data);
-                            const parsed = parsingChat(item);
+                            const parsed = parsingChat(item, true);
                             const fakeChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive:false, messageId: messageId, isTalking: false };
                             setChats(() => [..._chats, fakeChat])
                             ABTestTrigger()
