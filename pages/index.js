@@ -361,7 +361,9 @@ export default function Home() {
         const lastChatItem = _chats[_chats.length - 1];
         if (regenerate) {
             _chats = _chats.slice(0, _chats.length - 1);
-        } else {
+        } 
+        const isSkeleton = !regenerate || _chats[_chats.length-1].talker == USER
+        if (isSkeleton) {
             const skeletonChat = { talker: COMPUTER, isSkeleton: true };
             setChats(() => [..._chats, skeletonChat])
         }
@@ -470,7 +472,7 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             console.log(data);
-                            if (!regenerate){
+                            if (isSkeleton){
                                 setChats(() => _chats)
                             }
                             setError(COMPUTING_LIMITATION_ERROR);
