@@ -359,10 +359,12 @@ export default function Home() {
         const isFirstChat = chats.length == 1;
         let _chats = chats;
         const lastChatItem = _chats[_chats.length - 1];
-        if (regenerate) {
+        const isSkeleton = !regenerate || _chats[_chats.length-1].talker == USER
+        
+        if (regenerate && !isSkeleton) {
             _chats = _chats.slice(0, _chats.length - 1);
         } 
-        const isSkeleton = !regenerate || _chats[_chats.length-1].talker == USER
+        
         if (isSkeleton) {
             const skeletonChat = { talker: COMPUTER, isSkeleton: true };
             setChats(() => [..._chats, skeletonChat])
