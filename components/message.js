@@ -73,7 +73,7 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
         >
             <div className='flex flex-col min-w-[30px] md:min-w-[60px] relative'>
                 <div className={`overflow indicator`}>
-                    <div className={`select-none ${!isTalking ? "rounded-t-md" : "rounded-md"} overflow-hidden`}>
+                    <div className={`select-none ${isTalking ? "rounded-t-md" : "rounded-md"} overflow-hidden`}>
                         <Image alt='.' src={talker == COMPUTER ? "/hat.jpg" : "/you.jpg"} width={60} height={50} />
                     </div>
                     {talker == COMPUTER && isTalking && (
@@ -89,11 +89,11 @@ const MessageBox = ({ talker, prompt, event, onlive, messageId, isTalking=false 
                     {talker == COMPUTER && isTalking && <span className='text-xs text-success'>{think}</span>}
 
                     {payload && onlive && type == SINGLE_MESSAGE && (
-                        <span className={`text-md  font-semibold ${!isTalking && "blinking-cursor"}`}>{payload[0].resp.slice(0, cursor)}</span>
+                        <span className={`text-md  font-semibold ${isTalking && "blinking-cursor"}`}>{payload[0].resp.slice(0, cursor)}</span>
                     )}
 
                     {payload && !onlive && type == SINGLE_MESSAGE && (
-                        <span className={`text-md font-semibold ${!isTalking && "blinking-cursor"}`}>{payload[0].resp}</span>
+                        <span className={`text-md font-semibold ${isTalking && "blinking-cursor"}`}>{payload[0].resp}</span>
                     )}
 
                     {payload && type == MULTIPLE_MESSAGES && (
