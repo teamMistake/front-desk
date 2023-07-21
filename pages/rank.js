@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { GhostButton } from "../components/button";
 import { useRouter } from "next/router";
 import { useUser } from "../hook/useUser";
-import { LoadingSpinner }  from "../components/loading";
+import { LoadingSpinner } from "../components/loading";
 import Opengraph from "../components/opengraph";
 import ContextIcon from "../components/contexticon";
 import AboutIcon from "../components/abouticon";
@@ -14,51 +14,61 @@ export default function Home() {
     const [error, setError] = useState(false);
 
     const router = useRouter();
-    const contextId = router.query;
+    const { contextId } = router.query;
     // get user identity by api
     const { isAuth } = useUser();
 
     // Define Rank Element
     // gets user id by ranks form, but not visible
-    const Rank = ({username, rank, score}) => {
+    const Rank = ({ username, rank, score }) => {
         return (
             // text size adjustment by rank in row 1~3
-            <tr className={""
-            + (rank == 0 ? "text-3xl " : "")
-            + (rank == 1 ? "text-2xl " : "")
-            + (rank == 2 ? "text-xl " : "")
-            + (rank > 2 ? "text-base " : "")
-            + (username == myrank?.username ? "text-base-100 bg-base-content border-none " : "text-base-content ")}>
+            <tr
+                className={
+                    "" +
+                    (rank == 0 ? "text-3xl " : "") +
+                    (rank == 1 ? "text-2xl " : "") +
+                    (rank == 2 ? "text-xl " : "") +
+                    (rank > 2 ? "text-base " : "") +
+                    (username == myrank?.username ? "text-base-100 bg-base-content border-none " : "text-base-content ")
+                }
+            >
                 <th>{rank + 1}</th>
                 <th>{username}</th>
                 <th>{score}</th>
             </tr>
-        )
+        );
     };
 
     // get rank by fetch(GET)
     const getRank = () => {
         const res = fetch("/api/leaderboard", {
-            method: "GET"
-        }).then((res) => res.json()).then((res) => {
-            setRanks(res);
-            setLoaded(true);
-        }).catch((e) => {
-            setRanks(undefined);
-            setError(true);
-        });
+            method: "GET",
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                setRanks(res);
+                setLoaded(true);
+            })
+            .catch((e) => {
+                setRanks(undefined);
+                setError(true);
+            });
     };
 
     // get myrank by fetch(GET)
     const getMyRank = () => {
         const res = fetch("/api/leaderboard/me", {
-            method: "GET"
-        }).then((res) => res.json()).then((res) => {
-            setMyRank(res);
-        }).catch((e) => {
-            setMyRank(undefined);
-            setError(true);
-        });
+            method: "GET",
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                setMyRank(res);
+            })
+            .catch((e) => {
+                setMyRank(undefined);
+                setError(true);
+            });
     };
 
     // fetch at each 10s
@@ -66,7 +76,7 @@ export default function Home() {
         const fetchStuffs = () => {
             getRank();
             getMyRank();
-        }
+        };
         const timeInterval = setInterval(fetchStuffs, 10000);
         fetchStuffs();
         return () => clearInterval(timeInterval);
@@ -93,34 +103,42 @@ export default function Home() {
             {/* Navigation bar */}
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
-                    <span className="normal-case font-semibold text-xl mx-5 select-none">MOJA</span>
+                    <span className='normal-case font-semibold text-xl mx-5 select-none'>MOJA</span>
                 </div>
                 <div className='navbar-center'></div>
-                <div className="navbar-end">
-                    <GhostButton onClick={() => router.push({
-                        pathname: "/about",
-                        query: { share: (contextId ? contextId : "" ) }
-                    })}>
-                        <AboutIcon width="30" height="30" />
-                        <span className="text-xs">About</span>
+                <div className='navbar-end'>
+                    <GhostButton
+                        onClick={() =>
+                            router.push({
+                                pathname: "/about",
+                                query: { share: contextId ? contextId : "" },
+                            })
+                        }
+                    >
+                        <AboutIcon width='30' height='30' />
+                        <span className='text-xs'>About</span>
                     </GhostButton>
-                    <GhostButton onClick={() => router.push({
-                        pathname: "/",
-                        query: { share: (contextId ? contextId : "" ) }
-                    })}>
-                        <ContextIcon width="30" height="30" />
-                        <span className="text-xs">Chat</span>
+                    <GhostButton
+                        onClick={() =>
+                            router.push({
+                                pathname: "/",
+                                query: { share: contextId ? contextId : "" },
+                            })
+                        }
+                    >
+                        <ContextIcon width='30' height='30' />
+                        <span className='text-xs'>Chat</span>
                     </GhostButton>
                 </div>
             </div>
 
-            <main className="bg-base-100 flex flex-row h-full w-screen overflow-hidden">
-                <div className="relative overflow-hidden h-full flex flex-col w-full drawer">
-                    <p className="font-bold text-3xl text-accent-content dark:text-white justify-center my-10 flex select-none">Rank</p>
-                    <div className="table-container flex overflow-y-auto justify-center">
-                        <table className="table max-w-md">
+            <main className='bg-base-100 flex flex-row h-full w-screen overflow-hidden'>
+                <div className='relative overflow-hidden h-full flex flex-col w-full drawer'>
+                    <p className='font-bold text-3xl text-accent-content dark:text-white justify-center my-10 flex select-none'>Rank</p>
+                    <div className='table-container flex overflow-y-auto justify-center'>
+                        <table className='table max-w-md'>
                             <thead>
-                                <tr className="text-base text-content dark:bg-none select-none">
+                                <tr className='text-base text-content dark:bg-none select-none'>
                                     <th>Top</th>
                                     <th>Name</th>
                                     <th>Score</th>
@@ -128,23 +146,25 @@ export default function Home() {
                             </thead>
                             <tbody>
                                 {/* Users Rank */}
-                                {(loaded && ranks) && (ranks.map((data, i) => {
-                                    {
-                                        return <Rank key={i} {...data} />
-                                    }
-                                }))}
+                                {loaded &&
+                                    ranks &&
+                                    ranks.map((data, i) => {
+                                        {
+                                            return <Rank key={i} {...data} />;
+                                        }
+                                    })}
                             </tbody>
                         </table>
 
                         {(!isAuth || !myrank) && (
-                            <div className="fixed bottom-0 p-5 flex w-full justify-center">
+                            <div className='fixed bottom-0 p-5 flex w-full justify-center'>
                                 <LoadingSpinner />
                                 {/* <span className="text-xl font-bold highlight dark:bg-none select-none">당신의 순위를 불러올 수 없습니다...</span> */}
                             </div>
                         )}
-                        {(isAuth && myrank && myrank?.rank >= 10) && (
-                            <div className="fixed flex w-full bottom-0 justify-center">
-                                <table className="table max-w-md">
+                        {isAuth && myrank && myrank?.rank >= 10 && (
+                            <div className='fixed flex w-full bottom-0 justify-center'>
+                                <table className='table max-w-md'>
                                     <tbody>
                                         {/* My Rank (fixed) */}
                                         <Rank {...myrank} />
@@ -154,7 +174,7 @@ export default function Home() {
                         )}
                     </div>
                     {(!loaded || !ranks) && (
-                        <div className="flex my-20 w-full justify-center bottom-0">
+                        <div className='flex my-20 w-full justify-center bottom-0'>
                             <LoadingSpinner />
                             {/* <span className="text-xl font-bold dark:bg-none select-none">순위를 가져오는 중입니다...</span> */}
                         </div>

@@ -145,7 +145,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (!loading && auth && chats?.length == 0) {
+        if (!loading && auth && (chats?.length == 0 || sharedUser)) {
             async function fetchContexts() {
                 setContextLoading(true);
 
@@ -168,7 +168,7 @@ export default function Home() {
 
             fetchContexts();
         }
-    }, [auth, chats]);
+    }, [auth, chats, sharedUser]);
 
     const clearChat = () => {
         setChats([]);
