@@ -474,9 +474,14 @@ export default function Home() {
             .catch((e) => {
                 // Abort the api call
                 console.log(e);
-                setChats(() => original)
-                ABTestTrigger(item, false);
-                setError(COMPUTING_FATAL_ERROR);
+                // setChats(() => original)
+                // ABTestTrigger(item, false);
+
+                const cid = contextID
+                setContextID()
+
+                changeContext(_cid)
+                // setError(COMPUTING_FATAL_ERROR);
             });
     };
 
@@ -978,7 +983,8 @@ export default function Home() {
                                         className={`resize-none  border-box border-none outline-none w-full text-content leading-[1.5rem] align-middle overflow-hidden bg-white dark:bg-black dark:text-gray-100 dark:placeholder:text-white  ${
                                             errors.prompt && "placeholder:font-bold"
                                         }`}
-                                        placeholder='무언가를 입력해주세요.'
+                                        placeholder={!loading ? '무언가를 입력해주세요.' : "자모가 응답 중입니다..."}
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className='absolute left-4 bottom-[3px] text-content font-thin text-sm'>
