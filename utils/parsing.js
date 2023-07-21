@@ -25,7 +25,7 @@ const parsingChatItem = (chat) => {
 
 function parsingChatByReqsObject(item, clean=false) {
     if (clean) {
-        let item = resp.filter((r) => r[0] != "" || !r.text)
+        let item = Object.entries(item).filter((r) => r[1] != "")
     }
     return Object.entries(item).map((_data) => {
         try {

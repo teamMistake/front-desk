@@ -145,7 +145,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (auth && chats?.length == 0) {
+        if (!loading && (auth && chats?.length == 0)) {
             async function fetchContexts() {
                 setContextLoading(true);
 
