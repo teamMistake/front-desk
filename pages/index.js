@@ -229,7 +229,7 @@ export default function Home() {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages, generating } = _chats;
 
-            print(generating, _chats)
+            console.log(generating, _chats)
 
             // const _generating = await getChatsStatus(chatID)
 
