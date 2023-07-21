@@ -6,7 +6,7 @@ import RankIcon from "../components/rankicon";
 
 export default function Home() {
     const router = useRouter();
-    const { contextId } = router.query;
+    const { share:contextId } = router.query;
 
     return (
         <>
