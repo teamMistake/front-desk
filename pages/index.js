@@ -480,9 +480,9 @@ export default function Home() {
                             const parsed = parsingChatByReqsObject(item, false);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
 
-                            if (contextID == _chat_id){
-                                setChats(() => [..._chats, comChat]);
-                            }
+                            // if (contextID == _chat_id){
+                            setChats(() => [..._chats, comChat]);
+                            // }
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
                             const { reqId, data: d } = data;
                             // console.log(data);
@@ -492,9 +492,9 @@ export default function Home() {
                             const parsed = parsingChatByReqsObject(item, false);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: data.messageId, isTalking: true };
 
-                            if (contextID == _chat_id){
-                                setChats(() => [..._chats, comChat]);
-                            }
+                            // if (contextID == _chat_id){
+                            setChats(() => [..._chats, comChat]);
+                            // }
                         } else if (data.type == "error") {
                             // if (data.error == 'Can only choose in last message'){
                             const cid = contextID;
