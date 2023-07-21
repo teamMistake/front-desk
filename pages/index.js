@@ -451,6 +451,7 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
                             const { reqId, messageId, data: d } = data;
+                            console.log("454", messageId)
                             setMessageId(messageId);
                             item[reqId] = d.resp_full;
 
@@ -523,7 +524,9 @@ export default function Home() {
         }
 
         if (lastChat.talker == COMPUTER && !loading) {
+            console.log(lastChat)
             if (lastChat.messageId) {
+                console.log(lastChat.messageId)
                 setMessageId(lastChat.messageId);
             }
         }   
