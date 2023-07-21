@@ -22,4 +22,23 @@ const parsingChatItem = (chat) => {
     return chats;
 };
 
-export { parsingChatItem };
+
+function parsingChatByReqsObject(item, clean=false) {
+    if (clean) {
+        let item = resp.filter((r) => r[0] != "" || !r.text)
+    }
+    return Object.entries(item).map((_data) => {
+        try {
+            let tempReqId = _data[0];
+            let tempMsg = _data[1];
+            // if (non) {
+            //     tempMsg = tempMsg != "" ? tempMsg : NON_OUTPUT_ERROR
+            // }
+            return { resp: tempMsg, selected: false, reqId: tempReqId };
+        } catch (e) {
+            console.log(e);
+        }
+    });
+}
+
+export { parsingChatItem, parsingChatByReqsObject };
