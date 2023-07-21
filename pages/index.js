@@ -264,6 +264,7 @@ export default function Home() {
                     onlive: false,
                 };
                 setChats(() => [...parsed_chats, fakeChat]);
+                setChatLoading(false);
             }
         } catch (e) {
             console.log("183", e);
