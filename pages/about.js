@@ -1,9 +1,12 @@
 import { useRouter } from "next/router";
 import { GhostButton } from "../components/button";
 import Opengraph from "../components/opengraph";
+import ContextIcon from "../components/contexticon";
+import RankIcon from "../components/rankicon";
 
 export default function Home() {
     const router = useRouter();
+    const contextId = router.query;
 
     return (
         <>
@@ -20,17 +23,28 @@ export default function Home() {
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
-                    <GhostButton onClick={() => router.back()}>
-                        <span className="text-xs">Back</span>
+                    <GhostButton onClick={() => router.push({
+                        pathname: "/",
+                        query: { share: (contextId ? contextId : "" ) }
+                    })}>
+                        <ContextIcon width="30" height="30" />
+                        <span className="text-xs">Chat</span>
+                    </GhostButton>
+                    <GhostButton onClick={() => router.push({
+                        pathname: "/rank",
+                        query: { share: (contextId ? contextId : "" ) }
+                    })}>
+                        <RankIcon width='30' height='30' />
+                        <span className='text-xs'>Rank</span>
                     </GhostButton>
                 </div>
             </div>
             <main className="bg-greyscale-1 flex flex-row h-screen w-screen">
                 <div className="relative overflow-hidden h-full flex flex-col w-full">
-                    <span className="font-bold text-6xl text-accent justify-start m-20 flex select-none">자모는 할 수있다<br/>모든지.</span>
+                    <span className="text-6xl text-accent justify-start m-10 flex select-none font-extrabold container">자모는 할 수있다<br/>모든지.</span>
                     <div className="flex justify-center m-10">
-                        <span className="text-md max-w-xs">
-                            뭐든지 할 수 잇습니다.
+                        <span className="text-3xl max-w-xs">
+                            Sample Text
                         </span>
                     </div>
                 </div>

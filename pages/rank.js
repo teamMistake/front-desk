@@ -14,6 +14,7 @@ export default function Home() {
     const [error, setError] = useState(false);
 
     const router = useRouter();
+    const contextId = router.query;
     // get user identity by api
     const { isAuth } = useUser();
 
@@ -96,11 +97,17 @@ export default function Home() {
                 </div>
                 <div className='navbar-center'></div>
                 <div className="navbar-end">
-                    <GhostButton onClick={() => router.push("/about")}>
+                    <GhostButton onClick={() => router.push({
+                        pathname: "/about",
+                        query: { share: (contextId ? contextId : "" ) }
+                    })}>
                         <AboutIcon width="30" height="30" />
                         <span className="text-xs">About</span>
                     </GhostButton>
-                    <GhostButton onClick={() => router.push("/")}>
+                    <GhostButton onClick={() => router.push({
+                        pathname: "/",
+                        query: { share: (contextId ? contextId : "" ) }
+                    })}>
                         <ContextIcon width="30" height="30" />
                         <span className="text-xs">Chat</span>
                     </GhostButton>
