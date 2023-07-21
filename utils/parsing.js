@@ -26,8 +26,9 @@ const parsingChatItem = (chat) => {
 function parsingChatByReqsObject(item, clean=false) {
     if (clean) {
         item = Object.entries(item).filter((r) => r[1] != "")
+        console.log(item)
     }
-    return Object.entries(item).map((_data) => {
+    return item.map((_data) => {
         let tempReqId = _data[0];
         let tempMsg = _data[1];
         // if (non) {

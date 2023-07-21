@@ -512,9 +512,10 @@ export default function Home() {
             PostGenerate(target_prompt[0].resp);
         }
 
-        if (lastChat.talker == COMPUTER) {
+        if (lastChat.talker == COMPUTER && !loading) {
+            console.log("set messageid", lastChat.messageId)
             setMessageId(lastChat.messageId);
-        }
+        }   
 
         if (chats.length != update) {
             scrollToBottom();
