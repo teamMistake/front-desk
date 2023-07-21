@@ -234,9 +234,7 @@ export default function Home() {
             const parsed_chats = parsingChatItem(messages);
 
             const lastChat = parsed_chats[parsed_chats.length - 1]
-            console.log(lastChat);
             if (lastChat.messageId) {
-                console.log(lastChat.messageId);
                 setMessageId(lastChat.messageId);
             }
 
@@ -267,7 +265,7 @@ export default function Home() {
         // set share url for future sharing event
         const urlPieces = [location.protocol, "//", location.host, location.pathname];
         let url = urlPieces.join("");
-        const turl = `${url}/?share=${contextID}`;
+        const turl = `${url}?share=${contextID}`;
         setShareURL(turl);
 
         //TODO: This is temporary preventation.
@@ -457,13 +455,13 @@ export default function Home() {
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
-                            const { reqId, messageId: __id, data: d } = data;
-                            setMessageId(__id);
-                            console.log(__id, data)
+                            const { reqId, data: d } = data;
+                            console.log(data)
                             item[reqId] = d.resp_full;
-
+                            
+                            setMessageId(data.messageId);
                             const parsed = parsingChatByReqsObject(item, false);
-                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: __id, isTalking: true };
+                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: data.messageId, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             // if (data.error == 'Can only choose in last message'){
@@ -715,11 +713,11 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    <GhostButton onClick={() => router.push(`/about?share=${shareURL ? shareURL : ""}`)}>
+                    <GhostButton onClick={() => router.push(`/about?share=${contextID ? contextID : ""}`)}>
                         <AboutIcon width='30' height='30' />
                         <span className='text-xs'>About</span>
                     </GhostButton>
-                    <GhostButton onClick={() => router.push(`/rank?share=${shareURL ? shareURL : ""}`)}>
+                    <GhostButton onClick={() => router.push(`/rank?share=${contextID ? contextID : ""}`)}>
                         <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
                     </GhostButton>
