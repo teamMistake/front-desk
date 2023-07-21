@@ -237,7 +237,7 @@ export default function Home() {
             const _chats = await getChatByContextIDAPI(chatID);
             const { messages, generating } = _chats;
 
-            console.log(generating, _chats);
+            // console.log(generating, _chats);
 
             // const _generating = await getChatsStatus(chatID)
 
@@ -478,7 +478,7 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
                             const { reqId, data: d } = data;
-                            console.log(data);
+                            // console.log(data);
                             item[reqId] = d.resp_full;
 
                             setMessageId(data.messageId);
