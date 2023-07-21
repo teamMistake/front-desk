@@ -113,8 +113,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/about",
                                 query: { share: contextId ? contextId : "" },
-                            }
-                            )
+                            }, `/about`)
                         }
                     >
                         <AboutIcon width='30' height='30' />
@@ -125,8 +124,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/",
                                 query: { share: contextId ? contextId : "" },
-                            }
-                            )
+                            }, `/`)
                         }
                     >
                         <ContextIcon width='30' height='30' />
