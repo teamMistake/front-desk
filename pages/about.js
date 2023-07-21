@@ -54,10 +54,10 @@ export default function Home() {
     ];
 
     const Content = ({exp}) => {
-        if (exp === `br`) return <br/>;
+        if (exp === `br`) return <div className="w-[90%] max-w-[400px] h-[0.2rem] bg-base-200 my-3" />;
         return (
             <div className="flex w-full justify-center">
-                <span className="flex font-semibold mx-10 justify-center text-center w-full max-w-xs">{exp}</span>
+                <span className="flex text-md md:text-2xl font-semibold mx-10 justify-center text-center w-full p-1">{exp}</span>
             </div>
         );
     }
@@ -101,17 +101,22 @@ export default function Home() {
                     </GhostButton>
                 </div>
             </div>
-            <main className='bg-greyscale-1 flex flex-row h-screen w-screen'>
+            <main className='bg-greyscale-1 flex flex-row h-screen w-screen overflow-hidden'>
                 <div className='relative overflow-hidden overflow-y-auto h-full flex flex-col w-full'>
-                    <div className="menu-title">
-                        <span className='text-5xl text-accent justify-center my-10 flex select-none font-extrabold'>
-                            자모는 할 수 있다 <br/> 모든지.
+                    {/* <div className="menu-title"> */}
+                    <div className="bg-primary-content flex flex-col min-h-[560px] justify-end items-end p-4 pattern-paper pattern-blue-500 pattern-bg-white pattern-size-10 pattern-opacity-90 mb-20">
+                        <span className='leading-[90px] text-[70px] md:text-[100px] dark:text-neutral  text-primary select-none font-extrabold text-right'>
+                        모두다.<br/> 자모는 할 수 있다
                         </span>
                     </div>
+
                     {/* Explanation of JAMO */}
+                    <div className="flex w-full flex-col items-center justify-center">
                     {exp_data && (exp_data.map((data, i) => {
                         return <Content key={i} exp={data}/>;
                     }))}
+                    </div>
+                    
 
                     <div className="m-40" />
                 </div>
