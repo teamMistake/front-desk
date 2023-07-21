@@ -458,13 +458,20 @@ export default function Home() {
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
-                            console.log(data);
-                            // internal server error => just set just as before
-                            setChats(() => original)
-                            // despite error occuring, just trigger the AB test
-                            ABTestTrigger(item, false)
-                            setError(COMPUTING_LIMITATION_ERROR);
-                            return;
+                            // if (data.error == 'Can only choose in last message'){
+                            const cid = contextID
+                            setContextID()
+
+                            changeContext(cid)
+                            return 
+                            // }
+                            // console.log(data);
+                            // // internal server error => just set just as before
+                            // setChats(() => original)
+                            // // despite error occuring, just trigger the AB test
+                            // ABTestTrigger(item, false)
+                            // setError(COMPUTING_LIMITATION_ERROR);
+                            // return;
                         }
                     }
                 });
@@ -478,7 +485,7 @@ export default function Home() {
                 const cid = contextID
                 setContextID()
 
-                changeContext(_cid)
+                changeContext(cid)
                 // setError(COMPUTING_FATAL_ERROR);
             });
     };
