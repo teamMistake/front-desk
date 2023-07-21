@@ -233,7 +233,7 @@ export default function Home() {
 
             const parsed_chats = parsingChatItem(messages);
 
-            const lastChat = parsed_chats[parsed_chats.length - 1]
+            const lastChat = parsed_chats[parsed_chats.length - 1];
             if (lastChat.messageId) {
                 setMessageId(lastChat.messageId);
             }
@@ -456,9 +456,9 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
                             const { reqId, data: d } = data;
-                            console.log(data)
+                            console.log(data);
                             item[reqId] = d.resp_full;
-                            
+
                             setMessageId(data.messageId);
                             const parsed = parsingChatByReqsObject(item, false);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: data.messageId, isTalking: true };
@@ -520,7 +520,7 @@ export default function Home() {
             return setChats([..._chats, login_request_data]);
         }
 
-        const _chats = chats
+        const _chats = chats;
         const lastChat = _chats[_chats.length - 1];
         if (!loading && lastChat.talker == USER) {
             setLoading(true);
@@ -713,11 +713,11 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    <GhostButton onClick={() => router.push(`/about?share=${contextID ? contextID : ""}`)}>
+                    <GhostButton onClick={() => router.push({ path: "/about", query: { share: contextID ? contextID : "" } })}>
                         <AboutIcon width='30' height='30' />
                         <span className='text-xs'>About</span>
                     </GhostButton>
-                    <GhostButton onClick={() => router.push(`/rank?share=${contextID ? contextID : ""}`)}>
+                    <GhostButton onClick={() => router.push({ path: "/about", query: { share: contextID ? contextID : "" } })}>
                         <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
                     </GhostButton>
