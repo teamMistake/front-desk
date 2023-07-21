@@ -113,8 +113,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/about",
                                 query: { share: contextId ? contextId : "" },
-                            },
-                            `/about`
+                            }
                             )
                         }
                     >
@@ -126,8 +125,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/",
                                 query: { share: contextId ? contextId : "" },
-                            },
-                            `/`
+                            }
                             )
                         }
                     >

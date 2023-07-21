@@ -28,9 +28,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/",
                                 query: { share: contextId ? contextId : "" },
-                            },
-                            `/`
-                            )
+                            })
                         }
                     >
                         <ContextIcon width='30' height='30' />
@@ -41,9 +39,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/rank",
                                 query: { share: contextId ? contextId : "" },
-                            },
-                            `rank`
-                            )
+                            })
                         }
                     >
                         <RankIcon width='30' height='30' />
