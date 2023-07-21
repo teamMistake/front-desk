@@ -47,7 +47,7 @@ import Opengraph from "../components/opengraph";
 import { KakaoBtn } from "../components/kakaobutton";
 import ContextIcon from "../components/contexticon";
 import RankIcon from "../components/rankicon";
-import { parsingChatItem } from "../utils/parsing";
+import { parsingChatByReqsObject, parsingChatItem } from "../utils/parsing";
 import LoginIcon from "../components/loginicon";
 import AboutIcon from "../components/abouticon";
 import { useDevice } from "../hook/useDevice";
@@ -356,7 +356,7 @@ export default function Home() {
     const PostGenerate = (prompt, regenerate = false) => {
         // Timeout Detector
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 10s
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // just wait for 5s
 
         const isFirstChat = chats.length == 1;
         const original = chats;
@@ -388,30 +388,15 @@ export default function Home() {
         let item = {};
         setInit(false);
 
-        function ABTestTrigger() {
+        function ABTestTrigger(item, ok=true) {
             if (Object.keys(item).length > 1) {
                 setEvent(AB_MODEL_TEST_EVENT);
                 setABBtnCount(Object.keys(item).length);
-            } else if (auth) {
+            } else if (auth && ok) {
                 randomRatingEventTrigger();
             }
             console.log("391");
             setLoading(false);
-        }
-
-        function parsingChat(item, non=false) {
-            return Object.entries(item).map((_data) => {
-                try {
-                    let tempReqId = _data[0];
-                    let tempMsg = _data[1];
-                    if (non) {
-                        tempMsg = tempMsg != "" ? tempMsg : NON_OUTPUT_ERROR
-                    }
-                    return { resp: tempMsg, selected: false, reqId: tempReqId };
-                } catch (e) {
-                    console.log(e);
-                }
-            });
         }
 
         const stream = fetch(url, {
@@ -428,6 +413,7 @@ export default function Home() {
                 clearTimeout(timeoutId);
                 const streamReader = stream.getReader();
                 streamReader.read().then(async (response) => {
+                    // prepare for the regeneration
                     if (lastChatItem.talker == COMPUTER) {
                         lastChatItem.prompt.map(({ reqId, resp, selected }) => {
                             item[reqId] = resp;
@@ -437,10 +423,10 @@ export default function Home() {
                     while (!response || !response.done) {
                         response = await streamReader.read();
                         if (response.done) {
-                            const parsed = parsingChat(item, true);
+                            const parsed = parsingChatByReqsObject(item, true);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: false };
                             setChats(() => [..._chats, comChat]);
-                            ABTestTrigger();
+                            ABTestTrigger(item);
                             if (regenerate) {
                                 scrollToBottom()
                             }
@@ -452,39 +438,33 @@ export default function Home() {
                         if (data.type == "chat") {
                             console.log("type chat", data);
                         } else if (data.type == "message") {
-                            const { chatId, message } = data;
+                            const { chatId } = data;
                             setContextID(chatId);
-                            setMessageId(message.messageId);
                         } else if (data.type == "lm_reqids") {
                             const { reqIds } = data;
 
                             reqIds.map((id) => {
                                 item[id.req_id] = "";
                             });
+
+                            const parsed = parsingChatByReqsObject(item, false);
+                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
+                            setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
                             const { reqId, messageId, data: d } = data;
-                            try {
-                                item[reqId] = d.resp_full;
-                                // if error occured when getting the message just delete that item
-                                if (data.error) {
-                                    console.log(data);
-                                    delete item[reqId];
-                                    setError(COMPUTING_LIMITATION_ERROR);
-                                }
-                            } catch (error) {
-                                console.log(error);
-                                continue;
-                            }
-                            const parsed = parsingChat(item);
+                            setMessageId(messageId);
+                            item[reqId] = d.resp_full;
+                            console.log(data)
+
+                            const parsed = parsingChatByReqsObject(item, false);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             console.log(data);
-                            // const parsed = parsingChat(item, true);
-                            // const fakeChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive:false, messageId: messageId, isTalking: false };
-                            
+                            // internal server error => just set just as before
                             setChats(() => original)
-                            ABTestTrigger()
+                            // despite error occuring, just trigger the AB test
+                            ABTestTrigger(item, false)
                             setError(COMPUTING_LIMITATION_ERROR);
                             return;
                         }
@@ -494,7 +474,8 @@ export default function Home() {
             .catch((e) => {
                 // Abort the api call
                 console.log(e);
-                ABTestTrigger();
+                setChats(() => original)
+                ABTestTrigger(item, false);
                 setError(COMPUTING_FATAL_ERROR);
             });
     };
@@ -553,7 +534,7 @@ export default function Home() {
 
         async function fetchABTest() {
             const reqId = _chats[_chats.length - 1].prompt[index].reqId;
-            await selectABTestItemAPI({ messageId: messageId, chatId: contextID, reqId: reqId });
+            const resopnse = await selectABTestItemAPI({ messageId: messageId, chatId: contextID, reqId: reqId });
 
             setLoading(false);
         }
