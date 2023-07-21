@@ -232,6 +232,14 @@ export default function Home() {
             setSharedUser(_chats.userId);
 
             const parsed_chats = parsingChatItem(messages);
+
+            const lastChat = parsed_chats[parsed_chats.length - 1]
+            console.log(lastChat);
+            if (lastChat.messageId) {
+                console.log(lastChat.messageId);
+                setMessageId(lastChat.messageId);
+            }
+
             setChats(() => parsed_chats);
 
             checkForAB(parsed_chats);
@@ -514,20 +522,12 @@ export default function Home() {
             return setChats([..._chats, login_request_data]);
         }
 
-        const lastChat = chats[chats.length - 1];
+        const _chats = chats
+        const lastChat = _chats[_chats.length - 1];
         if (!loading && lastChat.talker == USER) {
             setLoading(true);
-            const lastItem = chats[chats.length - 1];
-            const target_prompt = lastItem.prompt;
+            const target_prompt = lastChat.prompt;
             PostGenerate(target_prompt[0].resp);
-        }
-
-        if (lastChat.talker == COMPUTER && !loading) {
-            console.log(lastChat);
-            if (lastChat.messageId) {
-                console.log(lastChat.messageId);
-                setMessageId(lastChat.messageId);
-            }
         }
 
         if (chats.length != update) {
@@ -715,11 +715,11 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    <GhostButton onClick={() => router.push(`/about?share=${shareURL}`)}>
+                    <GhostButton onClick={() => router.push(`/about?share=${shareURL ? shareURL : ""}`)}>
                         <AboutIcon width='30' height='30' />
                         <span className='text-xs'>About</span>
                     </GhostButton>
-                    <GhostButton onClick={() => router.push(`/rank?share=${shareURL}`)}>
+                    <GhostButton onClick={() => router.push(`/rank?share=${shareURL ? shareURL : ""}`)}>
                         <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
                     </GhostButton>
