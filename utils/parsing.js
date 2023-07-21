@@ -25,19 +25,15 @@ const parsingChatItem = (chat) => {
 
 function parsingChatByReqsObject(item, clean=false) {
     if (clean) {
-        let item = Object.entries(item).filter((r) => r[1] != "")
-    }
+        item = Object.entries(item).filter((r) => r[1] != "")
+    }f
     return Object.entries(item).map((_data) => {
-        try {
-            let tempReqId = _data[0];
-            let tempMsg = _data[1];
-            // if (non) {
-            //     tempMsg = tempMsg != "" ? tempMsg : NON_OUTPUT_ERROR
-            // }
-            return { resp: tempMsg, selected: false, reqId: tempReqId };
-        } catch (e) {
-            console.log(e);
-        }
+        let tempReqId = _data[0];
+        let tempMsg = _data[1];
+        // if (non) {
+        //     tempMsg = tempMsg != "" ? tempMsg : NON_OUTPUT_ERROR
+        // }
+        return { resp: tempMsg, selected: false, reqId: tempReqId };
     });
 }
 
