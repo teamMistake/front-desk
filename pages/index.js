@@ -145,7 +145,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (!loading && (auth && chats?.length == 0)) {
+        if (!loading && auth && chats?.length == 0) {
             async function fetchContexts() {
                 setContextLoading(true);
 
@@ -271,7 +271,6 @@ export default function Home() {
     const changeContext = (cid) => {
         setContextID(cid);
         setInit(true);
-        toggleContextDrawer();
         setIsMine(true);
         setEvent(MSG_EVENT);
     };
@@ -356,21 +355,21 @@ export default function Home() {
     const PostGenerate = (prompt, regenerate = false) => {
         // Timeout Detector
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // just wait for 5s
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // just wait for 5s
 
         const isFirstChat = chats.length == 1;
         const original = chats;
         let _chats = chats;
         const lastChatItem = _chats[_chats.length - 1];
-        const isSkeleton = !regenerate || _chats[_chats.length-1].talker == USER
-        
+        const isSkeleton = !regenerate || _chats[_chats.length - 1].talker == USER;
+
         if (regenerate && !isSkeleton) {
             _chats = _chats.slice(0, _chats.length - 1);
-        } 
-        
+        }
+
         if (isSkeleton) {
             const skeletonChat = { talker: COMPUTER, isSkeleton: true };
-            setChats(() => [..._chats, skeletonChat])
+            setChats(() => [..._chats, skeletonChat]);
         }
 
         let data = {};
@@ -388,7 +387,7 @@ export default function Home() {
         let item = {};
         setInit(false);
 
-        function ABTestTrigger(item, ok=true) {
+        function ABTestTrigger(item, ok = true) {
             if (Object.keys(item).length > 1) {
                 setEvent(AB_MODEL_TEST_EVENT);
                 setABBtnCount(Object.keys(item).length);
@@ -427,7 +426,7 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                             ABTestTrigger(item);
                             if (regenerate) {
-                                scrollToBottom()
+                                scrollToBottom();
                             }
                             return;
                         }
@@ -450,20 +449,21 @@ export default function Home() {
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
-                            const { reqId, messageId:id, data: d } = data;
-                            setMessageId(id);
+                            const { reqId, messageId: __id, data: d } = data;
+                            setMessageId(__id);
+                            console.log(__id, data)
                             item[reqId] = d.resp_full;
 
                             const parsed = parsingChatByReqsObject(item, false);
-                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: id, isTalking: true };
+                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: __id, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             // if (data.error == 'Can only choose in last message'){
-                            const cid = contextID
-                            setContextID()
+                            const cid = contextID;
+                            setContextID();
 
-                            changeContext(cid)
-                            return 
+                            changeContext(cid);
+                            return;
                             // }
                             // console.log(data);
                             // // internal server error => just set just as before
@@ -482,10 +482,10 @@ export default function Home() {
                 // setChats(() => original)
                 // ABTestTrigger(item, false);
 
-                const cid = contextID
-                setContextID()
+                const cid = contextID;
+                setContextID();
 
-                changeContext(cid)
+                changeContext(cid);
                 // setError(COMPUTING_FATAL_ERROR);
             });
     };
@@ -523,12 +523,12 @@ export default function Home() {
         }
 
         if (lastChat.talker == COMPUTER && !loading) {
-            console.log(lastChat)
+            console.log(lastChat);
             if (lastChat.messageId) {
-                console.log(lastChat.messageId)
+                console.log(lastChat.messageId);
                 setMessageId(lastChat.messageId);
             }
-        }   
+        }
 
         if (chats.length != update) {
             scrollToBottom();
@@ -715,11 +715,11 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    <GhostButton onClick={() => router.push("/about")}>
+                    <GhostButton onClick={() => router.push(`/about?share=${shareURL}`)}>
                         <AboutIcon width='30' height='30' />
                         <span className='text-xs'>About</span>
                     </GhostButton>
-                    <GhostButton onClick={() => router.push("/rank")}>
+                    <GhostButton onClick={() => router.push(`/rank?share=${shareURL}`)}>
                         <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
                     </GhostButton>
@@ -738,7 +738,10 @@ export default function Home() {
                                         <ul className='w-full divide-y divide-slate-100'>
                                             {contexts.map(({ chatId, title, creationTimestamp }, index) => (
                                                 <li
-                                                    onClick={() => changeContext(chatId)}
+                                                    onClick={() => {
+                                                        toggleContextDrawer();
+                                                        changeContext(chatId);
+                                                    }}
                                                     className='cursor-pointer w-full flex flex-row justify-center items-center gap-2 p-3 text-center md:hover:bg-base-200'
                                                     key={index}
                                                 >
@@ -900,30 +903,29 @@ export default function Home() {
                                         아니요
                                     </button>
                                 </BottomSelectorUI>
-                                
+
                                 {!logined && (
                                     <div className='flex flex-row mb-2 justify-center items-center'>
-                                    <span className={`text-xs ${privacyError && "text-error"}`}>
-                                        로그인을 진행하기 위해서{" "}
-                                        <span className='text-md link'>
-                                            {" "}
-                                            <Link href='/privacy'>개인정보처리방침</Link>
+                                        <span className={`text-xs ${privacyError && "text-error"}`}>
+                                            로그인을 진행하기 위해서{" "}
+                                            <span className='text-md link'>
+                                                {" "}
+                                                <Link href='/privacy'>개인정보처리방침</Link>
+                                            </span>
+                                            을 동의합니다.
                                         </span>
-                                        을 동의합니다.
-                                    </span>
-                                    <div className='form-control'>
-                                        <label className='label cursor-pointer'>
-                                            <input
-                                                type='checkbox'
-                                                checked={privacyChecked}
-                                                onChange={({ target: { checked } }) => setPrivacyChecked(checked)}
-                                                className={`checkbox ${privacyError && "checkbox-error"}`}
-                                            />
-                                        </label>
+                                        <div className='form-control'>
+                                            <label className='label cursor-pointer'>
+                                                <input
+                                                    type='checkbox'
+                                                    checked={privacyChecked}
+                                                    onChange={({ target: { checked } }) => setPrivacyChecked(checked)}
+                                                    className={`checkbox ${privacyError && "checkbox-error"}`}
+                                                />
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
                                 )}
-                                
                             </>
                         )}
 
@@ -990,7 +992,7 @@ export default function Home() {
                                         className={`resize-none  border-box border-none outline-none w-full text-content leading-[1.5rem] align-middle overflow-hidden bg-white dark:bg-black dark:text-gray-100 dark:placeholder:text-white  ${
                                             errors.prompt && "placeholder:font-bold"
                                         }`}
-                                        placeholder={!loading ? '무언가를 입력해주세요.' : "자모가 응답 중입니다..."}
+                                        placeholder={!loading ? "무언가를 입력해주세요." : "자모가 응답 중입니다..."}
                                         disabled={loading}
                                     />
                                 </div>
