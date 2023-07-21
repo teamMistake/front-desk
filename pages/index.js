@@ -713,11 +713,11 @@ export default function Home() {
                             <ShareIcon width='40' />
                         </GhostButton>
                     )}
-                    <GhostButton onClick={() => router.push({ pathname: "/about", query: { share: contextID ? contextID : "" } })}>
+                    <GhostButton onClick={() => router.push({ pathname: "/about", query: { share: contextID ? contextID : "" } }, "/about")}>
                         <AboutIcon width='30' height='30' />
                         <span className='text-xs'>About</span>
                     </GhostButton>
-                    <GhostButton onClick={() => router.push({ pathname: "/rank", query: { share: contextID ? contextID : "" } })}>
+                    <GhostButton onClick={() => router.push({ pathname: "/rank", query: { share: contextID ? contextID : "" } }, "/rank")}>
                         <RankIcon width='30' height='30' />
                         <span className='text-xs'>Rank</span>
                     </GhostButton>
