@@ -450,13 +450,12 @@ export default function Home() {
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
-                            const { reqId, messageId, data: d } = data;
-                            console.log("454", messageId)
-                            setMessageId(messageId);
+                            const { reqId, messageId:id, data: d } = data;
+                            setMessageId(id);
                             item[reqId] = d.resp_full;
 
                             const parsed = parsingChatByReqsObject(item, false);
-                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
+                            const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: id, isTalking: true };
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "error") {
                             // if (data.error == 'Can only choose in last message'){
