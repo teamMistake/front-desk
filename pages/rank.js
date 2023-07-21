@@ -126,7 +126,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/",
                                 query: { share: contextId ? contextId : "" },
-                            }
+                            },
                             `/`
                             )
                         }
