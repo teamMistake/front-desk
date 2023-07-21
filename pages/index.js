@@ -395,7 +395,6 @@ export default function Home() {
             } else if (auth && ok) {
                 randomRatingEventTrigger();
             }
-            console.log("391");
             setLoading(false);
         }
 
@@ -454,7 +453,6 @@ export default function Home() {
                             const { reqId, messageId, data: d } = data;
                             setMessageId(messageId);
                             item[reqId] = d.resp_full;
-                            console.log(data)
 
                             const parsed = parsingChatByReqsObject(item, false);
                             const comChat = { talker: COMPUTER, prompt: parsed, event: MSG_EVENT, onlive: true, messageId: messageId, isTalking: true };
