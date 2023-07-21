@@ -192,6 +192,7 @@ export default function Home() {
     };
 
     const startNewChat = () => {
+        setLoading(false)
         clearAll();
         toggleContextDrawer();
     };

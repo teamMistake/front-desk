@@ -28,6 +28,7 @@ module.exports = {
   },
   plugins: [
     require('daisyui'),
+      require('tailwindcss-bg-patterns'),
   ],
   daisyui: {
     themes: false,
