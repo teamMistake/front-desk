@@ -6,7 +6,6 @@ import { LoadingSpinner } from "../components/loading";
 import Opengraph from "../components/opengraph";
 import ContextIcon from "../components/contexticon";
 import AboutIcon from "../components/abouticon";
-import { UseQuery } from "../utils/getquery";
 
 export default function Home() {
     const [ranks, setRanks] = useState([]);

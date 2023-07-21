@@ -40,7 +40,15 @@ import {
     TwitterIcon,
     TwitterShareButton,
 } from "react-share";
-import { checkForSharing, getChatByContextIDAPI, getContextsByUserIDAPI, getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI } from "../utils/api";
+import {
+    checkForSharing,
+    getChatByContextIDAPI,
+    getChatsStatus,
+    getContextsByUserIDAPI,
+    getUserInfoAPI,
+    rateAnswerAPI,
+    selectABTestItemAPI,
+} from "../utils/api";
 import { useUser } from "../hook/useUser";
 import SendIcon from "../components/sendicon";
 import Opengraph from "../components/opengraph";
@@ -227,7 +235,11 @@ export default function Home() {
 
         try {
             const _chats = await getChatByContextIDAPI(chatID);
-            const { messages } = _chats;
+            const { messages, generating } = _chats;
+
+            // console.log(generating, _chats);
+
+            // const _generating = await getChatsStatus(chatID)
 
             setSharedUser(_chats.userId);
 
@@ -238,12 +250,22 @@ export default function Home() {
                 setMessageId(lastChat.messageId);
             }
 
-            setChats(() => parsed_chats);
+            if (!generating) {
+                setChats(() => parsed_chats);
+                checkForAB(parsed_chats);
 
-            checkForAB(parsed_chats);
-
-            setLoading(false);
-            setChatLoading(false);
+                setLoading(false);
+                setChatLoading(false);
+            } else {
+                const fakeChat = {
+                    talker: COMPUTER,
+                    prompt: [{ resp: "현재 다른 기기에서 자모가 응답하고 있습니다. 응답이 끝날 때까지 기다려 주세요.", selected: false, reqId: "" }],
+                    event: MSG_EVENT,
+                    onlive: false,
+                };
+                setChats(() => [...parsed_chats, fakeChat]);
+                setChatLoading(false);
+            }
         } catch (e) {
             console.log("183", e);
             setLoading(false);
@@ -456,7 +478,7 @@ export default function Home() {
                             setChats(() => [..._chats, comChat]);
                         } else if (data.type == "lm_response" || data.type == "lm_error") {
                             const { reqId, data: d } = data;
-                            console.log(data);
+                            // console.log(data);
                             item[reqId] = d.resp_full;
 
                             setMessageId(data.messageId);
@@ -928,7 +950,10 @@ export default function Home() {
                         )}
 
                         {event == SHARED_CONTENT_EVENT && (
-                            <BottomSelectorUI title={`자모와 직접 대화를 시작해봐요! Let's just chat with JAMO`}>
+                            <BottomSelectorUI
+                                title={`자모와 직접 대화를 시작해봐요!
+                            Let's just chat with JAMO`}
+                            >
                                 <button className='btn btn-outline bg-base-100 flex-1 max-w-[400px]' onClick={() => clearAll()}>
                                     시작하기
                                 </button>

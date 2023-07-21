@@ -85,4 +85,17 @@ const checkForSharing = async ({ chatId, share }) => {
     }
 };
 
-export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatByContextIDAPI, getContextsByUserIDAPI, checkForSharing };
+const getChatsStatus = async (chatId) => {
+    try {
+        const res = await fetch(`/api/chat/${chatId}`)
+        const resopnse = await res.json()
+
+        console.log(resopnse)
+
+        return resopnse.generating
+    } catch (e) {
+        return true
+    }
+}
+
+export { getUserInfoAPI, rateAnswerAPI, selectABTestItemAPI, getChatByContextIDAPI, getContextsByUserIDAPI, checkForSharing, getChatsStatus };
