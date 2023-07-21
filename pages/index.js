@@ -513,8 +513,9 @@ export default function Home() {
         }
 
         if (lastChat.talker == COMPUTER && !loading) {
-            console.log("set messageid", lastChat.messageId)
-            setMessageId(lastChat.messageId);
+            if (lastChat.messageId) {
+                setMessageId(lastChat.messageId);
+            }
         }   
 
         if (chats.length != update) {
