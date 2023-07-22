@@ -629,7 +629,6 @@ export default function Home() {
     const queryRateAnswer = () => {
         const reqId = chats[chats.length - 1].prompt[0].reqId;
         rateAnswerAPI({ chatId: contextID, messageId: messageId, reqId: reqId, stars: rating });
-
         // AFTER
         setThankYou(true);
         setThankReason("답변해주셔서");
@@ -1042,7 +1041,7 @@ export default function Home() {
                         </form>
 
                         {event != LOGIN_EVENT && (
-                            <div className='pt-[6px] pb-[12px]'>
+                            <div className='pt-[6px] pb-[12px] flex flex-col text-center'>
                                 <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마고 학생입니다.</span>
                             </div>
                         )}
