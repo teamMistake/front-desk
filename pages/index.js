@@ -60,7 +60,6 @@ import LoginIcon from "../components/loginicon";
 import AboutIcon from "../components/abouticon";
 import { useDevice } from "../hook/useDevice";
 import CopyIcon from "../components/copyicon";
-import * as gtag from "../lib/gtag";
 
 export default function Home() {
     const router = useRouter();
@@ -113,10 +112,6 @@ export default function Home() {
     const [copied, setCopied] = useState(false);
 
     function copy(text) {
-        gtag.event({
-            category: 'Share',
-            action: `copy url`
-        });
         setCopied(true);
         return window.navigator.clipboard.writeText(text);
     }
@@ -216,10 +211,6 @@ export default function Home() {
             });
 
             if (!isEnded) {
-                gtag.event({
-                    category: 'experiment',
-                    action: `show abtest`
-                });
                 setEvent(AB_MODEL_TEST_EVENT);
                 setABBtnCount(lastChat.prompt.length);
             }
@@ -363,10 +354,6 @@ export default function Home() {
         if (e.nativeEvent.isComposing) return;
         if (e.key === "Enter" && e.shiftKey == false) {
             e.preventDefault();
-            gtag.event({
-                category: 'Chat',
-                action: `submit chat`
-            });
             return SubmitData();
         }
     };
@@ -376,10 +363,6 @@ export default function Home() {
     const Regenerate = () => {
         // const target_prompt = chats[chats.length - 2].prompt;
         setLoading(true);
-        gtag.event({
-            category: 'Chat',
-            action: `regenerate chat`
-        });
 
         const _chats = chats;
         let target_prompt;
@@ -556,11 +539,6 @@ export default function Home() {
             const _chats = chats;
             setFirstVisit(false);
 
-            gtag.event({
-                category: 'Chat',
-                action: `require login`
-            });
-
             const login_request_data = {
                 talker: COMPUTER,
                 prompt: [{ resp: "자모와 대화를 더 나누기 위해서는 로그인이 필요합니다..." }],
@@ -598,11 +576,6 @@ export default function Home() {
         // Update for UI
         _chats[_chats.length - 1].prompt[index].selected = true;
 
-        gtag.event({
-            category: 'experiment',
-            action: `select item`
-        });
-
         async function fetchABTest() {
             const reqId = _chats[_chats.length - 1].prompt[index].reqId;
             const resopnse = await selectABTestItemAPI({ messageId: messageId, chatId: contextID, reqId: reqId });
@@ -630,20 +603,10 @@ export default function Home() {
     };
 
     const reLoginEventHandler = () => {
-        gtag.event({
-            category: 'Login',
-            action: `start relogin`
-        });
-
         router.push("/login");
     };
 
     const BasicLoginEventHandler = () => {
-        gtag.event({
-            category: 'Login',
-            action: `start basiclogin`
-        });
-
         if (!loading) {
             setEvent(LOGIN_EVENT);
         }
@@ -659,11 +622,6 @@ export default function Home() {
         const trigger = Math.floor(Math.random() * 5) == 3;
         if (!trigger) return;
 
-        gtag.event({
-            category: 'experiment',
-            action: `show rating`
-        });
-
         // If random rating event triggered
         setEvent(RANK_RES_EVENT);
     };
@@ -671,12 +629,6 @@ export default function Home() {
     const queryRateAnswer = () => {
         const reqId = chats[chats.length - 1].prompt[0].reqId;
         rateAnswerAPI({ chatId: contextID, messageId: messageId, reqId: reqId, stars: rating });
-
-        gtag.event({
-            category: 'experiment',
-            action: `answer rating`
-        });
-
         // AFTER
         setThankYou(true);
         setThankReason("답변해주셔서");
@@ -739,26 +691,14 @@ export default function Home() {
 
     // =========================== TOGGLE MODAL EVENT =================================
     const toggleContextDrawer = () => {
-        gtag.event({
-            category: 'Context',
-            action: `see ${seeContexts}`
-        });
         return setSeeContexts(() => !seeContexts);
     };
     const toggleShareModal = () => {
-        gtag.event({
-            category: 'Share',
-            action: `open share`
-        });
         setCopied(false);
         checkForSharing({ chatId: contextID, share: true });
         return window.share_modal.showModal();
     };
     const toggleLoginModal = () => {
-        gtag.event({
-            category: 'Login',
-            action: `open login`
-        });
         return window.login_request_modal.showModal();
     };
 
@@ -1101,7 +1041,7 @@ export default function Home() {
                         </form>
 
                         {event != LOGIN_EVENT && (
-                            <div className='pt-[6px] pb-[12px]'>
+                            <div className='pt-[6px] pb-[12px] flex flex-col text-center'>
                                 <span className='text-sm text-content'>저희는 귀여운 GPT를 만드는 세마고 학생입니다.</span>
                             </div>
                         )}
