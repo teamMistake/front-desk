@@ -138,7 +138,7 @@ export default function Home() {
                     <div className='table-container flex overflow-y-auto justify-center'>
                         <table className='table max-w-md'>
                             <thead className="sticky top-0 z-40">
-                                <tr className='text-base text-content dark:bg-none select-none'>
+                                <tr className='text-base text-content bg-base-100 select-none'>
                                     <th>Top</th>
                                     <th>Name</th>
                                     <th>Score</th>
