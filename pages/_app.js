@@ -37,6 +37,7 @@ function MyApp({ Component, pageProps }) {
                 }}
             />
             <Script
+                id="clarity"
                 dangerouslySetInnerHTML={{
                     __html: `
     (function(c,l,a,r,i,t,y){
