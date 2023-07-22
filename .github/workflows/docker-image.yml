@@ -40,9 +40,7 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        build-args: | 
-          "NEXT_PUBLIC_KAKAO_API_KEY=${{ secrets.KAKAO }}"
-          "NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID=${{ secrets.GOOGLE }}"
+        build-args: NEXT_PUBLIC_KAKAO_API_KEY=${{ secrets.KAKAO }}, NEXT_PUBLIC_GOOGLE_ANALYTICS_TRACKING_ID=${{ secrets.GOOGLE }}
         
     - name: Kubernetes context
       uses: Azure/k8s-set-context@v1
