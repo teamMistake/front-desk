@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { GhostButton } from "../components/button";
 import { useRouter } from "next/router";
 import { useUser } from "../hook/useUser";
@@ -137,8 +137,8 @@ export default function Home() {
                     <p className='font-bold text-3xl text-accent-content dark:text-white justify-center my-10 flex select-none'>Rank</p>
                     <div className='table-container flex overflow-y-auto justify-center'>
                         <table className='table max-w-md'>
-                            <thead>
-                                <tr className='sticky text-base text-content dark:bg-none select-none'>
+                            <thead className="sticky top-0 z-40">
+                                <tr className='text-base text-content dark:bg-none select-none'>
                                     <th>Top</th>
                                     <th>Name</th>
                                     <th>Score</th>
@@ -172,6 +172,7 @@ export default function Home() {
                                 </table>
                             </div>
                         )}
+                        <div className="mb-20" />
                     </div>
                     {(!loaded || !ranks) && (
                         <div className='flex my-20 w-full justify-center bottom-0'>
