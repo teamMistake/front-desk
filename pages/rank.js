@@ -14,7 +14,7 @@ export default function Home() {
     const [error, setError] = useState(false);
 
     const router = useRouter();
-    const { share:contextId } = router.query;
+    const { share: contextId } = router.query;
     // get user identity by api
     const { isAuth } = useUser();
 
@@ -58,28 +58,31 @@ export default function Home() {
 
     // get myrank by fetch(GET)
     const getMyRank = () => {
-        if (isAuth) {
-            const res = fetch("/api/leaderboard/me", {
-                method: "GET",
+        const res = fetch("/api/leaderboard/me", {
+            method: "GET",
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                setMyRank(res);
             })
-                .then((res) => res.json())
-                .then((res) => {
-                    setMyRank(res);
-                })
-                .catch((e) => {
-                    setMyRank(undefined);
-                    setError(true);
-                });
-        }
+            .catch((e) => {
+                setMyRank(undefined);
+                setError(true);
+            });
     };
+
+    useEffect(() => {
+        if(isAuth) {
+            getMyRank();
+            const timeInterval = setInterval(getMyRank, 10000);
+
+            return () => clearInterval(timeInterval)
+        }
+    }, [isAuth])
 
     // fetch at each 10s
     useEffect(() => {
-        const fetchStuffs = () => {
-            getRank();
-            getMyRank();
-        };
-        const timeInterval = setInterval(fetchStuffs, 10000);
+        const timeInterval = setInterval(getRank, 10000);
         fetchStuffs();
         return () => clearInterval(timeInterval);
     }, []);
@@ -138,7 +141,7 @@ export default function Home() {
                     <p className='font-bold text-3xl text-accent-content dark:text-white justify-center my-10 flex select-none'>Rank</p>
                     <div className='table-container flex overflow-y-auto justify-center'>
                         <table className='table max-w-md mb-20'>
-                            <thead className="sticky top-0 z-40">
+                            <thead className='sticky top-0 z-40'>
                                 <tr className='text-base text-content bg-base-100 select-none'>
                                     <th>Top</th>
                                     <th>Name</th>
