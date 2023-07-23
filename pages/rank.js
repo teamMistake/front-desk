@@ -72,17 +72,20 @@ export default function Home() {
     };
 
     useEffect(() => {
-        if(isAuth) {
+        if (isAuth) {
             getMyRank();
             const timeInterval = setInterval(getMyRank, 10000);
 
-            return () => clearInterval(timeInterval)
+            return () => clearInterval(timeInterval);
+        } else {
+            setMyRank(undefined);
+            setError(true);
         }
-    }, [isAuth])
+    }, [isAuth]);
 
     // fetch at each 10s
     useEffect(() => {
-        getRank()
+        getRank();
         const timeInterval = setInterval(getRank, 10000);
         return () => clearInterval(timeInterval);
     }, []);
