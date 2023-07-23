@@ -137,9 +137,9 @@ export default function Home() {
                 <div className='relative overflow-hidden h-full flex flex-col w-full drawer'>
                     <p className='font-bold text-3xl text-accent-content dark:text-white justify-center my-10 flex select-none'>Rank</p>
                     <div className='table-container flex overflow-y-auto justify-center'>
-                        <table className='table max-w-md'>
+                        <table className='table max-w-md mb-20'>
                             <thead className="sticky top-0 z-40">
-                                <tr className='text-base text-content dark:bg-none select-none'>
+                                <tr className='text-base text-content bg-base-100 select-none'>
                                     <th>Top</th>
                                     <th>Name</th>
                                     <th>Score</th>
@@ -173,7 +173,6 @@ export default function Home() {
                                 </table>
                             </div>
                         )}
-                        <div className="mb-20" />
                     </div>
                     {(!loaded || !ranks) && (
                         <div className='flex my-20 w-full justify-center bottom-0'>
