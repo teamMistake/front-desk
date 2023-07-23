@@ -2,7 +2,7 @@ import React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
-function Opengraph({ title, ogTitle, description, isMainPage = false }) {
+function Opengraph({ title, description, isMainPage = false }) {
     const router = useRouter();
     const URL = "https://chatmoja.seda.club/";
     const prefix = "모자와 대화 해모자. Chat with MOJA";
