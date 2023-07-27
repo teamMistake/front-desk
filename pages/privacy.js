@@ -9,7 +9,7 @@ export default function Home() {
 
     return (
         <>
-            <Opengraph title="개인정보처리방침" ogTitle="개인정보처리방침을 확인해보세요!" description="개인정보처리방침 안내 페이지입니다." />
+            <Opengraph title="개인정보처리방침" description="개인정보처리방침 안내 페이지입니다." />
             <div className='navbar bg-base-100 border-b-2'>
                 <div className='navbar-start'>
                     <GhostButton onClick={() => router.push("/")}>MOJA</GhostButton>
