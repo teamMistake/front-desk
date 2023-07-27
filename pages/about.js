@@ -65,7 +65,8 @@ export default function Home() {
     return (
         <>
             <Opengraph
-                title='자모에 대하여'
+                title=''
+                ogTitle=''
                 description={`MOJA(모자)는 언어모델 "자모"를 기반으로 한 인공지능 채팅 서비스입니다. 자모는 GPT-3 같은 대규모 언어모델과 비등한 성능을 가지면서도, 낮은 성능의 컴퓨터에서도 구동이 가능할 수 있도록 만들어진 인공지능 언어 모델입니다. ChatGPT와 비교하자면 낮은 성능을 보이기는 하지만… OpenAI는 몇천억을 들여서 모델을 만들고 저희는 무자본으로 만들었는걸요. 이런 “자모”와 한번 대화해 볼래요?`}
                 isMainPage={false}
             />
@@ -81,8 +82,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/",
                                 query: { share: contextId ? contextId : "" },
-                            }, "/"
-                            )
+                            })
                         }
                     >
                         <ContextIcon width='30' height='30' />
@@ -93,8 +93,7 @@ export default function Home() {
                             router.push({
                                 pathname: "/rank",
                                 query: { share: contextId ? contextId : "" },
-                            }, "/rank"
-                            )
+                            })
                         }
                     >
                         <RankIcon width='30' height='30' />
